@@ -41,7 +41,7 @@ const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
 const RESEND_FROM = String(process.env.RESEND_FROM || "onboarding@resend.dev").trim();
 const RESEND_TEST_RECIPIENT = String(process.env.RESEND_TEST_RECIPIENT || ADMIN_EMAIL || "").trim();
 const GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || "").trim();
-const GEMINI_MODEL = "gemini-3.7-flash";
+const GEMINI_MODEL = String(process.env.GEMINI_MODEL || "gemini-3.8-flash").trim();
 const AI_RATE_LIMIT_MAX = Number(process.env.AI_RATE_LIMIT_MAX || 10);
 const AI_RATE_LIMIT_WINDOW_MS = Number(process.env.AI_RATE_LIMIT_WINDOW_MS || 10 * 60 * 1000);
 const aiRateBuckets = new Map();
@@ -2785,6 +2785,76 @@ app.post("/api/horoscope/calculate", async (req,res)=>{
       engineAvailable:!!Astronomy,
       received:{date:req.body?.date||null,time:req.body?.time||null,lat:req.body?.lat??null,lon:req.body?.lon??null}
     });
+  }
+});
+
+// Tamil translation endpoint for the Tamil website/blog manager.
+// Gemini is called ONLY from Render so GEMINI_API_KEY never reaches the browser.
+app.post("/api/translate-tamil", express.json({ limit: "250kb" }), async (req, res) => {
+  try {
+    if (!GEMINI_API_KEY) {
+      return res.status(503).json({ ok:false, error:"Gemini சேவை அமைக்கப்படவில்லை. Render Environment Variables-ல் GEMINI_API_KEY-ஐ அமைக்கவும்." });
+    }
+    const title = String(req.body?.title || "").trim();
+    const summary = String(req.body?.summary || "").trim();
+    const body = String(req.body?.body || "").trim();
+    if (!title && !summary && !body) return res.status(400).json({ ok:false, error:"மொழிபெயர்க்க வேண்டிய வலைப்பதிவு உள்ளடக்கம் இல்லை." });
+
+    const prompt = `
+Translate the following SMV ASTRO blog into natural, polished Tamil for a Tamil-only astrology website.
+Rules:
+- Translate ALL human-readable English text into Tamil.
+- Do NOT leave English sentences, headings, bullet text, or explanations.
+- Keep proper names, URLs, email addresses, numbers, dates, currency symbols, HTML tags, and technical identifiers unchanged when they are necessary.
+- Do not add information that is not present.
+- Preserve paragraph breaks and list structure.
+- Do not use transliterated English when a natural Tamil word exists.
+- For astrology terminology use established Tamil terms such as ஜோதிடம், ஜாதகம், ராசி, நட்சத்திரம், கிரகம், பாவம், தசா, கோச்சாரம், பரிகாரம்.
+Return ONLY valid JSON with exactly these keys: title, summary, body.
+
+TITLE:
+${JSON.stringify(title)}
+
+SUMMARY:
+${JSON.stringify(summary)}
+
+BODY:
+${JSON.stringify(body)}
+`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 45000);
+    try {
+      let response = null, result = {}, lastDetail = "";
+      for (let attempt=0; attempt<3; attempt++) {
+        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
+          method:"POST",
+          headers:{"x-goog-api-key":GEMINI_API_KEY,"Content-Type":"application/json"},
+          body:JSON.stringify({
+            system_instruction:{parts:[{text:"நீங்கள் SMV ASTRO தமிழ் வலைத்தளத்திற்கான தொழில்முறை மொழிபெயர்ப்பாளர். பயனர் வழங்கிய உள்ளடக்கத்தை மட்டும் இயல்பான தமிழில் மொழிபெயர்க்கவும். மனிதர் படிக்கும் ஆங்கில வாக்கியங்களை விட வேண்டாம். கோரப்பட்ட JSON வடிவத்தை மட்டும் திருப்பி அனுப்பவும்."}]},
+            contents:[{role:"user",parts:[{text:prompt}]}],
+            generationConfig:{responseMimeType:"application/json",maxOutputTokens:6000,temperature:0.2}
+          }),
+          signal:controller.signal
+        });
+        result = await response.json().catch(()=>({}));
+        if (response.ok) break;
+        lastDetail=result?.error?.message || `Gemini API HTTP ${response.status}`;
+        if (![429,500,502,503,504].includes(response.status) || attempt===2) break;
+        await new Promise(r=>setTimeout(r,1200*(2**attempt)));
+      }
+      if (!response?.ok) return res.status(502).json({ok:false,error:`Gemini மொழிபெயர்ப்பு சேவை பிழை: ${lastDetail}`});
+      const raw=result?.candidates?.[0]?.content?.parts?.map(p=>p.text||"").join("\n").trim();
+      if (!raw) return res.status(502).json({ok:false,error:"Gemini எந்த மொழிபெயர்ப்பையும் வழங்கவில்லை."});
+      let translated;
+      try { translated=JSON.parse(raw); }
+      catch { translated=JSON.parse(raw.replace(/^```json\s*/i,"").replace(/\s*```$/,"")); }
+      if (!translated || typeof translated!=="object") throw new Error("Invalid translation response");
+      return res.json({ok:true,model:GEMINI_MODEL,title:String(translated.title||title),summary:String(translated.summary||summary),body:String(translated.body||body)});
+    } finally { clearTimeout(timer); }
+  } catch(e) {
+    console.error("Tamil blog translation error:",e);
+    return res.status(500).json({ok:false,error:e?.name==="AbortError"?"Gemini மொழிபெயர்ப்பு நேரம் முடிந்தது. மீண்டும் முயற்சிக்கவும்.":(e?.message||"தமிழ் மொழிபெயர்ப்பு தோல்வியடைந்தது.")});
   }
 });
 

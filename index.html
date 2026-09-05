@@ -8169,17 +8169,17 @@ async function smvGetவெளியிடப்பட்டதுContent(){
 }
 async function smvFetchBlogBody(bodyUrl){
   if(!bodyUrl) return "";
-  try{const r=await fetch(bodyUrl,{cache:"no-store"});if(!r.ok)throw new Error("Blog content unavailable");const j=await r.json();return typeof j.body==="string"?j.body:"";}
+  try{const r=await fetch(bodyUrl,{cache:"no-store"});if(!r.ok)throw new Error("வலைப்பதிவு உள்ளடக்கம் கிடைக்கவில்லை");const j=await r.json();return typeof j.body==="string"?j.body:"";}
   catch(e){console.warn("Unable to load blog body:",e);return "The blog content is temporarily unavailable.";}
 }
 async function smvRenderPublicContent(items){
   const blogs=items.filter(x=>x.kind==="blog"),media=items.filter(x=>x.kind==="media");
   const blogBox=$("publicBlogs"),mediaBox=$("publicMedia");
   if(blogBox){
-    if(!blogs.length) blogBox.innerHTML='<div class="empty">No published blogs yet.</div>';
+    if(!blogs.length) blogBox.innerHTML='<div class="empty">வெளியிடப்பட்ட வலைப்பதிவுகள் எதுவும் இல்லை.</div>';
     else {const cards=await Promise.all(blogs.map(async x=>{const body=await smvFetchBlogBody(x.bodyUrl);return `<article class="card blog-card"><h3>${escapeHtml(x.title||"Untitled")}</h3>${x.coverUrl?`<img class="content-thumb" src="${escapeHtml(x.coverUrl)}" alt="${escapeHtml(x.title||"Blog")}">`:""}${x.summary?`<p class="small"><b>${escapeHtml(x.summary)}</b></p>`:""}<div class="blog-content">${escapeHtml(body)}</div><div class="small" style="margin-top:auto;padding-top:12px">வெளியிடப்பட்டது ${escapeHtml(smvDateTime(x.publishedAt||x.createdAt))}</div></article>`;}));blogBox.innerHTML=cards.join("");}
   }
-  if(mediaBox){mediaBox.innerHTML=media.length?`<div class="grid">${media.map(x=>{const title=escapeHtml(x.title||"Content"),desc=x.description?`<p class="small">${escapeHtml(x.description)}</p>`:"";if(x.mediaType==="image")return `<article class="card media-card"><h3>${title}</h3><img src="${escapeHtml(x.url)}" alt="${title}" loading="lazy">${desc}</article>`;if(x.mediaType==="video")return `<article class="card media-card"><h3>${title}</h3><video controls preload="metadata" src="${escapeHtml(x.url)}"></video>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener">OPEN VIDEO</a></article>`;if(x.mediaType==="music")return `<article class="card media-card"><h3>🎵 ${title}</h3><audio controls preload="metadata" src="${escapeHtml(x.url)}"></audio><p class="small">Music · ${escapeHtml(smvFormatBytes(x.size))}</p>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener">OPEN MUSIC</a></article>`;return `<article class="card media-card"><h3>${title}</h3><p class="small">PDF · ${escapeHtml(smvFormatBytes(x.size))}</p>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener" download>DOWNLOAD PDF</a></article>`;}).join('')}</div>`:'<div class="empty">No published media yet.</div>';}
+  if(mediaBox){mediaBox.innerHTML=media.length?`<div class="grid">${media.map(x=>{const title=escapeHtml(x.title||"Content"),desc=x.description?`<p class="small">${escapeHtml(x.description)}</p>`:"";if(x.mediaType==="image")return `<article class="card media-card"><h3>${title}</h3><img src="${escapeHtml(x.url)}" alt="${title}" loading="lazy">${desc}</article>`;if(x.mediaType==="video")return `<article class="card media-card"><h3>${title}</h3><video controls preload="metadata" src="${escapeHtml(x.url)}"></video>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener">OPEN VIDEO</a></article>`;if(x.mediaType==="music")return `<article class="card media-card"><h3>🎵 ${title}</h3><audio controls preload="metadata" src="${escapeHtml(x.url)}"></audio><p class="small">Music · ${escapeHtml(smvFormatBytes(x.size))}</p>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener">OPEN MUSIC</a></article>`;return `<article class="card media-card"><h3>${title}</h3><p class="small">PDF · ${escapeHtml(smvFormatBytes(x.size))}</p>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener" download>DOWNLOAD PDF</a></article>`;}).join('')}</div>`:'<div class="empty">வெளியிடப்பட்ட ஊடகங்கள் எதுவும் இல்லை.</div>';}
 }
 async function loadPublicContent(){try{await smvRenderPublicContent(await smvGetவெளியிடப்பட்டதுContent());}catch(e){console.warn("Public content unavailable:",e);if($("publicBlogs"))$("publicBlogs").innerHTML='<div class="empty">உள்ளடக்கம் தற்காலிகமாக கிடைக்கவில்லை.</div>';if($("publicMedia"))$("publicMedia").innerHTML='<div class="empty">ஊடகம் தற்காலிகமாக கிடைக்கவில்லை.</div>';}}
 function smvClearBlogForm(){
@@ -8221,16 +8221,26 @@ async function smvUploadBlogText(body,id){
   if(!response.ok||!result.secure_url)throw new Error(result.error?.message||"Cloudinary blog text upload failed. Check the unsigned upload preset and raw-file delivery settings.");
   return {url:result.secure_url,publicId:result.public_id,size:file.size};
 }
+async function smvTranslateBlogToTamil(title,summary,body){
+  const response=await fetch("/api/translate-tamil",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title,summary,body})});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.ok)throw new Error(result.error||"தமிழ் மொழிபெயர்ப்பு தோல்வியடைந்தது.");
+  return {title:String(result.title||title),summary:String(result.summary||summary),body:String(result.body||body)};
+}
 async function saveBlog(){
-  const title=$("blogTitle")?.value.trim(),summary=$("blogSummary")?.value.trim(),body=$("blogBody")?.value.trim(),editId=$("blogEditId")?.value.trim();
-  if(!title||!body){smvNotice("Blog Writer","Enter a title and blog content before publishing.","!");return;}const b=$("saveBlogBtn");b.disabled=true;b.textContent=editId?"SAVING...":"PUBLISHING...";
-  try{let id=editId,old=null;if(editId){const oldSnap=await getDoc(doc(db,SMV_CONTENT_COLLECTION,editId));if(!oldSnap.exists())throw new Error("Blog not found.");old=oldSnap.data()||{};}else id=doc(collection(db,SMV_CONTENT_COLLECTION)).id;
+  const sourceTitle=$("blogTitle")?.value.trim(),sourceSummary=$("blogSummary")?.value.trim(),sourceBody=$("blogBody")?.value.trim(),editId=$("blogEditId")?.value.trim();
+  if(!sourceTitle||!sourceBody){smvNotice("வலைப்பதிவு","தலைப்பையும் உள்ளடக்கத்தையும் உள்ளிடவும்.","!");return;}
+  const b=$("saveBlogBtn");b.disabled=true;b.textContent="தமிழில் மாற்றி வெளியிடப்படுகிறது...";
+  try{
+    // IMPORTANT: Tamil public version is generated by Render -> Gemini before Cloudinary storage.
+    const translated=await smvTranslateBlogToTamil(sourceTitle,sourceSummary,sourceBody);
+    let id=editId,old=null;if(editId){const oldSnap=await getDoc(doc(db,SMV_CONTENT_COLLECTION,editId));if(!oldSnap.exists())throw new Error("வலைப்பதிவு கிடைக்கவில்லை.");old=oldSnap.data()||{};}else id=doc(collection(db,SMV_CONTENT_COLLECTION)).id;
     let coverUrl=old?.coverUrl||"",coverPath=old?.coverPath||"";const file=$("blogCoverFile")?.files?.[0];if(file){const up=await smvUploadFile(file,"image",id);coverUrl=up.url;coverPath=up.path;}
-    const textUp=await smvUploadBlogText(body,id);
-    const data={kind:"blog",title,summary,bodyUrl:textUp.url,bodyPublicId:textUp.publicId,bodySize:textUp.size,coverUrl,coverPath,published:true,updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
+    const textUp=await smvUploadBlogText(translated.body,id);
+    const data={kind:"blog",title:translated.title,summary:translated.summary,sourceTitle,sourceSummary,sourceBody,language:"ta",translationProvider:"gemini-render",translationModel:"server",bodyUrl:textUp.url,bodyPublicId:textUp.publicId,bodySize:textUp.size,coverUrl,coverPath,published:true,updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
     if(editId)await updateDoc(doc(db,SMV_CONTENT_COLLECTION,editId),data);else await setDoc(doc(db,SMV_CONTENT_COLLECTION,id),{...data,createdAt:serverTimestamp(),publishedAt:serverTimestamp(),authorUid:currentUser.uid});
-    smvClearBlogForm();await loadAdminContent();await loadPublicContent();$("blogManagerMsg").innerHTML='<span class="success">Blog published successfully. Blog text is stored on Cloudinary.</span>';
-  }catch(e){$("blogManagerMsg").innerHTML='<span class="error">'+escapeHtml(e.message||String(e))+'</span>';}finally{b.disabled=false;if(!b.textContent.includes("PUBLISH"))b.textContent="PUBLISH BLOG";}
+    smvClearBlogForm();await loadAdminContent();await loadPublicContent();$("blogManagerMsg").innerHTML='<span class="success">வலைப்பதிவு தமிழில் மாற்றப்பட்டு வெளியிடப்பட்டது.</span>';
+  }catch(e){$("blogManagerMsg").innerHTML='<span class="error">'+escapeHtml(e.message||String(e))+'</span>';}finally{b.disabled=false;b.textContent="வலைப்பதிவை வெளியிடவும்";}
 }
 async function uploadMedia(){
   const title=$("mediaTitle")?.value.trim(),desc=$("mediaDescription")?.value.trim();
@@ -12599,9 +12609,16 @@ document.addEventListener('DOMContentLoaded', function(){
   const keys=Object.keys(T).sort((a,b)=>b.length-a.length);
   function tr(v){
     let out=String(v??'');
-    for(const k of keys){ if(out.includes(k)) out=out.split(k).join(T[k]); }
-    // Common English backend/status fragments.
-    out=out.replace(/\bLoading\b/gi,'ஏற்றப்படுகிறது').replace(/\byears experience\b/gi,'ஆண்டுகள் அனுபவம்');
+    // Replace phrases first, but NEVER replace English words inside other words.
+    for(const k of keys){
+      if(!out.includes(k)) continue;
+      const isEnglish=/^[A-Za-z0-9][A-Za-z0-9 &'&\/._?+-]*$/.test(k);
+      if(isEnglish){
+        const escaped=k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+        out=out.replace(new RegExp('(?<![A-Za-z])'+escaped+'(?![A-Za-z])','gi'),T[k]);
+      }else out=out.split(k).join(T[k]);
+    }
+    out=out.replace(/\bSigning in with Google\b/gi,'கூகுள் மூலம் உள்நுழைகிறது').replace(/\bSigning in\b/gi,'உள்நுழைகிறது').replace(/\bLoading\b/gi,'ஏற்றப்படுகிறது').replace(/\byears experience\b/gi,'ஆண்டுகள் அனுபவம்');
     return out;
   }
   function shouldSkip(el){return !el||el.closest('script,style,textarea,[contenteditable="true"]');}
