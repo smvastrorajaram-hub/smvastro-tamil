@@ -41,7 +41,7 @@ const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
 const RESEND_FROM = String(process.env.RESEND_FROM || "onboarding@resend.dev").trim();
 const RESEND_TEST_RECIPIENT = String(process.env.RESEND_TEST_RECIPIENT || ADMIN_EMAIL || "").trim();
 const GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || "").trim();
-const GEMINI_MODEL = String(process.env.GEMINI_MODEL || "gemini-3.8-flash").trim();
+const GEMINI_MODEL = String(process.env.GEMINI_MODEL || "gemini-3.7-flash").trim();
 const AI_RATE_LIMIT_MAX = Number(process.env.AI_RATE_LIMIT_MAX || 10);
 const AI_RATE_LIMIT_WINDOW_MS = Number(process.env.AI_RATE_LIMIT_WINDOW_MS || 10 * 60 * 1000);
 const aiRateBuckets = new Map();
@@ -2692,7 +2692,7 @@ app.get("/api/geocode", async (req, res) => {
 
     if (now - last < 1100) {
       return res.status(429).json({
-        error:"Please wait a moment before searching another place."
+        error:"வேறு இடத்தைத் தேடுவதற்கு முன் சிறிது நேரம் காத்திருக்கவும்."
       });
     }
 
@@ -2717,7 +2717,7 @@ app.get("/api/geocode", async (req, res) => {
 
     if (!r.ok) {
       return res.status(502).json({
-        error:"Location service is temporarily unavailable."
+        error:"இடத் தேடல் சேவை தற்போது தற்காலிகமாக கிடைக்கவில்லை."
       });
     }
 
@@ -2764,7 +2764,7 @@ app.get("/api/geocode", async (req, res) => {
   } catch(e) {
     console.error("Geocode error:",e?.message||e);
     return res.status(502).json({
-      error:"Unable to search this place right now. Please try again."
+      error:"இந்த இடத்தை இப்போது தேட முடியவில்லை. மீண்டும் முயற்சிக்கவும்."
     });
   }
 });;;;;
@@ -2831,7 +2831,7 @@ ${JSON.stringify(body)}
           method:"POST",
           headers:{"x-goog-api-key":GEMINI_API_KEY,"Content-Type":"application/json"},
           body:JSON.stringify({
-            system_instruction:{parts:[{text:"நீங்கள் SMV ASTRO தமிழ் வலைத்தளத்திற்கான தொழில்முறை மொழிபெயர்ப்பாளர். பயனர் வழங்கிய உள்ளடக்கத்தை மட்டும் இயல்பான தமிழில் மொழிபெயர்க்கவும். மனிதர் படிக்கும் ஆங்கில வாக்கியங்களை விட வேண்டாம். கோரப்பட்ட JSON வடிவத்தை மட்டும் திருப்பி அனுப்பவும்."}]},
+            systemInstruction:{parts:[{text:"நீங்கள் SMV ASTRO தமிழ் வலைத்தளத்திற்கான தொழில்முறை மொழிபெயர்ப்பாளர். பயனர் வழங்கிய உள்ளடக்கத்தை மட்டும் இயல்பான தமிழில் மொழிபெயர்க்கவும். மனிதர் படிக்கும் ஆங்கில வாக்கியங்களை விட வேண்டாம். கோரப்பட்ட JSON வடிவத்தை மட்டும் திருப்பி அனுப்பவும்."}]},
             contents:[{role:"user",parts:[{text:prompt}]}],
             generationConfig:{responseMimeType:"application/json",maxOutputTokens:6000,temperature:0.2}
           }),
@@ -2850,7 +2850,17 @@ ${JSON.stringify(body)}
       try { translated=JSON.parse(raw); }
       catch { translated=JSON.parse(raw.replace(/^```json\s*/i,"").replace(/\s*```$/,"")); }
       if (!translated || typeof translated!=="object") throw new Error("Invalid translation response");
-      return res.json({ok:true,model:GEMINI_MODEL,title:String(translated.title||title),summary:String(translated.summary||summary),body:String(translated.body||body)});
+      const outTitle=String(translated.title||"").trim();
+      const outSummary=String(translated.summary||"").trim();
+      const outBody=String(translated.body||"").trim();
+      if (!outTitle || !outBody) throw new Error("Gemini தமிழ் மொழிபெயர்ப்பு முழுமையாக கிடைக்கவில்லை.");
+      // Do not silently publish English if Gemini returned an unusable response.
+      const tamilChars=(outTitle+" "+outSummary+" "+outBody).match(/[\u0B80-\u0BFF]/g)||[];
+      const sourceHasTamil=/[\u0B80-\u0BFF]/.test(title+summary+body);
+      if (!sourceHasTamil && tamilChars.length < 3) {
+        throw new Error("Gemini தமிழாக்கம் சரியாக உருவாகவில்லை. மீண்டும் முயற்சிக்கவும்.");
+      }
+      return res.json({ok:true,model:GEMINI_MODEL,title:outTitle,summary:outSummary,body:outBody});
     } finally { clearTimeout(timer); }
   } catch(e) {
     console.error("Tamil blog translation error:",e);
