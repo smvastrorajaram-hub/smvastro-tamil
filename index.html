@@ -8664,7 +8664,7 @@ answerBox
   .querySelectorAll('[data-reject-question-refund]')
   .forEach(b => {
     b.onclick = async () => {
-      const id = b.dataset.rejectகேள்விRefund;
+      const id = b?.dataset?.rejectQuestionRefund || b?.getAttribute?.('data-reject-question-refund') || '';
       const reason = $('questionReject_' + id)?.value.trim();
       if (!reason) { alert('Enter question rejection reason.'); return; }
       if (!confirm('Reject this question and process a full customer refund?')) return;
@@ -12879,6 +12879,96 @@ document.addEventListener('DOMContentLoaded', function(){
 #askNowButton .asknow-arrow{right:11px!important;font-size:18px!important;line-height:1!important;}
 @media(max-width:767px){#askNowButton.smv-new-asknow-button,#askNowButton{width:min(250px,100%)!important;padding:8px 42px 8px 8px!important;}#askNowButton .asknow-label{font-size:13px!important;}#askNowButton .asknow-arrow{right:10px!important;font-size:17px!important;}}
 </style>
+<!-- SMV FINAL TAMIL TERMINOLOGY CLEANUP -->
+<script id="smv-final-tamil-terminology-cleanup">
+(function(){
+  'use strict';
+  /* Final UI terminology pass. Horoscope result containers are deliberately excluded. */
+  const T={
+    'Public கேள்வி Inbox':'பொது கேள்விகள் பெட்டி',
+    'Recent கேள்விs':'சமீபத்திய கேள்விகள்',
+    'My கேள்விs':'என் கேள்விகள்',
+    'My ஆலோசனைs':'என் ஆலோசனைகள்',
+    'கேள்விs & Answers':'கேள்விகள் & பதில்கள்',
+    'கேள்வி Approval':'கேள்வி அங்கீகாரம்',
+    'Public கேள்வி Approval':'பொது கேள்வி அங்கீகாரம்',
+    'Question Approval':'கேள்வி அங்கீகாரம்',
+    'கேள்வி Price':'கேள்விக் கட்டணம்',
+    'publicகேள்விPrice':'பொது கேள்விக் கட்டணம்',
+    'saveகேள்விPrice':'கேள்விக் கட்டணத்தைச் சேமிக்க',
+    'astroகேள்விQueue':'ஜோதிடர் கேள்விப் பட்டியல்',
+    'adminPendingகேள்விs':'நிர்வாக நிலுவைக் கேள்விகள்',
+    'adminகேள்விs':'நிர்வாகக் கேள்விகள்',
+    'நிர்வாகியின் பதில்s':'நிர்வாகியின் பதில்கள்',
+    'Pending நிர்வாகி ஒப்புதல்':'நிர்வாகி அங்கீகாரம் நிலுவையில்',
+    'Submit for நிர்வாகி ஒப்புதல்':'நிர்வாகி அங்கீகாரத்திற்குச் சமர்ப்பிக்க',
+    'Resubmit for நிர்வாகி ஒப்புதல்':'நிர்வாகி அங்கீகாரத்திற்காக மீண்டும் சமர்ப்பிக்க',
+    'Astrologer பதில் சமர்ப்பிக்கப்பட்டது':'ஜோதிடர் பதில் சமர்ப்பிக்கப்பட்டது',
+    'Astrologer':'ஜோதிடர்',
+    'Question':'கேள்வி','Questions':'கேள்விகள்','Answer':'பதில்','Answers':'பதில்கள்',
+    'Submit Answer':'பதிலைச் சமர்ப்பிக்க','Edit Answer':'பதிலைத் திருத்துக','Resubmit':'மீண்டும் சமர்ப்பிக்க',
+    'Claim & Answer':'கைப்பற்றி பதிலளிக்க','CLAIM & ANSWER':'கைப்பற்றி பதிலளிக்க','Claim':'கைப்பற்றுக',
+    'Reject Question':'கேள்வியை நிராகரிக்க','REJECT QUESTION':'கேள்வியை நிராகரிக்க',
+    'Re-allocate':'மீண்டும் ஒதுக்குக','Re-allocated':'மீண்டும் ஒதுக்கப்பட்டது',
+    'Approved':'அங்கீகரிக்கப்பட்டது','Pending':'நிலுவையில்','Rejected':'நிராகரிக்கப்பட்டது',
+    'Waiting for Approval':'அங்கீகாரத்திற்காக காத்திருக்கிறது','Revision Required':'திருத்தம் தேவை',
+    'Dashboard':'முகப்புப் பலகை','Customer Dashboard':'வாடிக்கையாளர் முகப்புப் பலகை','Astrologer Dashboard':'ஜோதிடர் முகப்புப் பலகை','Admin Dashboard':'நிர்வாக முகப்புப் பலகை',
+    'Public Inbox':'பொது கேள்விகள் பெட்டி','Unanswered Queue':'பதிலளிக்கப்படாத கேள்விகள்',
+    'Earnings History':'வருவாய் வரலாறு','Withdrawal History':'பணம் பெறுதல் வரலாறு','Notifications':'அறிவிப்புகள்',
+    'Profile':'சுயவிவரம்','Reviews':'மதிப்புரைகள்','Status':'நிலை',
+    'Approval':'அங்கீகாரம்','Loading':'ஏற்றப்படுகிறது','Loading...':'ஏற்றப்படுகிறது...','Error':'பிழை','Success':'வெற்றி',
+    'Save':'சேமிக்க','Cancel':'ரத்து செய்','Submit':'சமர்ப்பிக்க','Edit':'திருத்துக','Delete':'நீக்குக','Close':'மூடுக','Back':'பின்செல்',
+    'Search':'தேடுக','Select Astrologer':'ஜோதிடரைத் தேர்ந்தெடுக்கவும்','Approved Astrologers':'அங்கீகரிக்கப்பட்ட ஜோதிடர்கள்',
+    'Payment Successful':'கட்டணம் வெற்றிகரமாக முடிந்தது','Payment Failed':'கட்டணம் தோல்வியடைந்தது','Refund':'பணத்தைத் திரும்ப வழங்குதல்',
+    'Full Refund':'முழுப் பணத்திருப்பி வழங்குதல்','Refund Status':'பணத்திருப்பி வழங்கும் நிலை',
+    'Payment Method':'கட்டண முறை','Commission':'தரகு தொகை','Withdrawal':'பணம் பெறுதல்',
+    'Customer':'வாடிக்கையாளர்','Customers':'வாடிக்கையாளர்கள்','Name':'பெயர்','Email':'மின்னஞ்சல்','Phone':'தொலைபேசி',
+    'Mobile Number':'கைபேசி எண்','Password':'கடவுச்சொல்','Confirm Password':'கடவுச்சொல்லை உறுதிப்படுத்துக',
+    'Question ID':'கேள்வி அடையாள எண்','Customer ID':'வாடிக்கையாளர் அடையாள எண்','Astrologer ID':'ஜோதிடர் அடையாள எண்','Email / ID':'மின்னஞ்சல் / அடையாள எண்',
+    'Question Price':'கேள்விக் கட்டணம்','Question Rejected':'கேள்வி நிராகரிக்கப்பட்டது',
+    'Question approved and allocated successfully.':'கேள்வி வெற்றிகரமாக அங்கீகரிக்கப்பட்டு ஒதுக்கப்பட்டது.',
+    'Question updated successfully.':'கேள்வி வெற்றிகரமாகப் புதுப்பிக்கப்பட்டது.',
+    'Question not found.':'கேள்வி கிடைக்கவில்லை.','Question price is not configured.':'கேள்விக் கட்டணம் அமைக்கப்படவில்லை.',
+    'New Question Assigned':'புதிய கேள்வி ஒதுக்கப்பட்டுள்ளது','Question Re-assigned by Admin':'கேள்வி நிர்வாகியால் மீண்டும் ஒதுக்கப்பட்டது',
+    'Enter the நிர்வாகியின் பதில்.':'நிர்வாகியின் பதிலை உள்ளிடவும்.','Please enter the நிர்வாகியின் பதில்.':'நிர்வாகியின் பதிலை உள்ளிடவும்.',
+    'Answer submitted successfully':'பதில் வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது',
+    'Paid தேதி & நேரம்':'கட்டணம் செலுத்திய தேதி & நேரம்',
+    'Trusted ஆலோசனை':'நம்பகமான ஆலோசனை','Quick ஆலோசனை':'விரைவு ஆலோசனை',
+    'Contact Us':'எங்களைத் தொடர்புகொள்ளவும்','Customer Registration':'வாடிக்கையாளர் பதிவு',
+    'Payment Method Changes — நிர்வாகி ஒப்புதல்':'கட்டண முறையில் மாற்றம் — நிர்வாகி அங்கீகாரம்',
+    'Refunds — Rejected Paid கேள்விs':'பணம் செலுத்திய நிராகரிக்கப்பட்ட கேள்விகளுக்கான பணத்திருப்பி',
+    'Have a கேள்வி About Your Life?':'உங்கள் வாழ்க்கையைப் பற்றிய கேள்வி உள்ளதா?',
+    'PDF / படம் / காணொளி / இசையைப் பதிவேற்றவும்':'PDF / படம் / காணொளி / இசையைப் பதிவேற்றவும்',
+    'Razorpay இணைப்பு':'Razorpay இணைப்பு'
+  };
+  const keys=Object.keys(T).sort((a,b)=>b.length-a.length);
+  function tr(v){
+    let x=String(v??'');
+    for(const k of keys){ if(x===k) return T[k]; }
+    for(const k of keys){ if(x.includes(k)) x=x.split(k).join(T[k]); }
+    return x;
+  }
+  function walk(root){
+    if(!root||!root.querySelectorAll)return;
+    const skip='SCRIPT,STYLE,NOSCRIPT,#tamilHoroscopeResult,#englishHoroscopeResult';
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){
+      const p=n.parentElement;
+      if(!p||p.closest(skip)||p.closest('input,textarea,select,[contenteditable="true"]')) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }});
+    const ns=[]; let n; while(n=w.nextNode()) ns.push(n);
+    ns.forEach(n=>{const x=tr(n.nodeValue);if(x!==n.nodeValue)n.nodeValue=x;});
+    root.querySelectorAll('input[placeholder],textarea[placeholder],button[title],[aria-label]').forEach(el=>{
+      if(el.closest('#tamilHoroscopeResult,#englishHoroscopeResult'))return;
+      for(const a of ['placeholder','title','aria-label']) if(el.hasAttribute(a)){
+        const x=tr(el.getAttribute(a)); if(x!==el.getAttribute(a))el.setAttribute(a,x);
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded',()=>walk(document.body));
+  new MutationObserver(()=>requestAnimationFrame(()=>walk(document.body))).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+})();
+</script>
 </body>
 <style id="smv-dashboard-auto-typography">
 
