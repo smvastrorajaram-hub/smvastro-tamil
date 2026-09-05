@@ -569,6 +569,11 @@ app.post("/submit-answer", async (req, res) => {
       return res.status(400).json({ error: `Please write at least ${minWords} words.` });
     }
 
+    // Translate the submitted answer to Tamil on the trusted Render server.
+    // The original validation above remains unchanged; only the stored answer
+    // is converted to the Tamil site language.
+    const translatedAnswer = await translateAnswerToTamil(answer);
+
     const commissionPercent = Number(q.commissionPercent || q.commissionRate || 20);
     const commissionAmount =
       Math.round(Number(q.amount || 0) * commissionPercent) / 100;
@@ -576,8 +581,8 @@ app.post("/submit-answer", async (req, res) => {
     // Save the answer before attempting email. This makes the submission
     // independent of browser notification calls and email-provider latency.
     await questionRef.update({
-      answer,
-      answerWordCount: wordCount,
+      answer: translatedAnswer,
+      answerWordCount: translatedAnswer.split(/\s+/).filter(Boolean).length,
       answerSubmittedAt: FieldValue.serverTimestamp(),
       astrologerAnswerStatus: "submitted",
       // Once resubmitted, remove edit mode so the same question is no longer
@@ -1453,10 +1458,13 @@ app.post("/admin/takeover-answer", express.json({limit:"30kb"}), async (req,res)
     const wordCount=answer.split(/\s+/).filter(Boolean).length;
     const minWords=Math.max(1,Number(q.answerMinWords||1));
     if(wordCount<minWords) return res.status(400).json({error:`Admin answer must contain at least ${minWords} words.`});
+    // Translate the Admin answer to Tamil before saving it for the Tamil website.
+    const translatedAnswer=await translateAnswerToTamil(answer);
+    const translatedWordCount=translatedAnswer.split(/\s+/).filter(Boolean).length;
     await ref.update({
       question: q.question || "",
-      answer,
-      answerWordCount:wordCount,
+      answer:translatedAnswer,
+      answerWordCount:translatedWordCount,
       answerAuthorType:"admin",
       adminAnswered:true,
       adminAnswerBy:user.uid,
@@ -2793,6 +2801,82 @@ app.post("/api/horoscope/calculate", async (req,res)=>{
     });
   }
 });
+
+// Shared OpenAI Tamil answer translator used by both Astrologer and Admin answer submission.
+// The translation is performed server-side so OPENAI_API_KEY never reaches the browser.
+async function translateAnswerToTamil(answerText) {
+  const source = String(answerText || "").trim();
+  if (!source) return "";
+  if (!OPENAI_API_KEY) {
+    throw new Error("OpenAI தமிழ் மொழிபெயர்ப்பு சேவை அமைக்கப்படவில்லை. Render Environment Variables-ல் OPENAI_API_KEY-ஐ அமைக்கவும்.");
+  }
+
+  const prompt = `
+Translate the following astrology consultation answer into natural, polished Tamil for the SMV ASTRO Tamil website.
+Rules:
+- Preserve the exact meaning, advice, cautions, dates, numbers, names, zodiac signs, nakshatras, planet names, and other factual details.
+- Translate all human-readable English into clear Tamil.
+- If the answer is already Tamil, keep its meaning and wording as intact as possible; only clean obvious mixed-language fragments when appropriate.
+- Do not add predictions, advice, explanations, headings, disclaimers, or facts that are not in the source.
+- Do not remove any important sentence.
+- Use established Tamil astrology terminology such as ஜோதிடம், ஜாதகம், ராசி, நட்சத்திரம், கிரகம், பாவம், தசா, கோச்சாரம், பரிகாரம் where appropriate.
+- Return ONLY the translated answer text. Do not return JSON, markdown fences, or commentary.
+
+ANSWER:
+${source}
+`;
+
+  let lastDetail = "";
+  for (const model of OPENAI_TRANSLATION_FALLBACK_MODELS) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 60000);
+      try {
+        const response = await fetch("https://api.openai.com/v1/responses", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${OPENAI_API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model,
+            instructions: "நீங்கள் SMV ASTRO தமிழ் ஜோதிட ஆலோசனைக்கான தொழில்முறை மொழிபெயர்ப்பாளர். வழங்கப்பட்ட பதிலின் பொருளை மாற்றாமல் இயல்பான, தெளிவான தமிழில் மொழிபெயர்க்கவும். பதில் உரையை மட்டும் திருப்பி அனுப்பவும்.",
+            input: prompt,
+            max_output_tokens: 6000
+          }),
+          signal: controller.signal
+        });
+        const result = await response.json().catch(() => ({}));
+        if (response.ok) {
+          const translated = String(result?.output_text || result?.output?.flatMap(x => x?.content || []).map(x => x?.text || "").join("\n") || "").trim();
+          if (!translated) {
+            lastDetail = "OpenAI எந்த தமிழாக்க பதிலும் வழங்கவில்லை.";
+          } else {
+            const sourceHasTamil = /[\u0B80-\u0BFF]/.test(source);
+            const tamilChars = (translated.match(/[\u0B80-\u0BFF]/g) || []).length;
+            if (!sourceHasTamil && tamilChars < 3) {
+              lastDetail = "OpenAI தமிழாக்கம் சரியாக உருவாகவில்லை.";
+            } else {
+              return translated.replace(/^```(?:text)?\s*/i, "").replace(/\s*```$/i, "").trim();
+            }
+          }
+        } else {
+          lastDetail = result?.error?.message || `OpenAI API HTTP ${response.status}`;
+          if (![429, 500, 502, 503, 504].includes(response.status) || attempt === 1) break;
+          await new Promise(r => setTimeout(r, 1500 * (2 ** attempt)));
+        }
+      } catch (err) {
+        lastDetail = err?.name === "AbortError" ? "OpenAI கோரிக்கைக்கு நேரம் முடிந்தது." : (err?.message || "OpenAI request failed");
+        if (attempt === 1) break;
+        await new Promise(r => setTimeout(r, 1500 * (2 ** attempt)));
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+  }
+
+  throw new Error(`OpenAI தமிழ் மொழிபெயர்ப்பு சேவை தற்காலிகமாக கிடைக்கவில்லை. (${lastDetail})`);
+}
 
 // Tamil translation endpoint for the Tamil website/blog manager.
 // OpenAI is called ONLY from Render so OPENAI_API_KEY never reaches the browser.

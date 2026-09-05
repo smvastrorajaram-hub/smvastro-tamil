@@ -7563,7 +7563,7 @@ ${ad.status === 'rejected' && ad.rejectionReason
     }
 
     b.disabled = true;
-    b.textContent = 'SUBMITTING...';
+    b.textContent = 'தமிழாக்கம் + சமர்ப்பிக்கிறது...';
 
     try {
 
@@ -8429,7 +8429,7 @@ async function __smvHydrateAdminPanel(){
     }).join('') : '<div class="empty">No questions awaiting Admin action.</div>';
   }catch(e){console.error('கேள்வி approval panel error',e);questionApprovalBox.innerHTML='<div class="empty error">Unable to load question approvals: '+escapeHtml(e.message||String(e))+'</div>';}
   questionApprovalBox.querySelectorAll('[data-approve-question]').forEach(b=>b.onclick=async()=>{
-    const id=b.dataset.approveகேள்வி;
+    const id=b.dataset.approveQuestion;
     const astroId=$('assignAstro_'+id)?.value||'';
     const pct=Number($('assignCommission_'+id)?.value);
     if(!astroId){alert('Select an approved astrologer before approval.');return;}
@@ -8550,7 +8550,7 @@ async function __smvHydrateAdminPanel(){
    questionApprovalBox.querySelectorAll('[data-board-admin-answer]').forEach(b=>b.onclick=async()=>{
      const id=b.dataset.boardAdminAnswer; const answer=($('boardAdminAnswer_'+id)?.value||'').trim();
      if(!answer){smvNotice('நிர்வாகியின் பதில்','Enter the நிர்வாகியின் பதில் before submitting.','!');return;}
-     b.disabled=true; b.textContent='ANSWERING...';
+     b.disabled=true; b.textContent='தமிழாக்கம் + பதில் சமர்ப்பிக்கிறது...';
      try{
        const r=await renderApi('/admin/takeover-answer',{method:'POST',body:JSON.stringify({questionId:id,answer})});
        if(!r?.success) throw new Error(r?.error||'Unable to save நிர்வாகியின் பதில்.');
