@@ -7361,7 +7361,7 @@ ${ad.status === 'rejected' && ad.rejectionReason
 <div class="card" style="margin-top:16px"><h3>Earnings History</h3>${ep.ledger?.length?ep.ledger.slice().sort((a,b)=>smvSortMillis(b.date||b.createdAt||b.updatedAt)-smvSortMillis(a.date||a.createdAt||a.updatedAt)).slice(0,50).map(x=>`<div class="smv-history-row" style="padding:10px 0;border-bottom:1px solid #eee"><div class="smv-history-amount"><b>₹${Number(x.commission||0).toFixed(2)}</b> · <span class="success">Earning Credited</span></div><div class="smv-history-content">${escapeHtml(x.question||'ஆலோசனை')}</div><div class="smv-history-detail"><b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(x.date))}</div><div class="smv-history-detail"><b>கேள்வி எண்:</b> ${escapeHtml(x.id||'')}</div></div>`).join(''):'<div class="empty">No credited earnings yet.</div>'}<div class="withdrawal-history-section" style="margin-top:14px;padding-top:10px;border-top:1px solid #eee"><div class="withdrawal-history-title">Withdrawal History</div>${withdrawalSnap?.docs?.length?withdrawalSnap.docs.slice().sort((a,b)=>Number(b.data().createdAt?.seconds||0)-Number(a.data().createdAt?.seconds||0)).slice(0,20).map(d=>{const w=d.data()||{};const st=String(w.status||'pending').toLowerCase();const cls=st==='paid'?'success':st==='rejected'?'error':st==='processing'?'small':'small';const label=st==='paid'?'Paid':st==='processing'?'செயலாக்கத்தில் உள்ளது':st==='rejected'?'Rejected':'Pending';return `<div class="smv-history-row smv-withdrawal-row" style="padding:10px 0;border-bottom:1px solid #eee"><div class="smv-history-amount"><b>₹${Number(w.amount||0).toFixed(2)}</b> · <span class="${cls}">${label}</span></div><div class="smv-history-detail"><b>Withdrawal ID:</b> ${escapeHtml(w.withdrawalId||'—')}</div>${st==='paid' && /^SMV-PMT-/.test(String(w.adminPaymentId||'')) ? '<div class="small"><b>Admin Payment ID:</b> '+escapeHtml(w.adminPaymentId)+'</div>' : ''}<div class="small"><b>Requested:</b> ${escapeHtml(smvDateTime(w.createdAt||w.requestedAt))}${st==='paid' && w.paidAt ? '<br><b>Paid தேதி & நேரம்:</b> '+escapeHtml(smvDateTime(w.paidAt)) : ''}</div></div>`}).join(''):'<div class="small">No withdrawal requests yet.</div>'}</div></div>
 <div class="card" style="margin-top:16px"><h3>Payment Method</h3><p class="small">Your bank/UPI details are private. Full details are not displayed again.</p><button class="btn gray" id="changePayoutBtn2">Change Payment Method</button></div>`;
   document.querySelectorAll('[data-claim-question]').forEach(b=>b.onclick=async()=>{
-  const questionId=b.dataset.claimகேள்வி;
+  const questionId=b?.dataset?.claimQuestion || b?.getAttribute?.('data-claim-question') || '';
 
   if(!currentUser){
     alert('Please login again.');
@@ -8429,104 +8429,103 @@ async function __smvHydrateAdminPanel(){
     }).join('') : '<div class="empty">No questions awaiting Admin action.</div>';
   }catch(e){console.error('கேள்வி approval panel error',e);questionApprovalBox.innerHTML='<div class="empty error">Unable to load question approvals: '+escapeHtml(e.message||String(e))+'</div>';}
   questionApprovalBox.querySelectorAll('[data-approve-question]').forEach(b=>b.onclick=async()=>{
-    const id=b.dataset.approveQuestion;
-    const astroId=$('assignAstro_'+id)?.value||'';
+    // Read the question id defensively. Some older WebViews have shown inconsistent
+    // dataset behaviour, so also read the original HTML attribute as a fallback.
+    const id=String(b?.dataset?.approveQuestion || b?.getAttribute?.('data-approve-question') || '').trim();
+    if(!id){alert('Question ID is missing. Please refresh the Admin page and try again.');return;}
+    const astroId=String($('assignAstro_'+id)?.value||'').trim();
     const pct=Number($('assignCommission_'+id)?.value);
     if(!astroId){alert('Select an approved astrologer before approval.');return;}
     if(!Number.isFinite(pct)||pct<0||pct>100){alert('Enter a valid astrologer commission percentage.');return;}
-    const astroDoc=astros.docs.find(x=>x.id===astroId);
-    const astro=astroDoc?.data()||{};
+    const astroDocs=Array.isArray(astros?.docs)?astros.docs:[];
+    const astroDoc=astroDocs.find(x=>x?.id===astroId);
+    const astro=astroDoc?.data?.()||{};
+    const astroName=String(astro.name||'the selected astrologer');
     b.disabled=true; b.textContent='APPROVING...';
+    let backendApproved=false;
     try {
-      // First use the trusted Admin endpoint for the normal allocation/commission flow.
+      // STEP 1: Server is the source of truth for approval + allocation + commission.
+      // Do not let any optional browser-side sync failure turn a successful allocation
+      // into a false error popup.
       const result=await renderApi('/admin/approve-question',{
         method:'POST',
         body:JSON.stringify({questionId:id,astrologerId:astroId,commissionPercent:pct})
       });
       if(!result?.success) throw new Error(result?.error||'Unable to approve and allocate question.');
+      backendApproved=true;
 
-      // CRITICAL CUSTOMER SYNC FIX:
-      // The Customer dashboard must receive an explicit approval marker.
-      // Do this after the Admin endpoint succeeds so an older/deployed backend
-      // cannot leave the customer stuck at "நிர்வாகி ஒப்புதலுக்காக காத்திருக்கிறது".
-      const qRef=doc(db,'smv_questions',id);
-      const qSnap=await withTimeout(getDoc(qRef),15000);
-      if(!qSnap.exists()) throw new Error('கேள்வி was approved but the Firestore question record could not be found.');
-      const qNow=qSnap.data()||{};
-      const approvalData={
-        status:'admin_approved',
-        allocationநிலை:'assigned_to_astrologer',
-        astrologerId:astroId,
-        astrologerName:astro.name||qNow.astrologerName||'Astrologer',
-        commissionPercent:pct,
-        commissionRate:pct,
-        adminகேள்விApprovedAt:serverTimestamp(),
-        adminகேள்விApprovedBy:currentUser.uid,
-        updatedAt:serverTimestamp()
-      };
-      await withTimeout(updateDoc(qRef,approvalData),15000);
+      // STEP 2: Best-effort Customer dashboard sync. The backend allocation above
+      // has already succeeded, so errors here are logged only and never undo/report
+      // the successful Admin allocation.
+      try{
+        const qRef=doc(db,'smv_questions',id);
+        const qSnap=await withTimeout(getDoc(qRef),15000);
+        if(!qSnap.exists()) throw new Error('Approved question record was not found for Customer sync.');
+        const qNow=qSnap.data()||{};
+        await withTimeout(updateDoc(qRef,{
+          status:'admin_approved',
+          allocationநிலை:'assigned_to_astrologer',
+          astrologerId:astroId,
+          astrologerName:astro.name||qNow.astrologerName||'Astrologer',
+          commissionPercent:pct,
+          commissionRate:pct,
+          adminகேள்விApprovedAt:serverTimestamp(),
+          adminகேள்விApprovedBy:currentUser?.uid||'',
+          updatedAt:serverTimestamp()
+        }),15000);
 
-      // Replace the customer's old payment/waiting notification for this exact
-      // question. If it does not exist, create the correct approval notification.
-      const customerId=String(qNow.customerId||'');
-      if(customerId){
-        let changed=false;
-        try{
-          const ns=await withTimeout(getDocs(query(collection(db,'smv_notifications'),where('userId','==',customerId))),15000);
-          for(const nd of ns.docs){
-            const n=nd.data()||{};
-            const paymentId=String(qNow.customerPaymentId||'').trim();
-            const notificationகேள்விId=String(n.questionId||'').trim();
-            const notificationText=String(n.message||'');
-            const matchesExactகேள்வி=notificationகேள்விId===String(id);
-            // Older payment notifications were created without questionId.
-            // Match those safely using the exact Customer Payment ID shown in
-            // the notification (for example SMV-PAY-31082026-03).
-            const matchesPaymentId=!!paymentId && notificationText.includes(paymentId);
-            const oldText=notificationText.toLowerCase();
-            const oldTitle=String(n.title||'').toLowerCase();
-            if((matchesExactகேள்வி || matchesPaymentId) && (n.type==='payment_success' || n.type==='payment_verified' || oldTitle.includes('payment successful') || oldText.includes('waiting for admin approval'))){
-              await updateDoc(nd.ref,{
-                type:'question_approved',
-                title:'கேள்வி Approved',
-                message:'Your question has been approved by Admin and allocated to '+(astro.name||qNow.astrologerName||'the selected astrologer')+'.',
-                questionId:id,
-                astrologerId:astroId,
-                astrologerName:astro.name||qNow.astrologerName||'Astrologer',
-                updatedAt:serverTimestamp(),
-                read:false
-              });
-              changed=true;
+        const customerId=String(qNow.customerId||'').trim();
+        if(customerId){
+          let changed=false;
+          try{
+            const ns=await withTimeout(getDocs(query(collection(db,'smv_notifications'),where('userId','==',customerId))),15000);
+            const notificationDocs=Array.isArray(ns?.docs)?ns.docs:[];
+            for(const nd of notificationDocs){
+              const n=nd?.data?.()||{};
+              const paymentId=String(qNow.customerPaymentId||'').trim();
+              const notificationQuestionId=String(n.questionId||'').trim();
+              const notificationText=String(n.message||'');
+              const matchesExactQuestion=notificationQuestionId===id;
+              const matchesPaymentId=!!paymentId && notificationText.includes(paymentId);
+              const oldText=notificationText.toLowerCase();
+              const oldTitle=String(n.title||'').toLowerCase();
+              if((matchesExactQuestion||matchesPaymentId) && (n.type==='payment_success'||n.type==='payment_verified'||oldTitle.includes('payment successful')||oldText.includes('waiting for admin approval'))){
+                await updateDoc(nd.ref,{
+                  type:'question_approved',title:'கேள்வி Approved',
+                  message:'Your question has been approved by Admin and allocated to '+astroName+'.',
+                  questionId:id,astrologerId:astroId,astrologerName:astro.name||qNow.astrologerName||'Astrologer',
+                  updatedAt:serverTimestamp(),read:false
+                });
+                changed=true;
+              }
             }
+          }catch(notificationError){
+            console.warn('Customer approval notification reconciliation skipped:',notificationError);
           }
-        }catch(notificationReadError){
-          console.warn('Customer approval notification reconciliation skipped:',notificationReadError);
+          if(!changed){
+            await setDoc(doc(db,'smv_notifications',customerId+'_question_approved_'+id+'_'+Date.now()),{
+              userId:customerId,type:'question_approved',title:'கேள்வி Approved',
+              message:'Your question has been approved by Admin and allocated to '+astroName+'.',
+              questionId:id,astrologerId:astroId,astrologerName:astro.name||qNow.astrologerName||'Astrologer',
+              createdAt:serverTimestamp(),updatedAt:serverTimestamp(),read:false
+            });
+          }
         }
-        if(!changed){
-          // Final fallback: create one canonical approval notification. This is
-          // intentionally tied to the exact question/payment so the Customer
-          // Dashboard can never remain stuck on the old payment message.
-          await setDoc(doc(db,'smv_notifications',customerId+'_question_approved_'+id+'_'+Date.now()),{
-            userId:customerId,
-            type:'question_approved',
-            title:'கேள்வி Approved',
-            message:'Your question has been approved by Admin and allocated to '+(astro.name||qNow.astrologerName||'the selected astrologer')+'.',
-            questionId:id,
-            astrologerId:astroId,
-            astrologerName:astro.name||qNow.astrologerName||'Astrologer',
-            createdAt:serverTimestamp(),
-            updatedAt:serverTimestamp(),
-            read:false
-          });
-        }
+      }catch(syncError){
+        console.warn('Customer dashboard approval sync skipped after successful allocation:',syncError);
       }
 
-      alert('கேள்வி approved and allocated to '+(astro.name||'the selected astrologer')+'. Customer Dashboard is now updated.');
+      alert('கேள்வி approved and allocated to '+astroName+'.');
       await loadAdminPanel();
-    } catch(e){
-      console.error('QUESTION APPROVAL SYNC ERROR:',e);
-      alert(e.message||String(e));
-      b.disabled=false; b.textContent='APPROVE & ALLOCATE';
+    }catch(e){
+      console.error('QUESTION APPROVAL ERROR:',e);
+      if(backendApproved){
+        alert('கேள்வி approved and allocated successfully. Customer sync had a separate issue; the server allocation is already complete.');
+        try{await loadAdminPanel();}catch(_e){}
+      }else{
+        alert(e?.message||String(e));
+        b.disabled=false; b.textContent='APPROVE & ALLOCATE';
+      }
     }
   });
 
