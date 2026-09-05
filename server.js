@@ -42,6 +42,7 @@ const RESEND_FROM = String(process.env.RESEND_FROM || "onboarding@resend.dev").t
 const RESEND_TEST_RECIPIENT = String(process.env.RESEND_TEST_RECIPIENT || ADMIN_EMAIL || "").trim();
 const GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || "").trim();
 const GEMINI_MODEL = String(process.env.GEMINI_MODEL || "gemini-3.7-flash").trim();
+const GEMINI_TRANSLATION_FALLBACK_MODELS = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-2.5-flash", "gemini-3.1-pro-preview"].filter((v,i,a)=>v && a.indexOf(v)===i);
 const AI_RATE_LIMIT_MAX = Number(process.env.AI_RATE_LIMIT_MAX || 10);
 const AI_RATE_LIMIT_WINDOW_MS = Number(process.env.AI_RATE_LIMIT_WINDOW_MS || 10 * 60 * 1000);
 const aiRateBuckets = new Map();
@@ -2825,25 +2826,31 @@ ${JSON.stringify(body)}
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 45000);
     try {
-      let response = null, result = {}, lastDetail = "";
-      for (let attempt=0; attempt<3; attempt++) {
-        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
+      let response = null, result = {}, lastDetail = "", usedModel = GEMINI_MODEL;
+      // Gemini capacity errors (503/high demand) are temporary. Do not keep retrying
+      // the same busy model only; move to a stable fallback model automatically.
+      for (const model of GEMINI_TRANSLATION_FALLBACK_MODELS) {
+        usedModel = model;
+        for (let attempt=0; attempt<2; attempt++) {
+        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
           method:"POST",
           headers:{"x-goog-api-key":GEMINI_API_KEY,"Content-Type":"application/json"},
           body:JSON.stringify({
             systemInstruction:{parts:[{text:"நீங்கள் SMV ASTRO தமிழ் வலைத்தளத்திற்கான தொழில்முறை மொழிபெயர்ப்பாளர். பயனர் வழங்கிய உள்ளடக்கத்தை மட்டும் இயல்பான தமிழில் மொழிபெயர்க்கவும். மனிதர் படிக்கும் ஆங்கில வாக்கியங்களை விட வேண்டாம். கோரப்பட்ட JSON வடிவத்தை மட்டும் திருப்பி அனுப்பவும்."}]},
             contents:[{role:"user",parts:[{text:prompt}]}],
-            generationConfig:{responseMimeType:"application/json",maxOutputTokens:6000,temperature:0.2}
+            generationConfig:{responseMimeType:"application/json",maxOutputTokens:6000}
           }),
           signal:controller.signal
         });
         result = await response.json().catch(()=>({}));
         if (response.ok) break;
         lastDetail=result?.error?.message || `Gemini API HTTP ${response.status}`;
-        if (![429,500,502,503,504].includes(response.status) || attempt===2) break;
-        await new Promise(r=>setTimeout(r,1200*(2**attempt)));
+        if (![429,500,502,503,504].includes(response.status) || attempt===1) break;
+        await new Promise(r=>setTimeout(r,1500*(2**attempt)));
+        }
+        if (response?.ok) break;
       }
-      if (!response?.ok) return res.status(502).json({ok:false,error:`Gemini மொழிபெயர்ப்பு சேவை பிழை: ${lastDetail}`});
+      if (!response?.ok) return res.status(502).json({ok:false,error:`Gemini மொழிபெயர்ப்பு சேவை தற்காலிகமாக கிடைக்கவில்லை. சில நொடிகள் கழித்து மீண்டும் முயற்சிக்கவும். (${lastDetail})`});
       const raw=result?.candidates?.[0]?.content?.parts?.map(p=>p.text||"").join("\n").trim();
       if (!raw) return res.status(502).json({ok:false,error:"Gemini எந்த மொழிபெயர்ப்பையும் வழங்கவில்லை."});
       let translated;
@@ -2860,7 +2867,7 @@ ${JSON.stringify(body)}
       if (!sourceHasTamil && tamilChars.length < 3) {
         throw new Error("Gemini தமிழாக்கம் சரியாக உருவாகவில்லை. மீண்டும் முயற்சிக்கவும்.");
       }
-      return res.json({ok:true,model:GEMINI_MODEL,title:outTitle,summary:outSummary,body:outBody});
+      return res.json({ok:true,model:usedModel,title:outTitle,summary:outSummary,body:outBody});
     } finally { clearTimeout(timer); }
   } catch(e) {
     console.error("Tamil blog translation error:",e);
