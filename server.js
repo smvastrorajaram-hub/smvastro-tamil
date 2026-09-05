@@ -1161,6 +1161,59 @@ app.post("/admin/approve-question", express.json({limit:"10kb"}), async (req,res
 });
 
 
+// Astrologer claim: use the trusted Admin SDK so the browser does not need
+// direct Firestore write permission for the claim/status transition.
+app.post("/astrologer/claim-question", express.json({limit:"10kb"}), async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    if(!questionId) return res.status(400).json({error:"Question ID is required."});
+
+    const qRef=db.collection("smv_questions").doc(questionId);
+    const astroRef=db.collection("smv_astrologers").doc(user.uid);
+    const [qSnap,astroSnap]=await Promise.all([qRef.get(),astroRef.get()]);
+    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
+    if(!astroSnap.exists) return res.status(403).json({error:"Astrologer profile not found."});
+
+    const q=qSnap.data()||{};
+    const astro=astroSnap.data()||{};
+    if(String(astro.status||"").toLowerCase()!=="approved"){
+      return res.status(403).json({error:"Your astrologer profile is not approved by Admin."});
+    }
+    if(String(q.astrologerId||"")!==String(user.uid)){
+      return res.status(403).json({error:"This question is not allocated to your account."});
+    }
+    if(!q.adminQuestionApprovedAt){
+      return res.status(409).json({error:"This question is still waiting for Admin approval."});
+    }
+    const status=String(q.status||"");
+    const allocation=String(q.allocationStatus||"");
+    if(["answered","question_rejected","admin_rejected"].includes(status)){
+      return res.status(409).json({error:"This question is already closed."});
+    }
+    if(!["paid","admin_approved"].includes(status) ||
+       !["assigned_to_astrologer","available_to_astrologers","reallocated","claimed_by_astrologer"].includes(allocation)){
+      return res.status(409).json({error:"This question is no longer available to claim."});
+    }
+
+    if(allocation!=="claimed_by_astrologer"){
+      await qRef.update({
+        status:"admin_approved",
+        allocationStatus:"claimed_by_astrologer",
+        claimedAt:FieldValue.serverTimestamp(),
+        claimedBy:user.uid,
+        updatedAt:FieldValue.serverTimestamp()
+      });
+    }
+
+    return res.json({success:true,questionId,astrologerId:user.uid,status:"admin_approved",allocationStatus:"claimed_by_astrologer"});
+  }catch(e){
+    console.error("Astrologer claim question error:",e);
+    return res.status(500).json({error:e?.message||"Unable to claim this question."});
+  }
+});
+
+
 app.post("/admin/reject-question", express.json({limit:"10kb"}), async (req,res)=>{
   const user=await requireUser(req,res); if(!user)return;
   if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
