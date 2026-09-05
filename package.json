@@ -1,0 +1,22 @@
+{
+  "name": "smv-astro-email-automation",
+  "version": "1.39.0",
+  "private": true,
+  "description": "SMV ASTRO with Swiss Ephemeris sidereal Vedic chart, Sripati Bhava Sphuta, D9 Navamsa, South Indian Bhava Chalit and interactive Vimshottari Dasha",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check:engine": "node scripts/check-engine.js"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "astronomy-engine": "^2.1.19",
+    "express": "^4.21.2",
+    "firebase-admin": "^13.4.0",
+    "razorpay": "^2.9.6",
+    "nodemailer": "^7.0.5",
+    "sweph": "2.10.3-7"
+  }
+}
