@@ -5507,7 +5507,7 @@ try{
   firebaseInitError=initError;
   console.error("SMV ASTRO Firebase initialization failed",initError);
 }
-const RAZORPAY_BACKEND_URL="https://smv-astro-1fco.onrender.com";
+const RAZORPAY_BACKEND_URL="https://smvastro-tamil.onrender.com";
 // Single backend URL used by all protected API calls, including astrologer answer submission.
 // Keep this in the main Firebase module so it is available to the answer-submit handler.
 const BACKEND=RAZORPAY_BACKEND_URL; window.SMV_BACKEND_URL=RAZORPAY_BACKEND_URL;
@@ -9520,7 +9520,7 @@ window.__SMV_APP_READY=true;
 <script>
 /* Tamil Horoscope Generator - V121: server-side astronomical calculation engine. */
 (function(){
-  const BACKEND_URL='https://smv-astro-1fco.onrender.com';
+  const BACKEND_URL='https://smvastro-tamil.onrender.com';
   const $=id=>document.getElementById(id);
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const rasiList=['மேஷம்','ரிஷபம்','மிதுனம்','கடகம்','சிம்மம்','கன்னி','துலாம்','விருச்சிகம்','தனுசு','மகரம்','கும்பம்','மீனம்'];
@@ -10400,7 +10400,7 @@ window.__SMV_APP_READY=true;
       dashas:(d.dashas?.mahadashas||d.dashas?.periods||[]).slice(0,12).map(x=>({name:x.name,start:x.start,end:x.end}))
     };
     try{
-      const r=await fetch((window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com')+'/api/horoscope/ai-future',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chart,language:lang})});
+      const r=await fetch((window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com')+'/api/horoscope/ai-future',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chart,language:lang})});
       const body=await r.json().catch(()=>({}));
       if(!r.ok)throw new Error(body.error||`AI generation failed (HTTP ${r.status})`);
       const text=String(body.text||'').trim();
@@ -10884,7 +10884,7 @@ window.__SMV_APP_READY=true;
     const slot=root.querySelector('#smvPhase4DasaSlot'); if(!slot)return;
     const escSafe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     try{
-      const base=window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com';
+      const base=window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com';
       let chart=chartOrPayload;
       if(!chart || !Array.isArray(chart.planets) || !chart.lagna){
         const p=chartOrPayload||{};
@@ -10920,7 +10920,7 @@ window.__SMV_APP_READY=true;
     const root=document.getElementById(rootId); if(!root)return;
     const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const ta=lang!=='en'; const R=ta?['மேஷம்','ரிஷபம்','மிதுனம்','கடகம்','சிம்மம்','கன்னி','துலாம்','விருச்சிகம்','தனுசு','மகரம்','கும்பம்','மீனம்']:['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
-    const base=window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com'; const payload={date,time,lat:Number(lat),lon:Number(lon),language:lang,timezone:'Asia/Kolkata',utcOffsetMinutes:330};
+    const base=window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com'; const payload={date,time,lat:Number(lat),lon:Number(lon),language:lang,timezone:'Asia/Kolkata',utcOffsetMinutes:330};
     try{
       const [tr,pa]=await Promise.all([fetch(base+'/api/horoscope/transit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}),fetch(base+'/api/horoscope/panchang',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})]);
       const td=await tr.json().catch(()=>({})), pd=await pa.json().catch(()=>({})); if(!tr.ok)throw new Error(td.error||'Transit calculation failed'); if(!pa.ok)throw new Error(pd.error||'Panchang calculation failed');
@@ -11025,7 +11025,7 @@ window.__SMV_APP_READY=true;
     const root=document.getElementById(rootId); if(!root)return;
     const escSafe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const isCurrent=()=>generationId==null || Number(generationId)===Number(window.__smvHoroscopeGenerationId||generationId);
-    const base=window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com';
+    const base=window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com';
 
     // FAST/SAFE FIX: cancel any older advanced horoscope request before starting
     // a new one.  This prevents hidden Tamil/English copies from continuing to
@@ -11234,7 +11234,7 @@ if(lat===''||lon===''){
       const timeout=setTimeout(()=>controller.abort(),120000);
       let r;
       try{
-        r=await fetch((window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com')+'/api/horoscope/calculate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,time:normalizedTime,lat:Number(lat),lon:Number(lon),height:0,timezone:'Asia/Kolkata',utcOffsetMinutes:330,houseSystem:'S'}),signal:controller.signal});
+        r=await fetch((window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com')+'/api/horoscope/calculate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,time:normalizedTime,lat:Number(lat),lon:Number(lon),height:0,timezone:'Asia/Kolkata',utcOffsetMinutes:330,houseSystem:'S'}),signal:controller.signal});
       }finally{clearTimeout(timeout);}
       const d=await r.json().catch(()=>({})); if(!r.ok) throw new Error(d.error||`Calculation failed (HTTP ${r.status})`);
       // Render the core horoscope into the hidden result container first.
@@ -11291,7 +11291,7 @@ if(lat===''||lon===''){
 <!-- Legacy fallback authentication block removed in V109. Main Firebase auth is the single login system. -->
 <script>
 (function(){
-  const BACKEND_URL = "https://smv-astro-1fco.onrender.com";
+  const BACKEND_URL = "https://smvastro-tamil.onrender.com";
   const form = document.getElementById("contactForm");
   if(!form) return;
   const btn = document.getElementById("contactSubmit");
@@ -11332,7 +11332,7 @@ if(lat===''||lon===''){
 </script>
 <script type="module">
 (function(){
-  const BACKEND="https://smv-astro-1fco.onrender.com";
+  const BACKEND="https://smvastro-tamil.onrender.com";
   const FBCONFIG={apiKey:"AIzaSyCKXyfZ9sjGmej7ygxHpzHNcNysMXHuvSs",authDomain:"smv-astro.firebaseapp.com",projectId:"smv-astro",storageBucket:"smv-astro.firebasestorage.app",messagingSenderId:"299081899217",appId:"1:299081899217:web:8d558df08e86037ea539f0"};
   let db=null,auth=null;
   const $=id=>document.getElementById(id);
@@ -11860,7 +11860,7 @@ document.addEventListener("click",function(e){
     controller=new AbortController();
     setStatus('Searching location…','');
     try{
-      const r=await fetch('https://smv-astro-1fco.onrender.com/api/geocode?q='+encodeURIComponent(q),{signal:controller.signal,headers:{Accept:'application/json'},cache:'no-store'});
+      const r=await fetch('https://smvastro-tamil.onrender.com/api/geocode?q='+encodeURIComponent(q),{signal:controller.signal,headers:{Accept:'application/json'},cache:'no-store'});
       const data=await r.json().catch(()=>({}));
       if(!r.ok) throw new Error(data.error||'Location search failed');
       render(data.results||[]);
@@ -11893,7 +11893,7 @@ document.addEventListener("click",function(e){
 </style>
 <script id="smv-v145-english-location-and-generator">
 (function(){
-  const BACKEND_URL='https://smv-astro-1fco.onrender.com';
+  const BACKEND_URL='https://smvastro-tamil.onrender.com';
   const $=id=>document.getElementById(id);
 
   function setupLocation(prefix){
@@ -11908,7 +11908,7 @@ document.addEventListener("click",function(e){
     function statusText(t,c){status.textContent=t||'';status.className='smv-location-status'+(c?' '+c:'');}
     function choose(x){place.value=x.place||'';lat.value=Number(x.latitude).toFixed(6);lon.value=Number(x.longitude).toFixed(6);place.dataset.locationSelected='1';place.dataset.latitude=String(x.latitude);place.dataset.longitude=String(x.longitude);clear();statusText('');}
     function render(items){clear();if(!items.length){statusText('No matching location found. Please type a little more.','err');return;}items.forEach(x=>{const b=document.createElement('button');b.type='button';b.className='smv-location-suggestion';b.setAttribute('role','option');b.textContent=x.place;b.addEventListener('click',()=>choose(x));list.appendChild(b);});list.classList.add('show');statusText('Select your exact place from the list.','');}
-    async function search(q){if(q.length<2){clear();statusText('','');return;}if(q===lastQuery)return;lastQuery=q;if(controller)controller.abort();controller=new AbortController();statusText('Searching location…','');try{const r=await fetch((window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com')+'/api/geocode?q='+encodeURIComponent(q),{signal:controller.signal,headers:{Accept:'application/json'},cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Location search failed');render(Array.isArray(data.results)?data.results:[]);}catch(e){if(e.name==='AbortError')return;clear();statusText(e.message||'Unable to search location.','err');}}
+    async function search(q){if(q.length<2){clear();statusText('','');return;}if(q===lastQuery)return;lastQuery=q;if(controller)controller.abort();controller=new AbortController();statusText('Searching location…','');try{const r=await fetch((window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com')+'/api/geocode?q='+encodeURIComponent(q),{signal:controller.signal,headers:{Accept:'application/json'},cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Location search failed');render(Array.isArray(data.results)?data.results:[]);}catch(e){if(e.name==='AbortError')return;clear();statusText(e.message||'Unable to search location.','err');}}
     place.addEventListener('input',()=>{place.dataset.locationSelected='0';lat.value='';lon.value='';lastQuery='';clearTimeout(timer);timer=setTimeout(()=>search(place.value.trim()),500);});
     place.addEventListener('focus',()=>{if(place.value.trim().length>=2&&list.children.length)list.classList.add('show');});
     document.addEventListener('click',e=>{if(!parent.contains(e.target))clear();});
