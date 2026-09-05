@@ -43,6 +43,11 @@ const RESEND_TEST_RECIPIENT = String(process.env.RESEND_TEST_RECIPIENT || ADMIN_
 const GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || "").trim();
 const GEMINI_MODEL = String(process.env.GEMINI_MODEL || "gemini-3.7-flash").trim();
 const GEMINI_TRANSLATION_FALLBACK_MODELS = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-2.5-flash", "gemini-3.1-pro-preview"].filter((v,i,a)=>v && a.indexOf(v)===i);
+// OpenAI is used ONLY for English → Tamil blog translation. Other Gemini-powered
+// horoscope features remain unchanged. The API key never reaches the browser.
+const OPENAI_API_KEY = String(process.env.OPENAI_API_KEY || "").trim();
+const OPENAI_TRANSLATION_MODEL = String(process.env.OPENAI_TRANSLATION_MODEL || "gpt-5.6-luna").trim();
+const OPENAI_TRANSLATION_FALLBACK_MODELS = [OPENAI_TRANSLATION_MODEL, "gpt-5.6-luna", "gpt-5.6-terra"].filter((v,i,a)=>v && a.indexOf(v)===i);
 const AI_RATE_LIMIT_MAX = Number(process.env.AI_RATE_LIMIT_MAX || 10);
 const AI_RATE_LIMIT_WINDOW_MS = Number(process.env.AI_RATE_LIMIT_WINDOW_MS || 10 * 60 * 1000);
 const aiRateBuckets = new Map();
@@ -2790,28 +2795,32 @@ app.post("/api/horoscope/calculate", async (req,res)=>{
 });
 
 // Tamil translation endpoint for the Tamil website/blog manager.
-// Gemini is called ONLY from Render so GEMINI_API_KEY never reaches the browser.
+// OpenAI is called ONLY from Render so OPENAI_API_KEY never reaches the browser.
+// Gemini remains available for the separate horoscope AI-future endpoint below.
 app.post("/api/translate-tamil", express.json({ limit: "250kb" }), async (req, res) => {
   try {
-    if (!GEMINI_API_KEY) {
-      return res.status(503).json({ ok:false, error:"Gemini சேவை அமைக்கப்படவில்லை. Render Environment Variables-ல் GEMINI_API_KEY-ஐ அமைக்கவும்." });
+    if (!OPENAI_API_KEY) {
+      return res.status(503).json({ ok:false, error:"OpenAI தமிழ் மொழிபெயர்ப்பு சேவை அமைக்கப்படவில்லை. Render Environment Variables-ல் OPENAI_API_KEY-ஐ அமைக்கவும்." });
     }
+
     const title = String(req.body?.title || "").trim();
     const summary = String(req.body?.summary || "").trim();
     const body = String(req.body?.body || "").trim();
-    if (!title && !summary && !body) return res.status(400).json({ ok:false, error:"மொழிபெயர்க்க வேண்டிய வலைப்பதிவு உள்ளடக்கம் இல்லை." });
+    if (!title && !summary && !body) {
+      return res.status(400).json({ ok:false, error:"மொழிபெயர்க்க வேண்டிய வலைப்பதிவு உள்ளடக்கம் இல்லை." });
+    }
 
     const prompt = `
 Translate the following SMV ASTRO blog into natural, polished Tamil for a Tamil-only astrology website.
 Rules:
 - Translate ALL human-readable English text into Tamil.
 - Do NOT leave English sentences, headings, bullet text, or explanations.
-- Keep proper names, URLs, email addresses, numbers, dates, currency symbols, HTML tags, and technical identifiers unchanged when they are necessary.
+- Keep proper names, URLs, email addresses, numbers, dates, currency symbols, HTML tags, and technical identifiers unchanged when necessary.
 - Do not add information that is not present.
 - Preserve paragraph breaks and list structure.
 - Do not use transliterated English when a natural Tamil word exists.
 - For astrology terminology use established Tamil terms such as ஜோதிடம், ஜாதகம், ராசி, நட்சத்திரம், கிரகம், பாவம், தசா, கோச்சாரம், பரிகாரம்.
-Return ONLY valid JSON with exactly these keys: title, summary, body.
+- Return ONLY valid JSON with exactly these keys: title, summary, body.
 
 TITLE:
 ${JSON.stringify(title)}
@@ -2823,55 +2832,105 @@ BODY:
 ${JSON.stringify(body)}
 `;
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 45000);
-    try {
-      let response = null, result = {}, lastDetail = "", usedModel = GEMINI_MODEL;
-      // Gemini capacity errors (503/high demand) are temporary. Do not keep retrying
-      // the same busy model only; move to a stable fallback model automatically.
-      for (const model of GEMINI_TRANSLATION_FALLBACK_MODELS) {
-        usedModel = model;
-        for (let attempt=0; attempt<2; attempt++) {
-        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-          method:"POST",
-          headers:{"x-goog-api-key":GEMINI_API_KEY,"Content-Type":"application/json"},
-          body:JSON.stringify({
-            systemInstruction:{parts:[{text:"நீங்கள் SMV ASTRO தமிழ் வலைத்தளத்திற்கான தொழில்முறை மொழிபெயர்ப்பாளர். பயனர் வழங்கிய உள்ளடக்கத்தை மட்டும் இயல்பான தமிழில் மொழிபெயர்க்கவும். மனிதர் படிக்கும் ஆங்கில வாக்கியங்களை விட வேண்டாம். கோரப்பட்ட JSON வடிவத்தை மட்டும் திருப்பி அனுப்பவும்."}]},
-            contents:[{role:"user",parts:[{text:prompt}]}],
-            generationConfig:{responseMimeType:"application/json",maxOutputTokens:6000}
-          }),
-          signal:controller.signal
-        });
-        result = await response.json().catch(()=>({}));
-        if (response.ok) break;
-        lastDetail=result?.error?.message || `Gemini API HTTP ${response.status}`;
-        if (![429,500,502,503,504].includes(response.status) || attempt===1) break;
-        await new Promise(r=>setTimeout(r,1500*(2**attempt)));
+    let lastDetail = "";
+    let lastStatus = 502;
+    let usedModel = OPENAI_TRANSLATION_MODEL;
+
+    for (const model of OPENAI_TRANSLATION_FALLBACK_MODELS) {
+      usedModel = model;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 60000);
+        try {
+          const response = await fetch("https://api.openai.com/v1/responses", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${OPENAI_API_KEY}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              model,
+              instructions: "நீங்கள் SMV ASTRO தமிழ் வலைத்தளத்திற்கான தொழில்முறை மொழிபெயர்ப்பாளர். வழங்கப்பட்ட உள்ளடக்கத்தை மட்டும் இயல்பான, தெளிவான தமிழில் மொழிபெயர்க்கவும். மனிதர் படிக்கும் ஆங்கில வாக்கியங்களை விட வேண்டாம். சரியான JSON மட்டும் திருப்பி அனுப்பவும்.",
+              input: prompt,
+              max_output_tokens: 6000
+            }),
+            signal: controller.signal
+          });
+
+          const result = await response.json().catch(() => ({}));
+          lastStatus = response.status;
+          if (response.ok) {
+            const raw = String(result?.output_text || result?.output?.flatMap(x => x?.content || []).map(x => x?.text || "").join("\n") || "").trim();
+            if (!raw) {
+              lastDetail = "OpenAI எந்த மொழிபெயர்ப்பையும் வழங்கவில்லை.";
+              break;
+            }
+
+            let translated;
+            try {
+              translated = JSON.parse(raw);
+            } catch (_) {
+              const cleaned = raw.replace(/^```json\\s*/i, "").replace(/^```\\s*/i, "").replace(/\\s*```$/, "").trim();
+              try { translated = JSON.parse(cleaned); }
+              catch (parseErr) {
+                lastDetail = "OpenAI JSON மொழிபெயர்ப்பு பதில் சரியான வடிவில் இல்லை.";
+                break;
+              }
+            }
+
+            if (!translated || typeof translated !== "object") {
+              lastDetail = "OpenAI translation response is invalid.";
+              break;
+            }
+
+            const outTitle = String(translated.title || "").trim();
+            const outSummary = String(translated.summary || "").trim();
+            const outBody = String(translated.body || "").trim();
+            if (!outTitle || !outBody) {
+              lastDetail = "OpenAI தமிழ் மொழிபெயர்ப்பு முழுமையாக கிடைக்கவில்லை.";
+              break;
+            }
+
+            const tamilChars = (outTitle + " " + outSummary + " " + outBody).match(/[\u0B80-\u0BFF]/g) || [];
+            const sourceHasTamil = /[\u0B80-\u0BFF]/.test(title + summary + body);
+            if (!sourceHasTamil && tamilChars.length < 3) {
+              lastDetail = "OpenAI தமிழாக்கம் சரியாக உருவாகவில்லை. மீண்டும் முயற்சிக்கவும்.";
+              break;
+            }
+
+            return res.json({
+              ok: true,
+              provider: "openai",
+              model: usedModel,
+              title: outTitle,
+              summary: outSummary,
+              body: outBody
+            });
+          }
+
+          lastDetail = result?.error?.message || `OpenAI API HTTP ${response.status}`;
+          if (![429, 500, 502, 503, 504].includes(response.status) || attempt === 1) break;
+          await new Promise(r => setTimeout(r, 1500 * (2 ** attempt)));
+        } catch (err) {
+          lastDetail = err?.name === "AbortError" ? "OpenAI கோரிக்கைக்கு நேரம் முடிந்தது." : (err?.message || "OpenAI request failed");
+          if (attempt === 1) break;
+          await new Promise(r => setTimeout(r, 1500));
+        } finally {
+          clearTimeout(timer);
         }
-        if (response?.ok) break;
       }
-      if (!response?.ok) return res.status(502).json({ok:false,error:`Gemini மொழிபெயர்ப்பு சேவை தற்காலிகமாக கிடைக்கவில்லை. சில நொடிகள் கழித்து மீண்டும் முயற்சிக்கவும். (${lastDetail})`});
-      const raw=result?.candidates?.[0]?.content?.parts?.map(p=>p.text||"").join("\n").trim();
-      if (!raw) return res.status(502).json({ok:false,error:"Gemini எந்த மொழிபெயர்ப்பையும் வழங்கவில்லை."});
-      let translated;
-      try { translated=JSON.parse(raw); }
-      catch { translated=JSON.parse(raw.replace(/^```json\s*/i,"").replace(/\s*```$/,"")); }
-      if (!translated || typeof translated!=="object") throw new Error("Invalid translation response");
-      const outTitle=String(translated.title||"").trim();
-      const outSummary=String(translated.summary||"").trim();
-      const outBody=String(translated.body||"").trim();
-      if (!outTitle || !outBody) throw new Error("Gemini தமிழ் மொழிபெயர்ப்பு முழுமையாக கிடைக்கவில்லை.");
-      // Do not silently publish English if Gemini returned an unusable response.
-      const tamilChars=(outTitle+" "+outSummary+" "+outBody).match(/[\u0B80-\u0BFF]/g)||[];
-      const sourceHasTamil=/[\u0B80-\u0BFF]/.test(title+summary+body);
-      if (!sourceHasTamil && tamilChars.length < 3) {
-        throw new Error("Gemini தமிழாக்கம் சரியாக உருவாகவில்லை. மீண்டும் முயற்சிக்கவும்.");
-      }
-      return res.json({ok:true,model:usedModel,title:outTitle,summary:outSummary,body:outBody});
-    } finally { clearTimeout(timer); }
-  } catch(e) {
-    console.error("Tamil blog translation error:",e);
-    return res.status(500).json({ok:false,error:e?.name==="AbortError"?"Gemini மொழிபெயர்ப்பு நேரம் முடிந்தது. மீண்டும் முயற்சிக்கவும்.":(e?.message||"தமிழ் மொழிபெயர்ப்பு தோல்வியடைந்தது.")});
+    }
+
+    return res.status(lastStatus >= 400 ? 502 : 502).json({
+      ok:false,
+      error:`OpenAI தமிழ் மொழிபெயர்ப்பு சேவை தற்காலிகமாக கிடைக்கவில்லை. (${lastDetail})`
+    });
+  } catch (e) {
+    console.error("Tamil blog translation error:", e?.stack || e);
+    return res.status(500).json({
+      ok:false,
+      error:e?.message || "தமிழ் மொழிபெயர்ப்பு தோல்வியடைந்தது."
+    });
   }
 });
 
