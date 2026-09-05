@@ -5507,7 +5507,7 @@ try{
   firebaseInitError=initError;
   console.error("SMV ASTRO Firebase initialization failed",initError);
 }
-const RAZORPAY_BACKEND_URL="https://smvastro-tamil.onrender.com";
+const RAZORPAY_BACKEND_URL="https://smv-astro-1fco.onrender.com";
 // Single backend URL used by all protected API calls, including astrologer answer submission.
 // Keep this in the main Firebase module so it is available to the answer-submit handler.
 const BACKEND=RAZORPAY_BACKEND_URL; window.SMV_BACKEND_URL=RAZORPAY_BACKEND_URL;
@@ -8177,7 +8177,7 @@ async function smvRenderPublicContent(items){
   const blogBox=$("publicBlogs"),mediaBox=$("publicMedia");
   if(blogBox){
     if(!blogs.length) blogBox.innerHTML='<div class="empty">No published blogs yet.</div>';
-    else {const cards=await Promise.all(blogs.map(async x=>{const body=await smvFetchBlogBody(x.bodyUrlTa||x.bodyUrl);const displayTitle=x.titleTa||x.title||"Untitled";const displaySummary=x.summaryTa||x.summary||"";return `<article class="card blog-card"><h3>${escapeHtml(displayTitle)}</h3>${x.coverUrl?`<img class="content-thumb" src="${escapeHtml(x.coverUrl)}" alt="${escapeHtml(x.title||"Blog")}">`:""}${displaySummary?`<p class="small"><b>${escapeHtml(displaySummary)}</b></p>`:""}<div class="blog-content">${escapeHtml(body)}</div><div class="small" style="margin-top:auto;padding-top:12px">வெளியிடப்பட்டது ${escapeHtml(smvDateTime(x.publishedAt||x.createdAt))}</div></article>`;}));blogBox.innerHTML=cards.join("");}
+    else {const cards=await Promise.all(blogs.map(async x=>{const body=await smvFetchBlogBody(x.bodyUrl);return `<article class="card blog-card"><h3>${escapeHtml(x.title||"Untitled")}</h3>${x.coverUrl?`<img class="content-thumb" src="${escapeHtml(x.coverUrl)}" alt="${escapeHtml(x.title||"Blog")}">`:""}${x.summary?`<p class="small"><b>${escapeHtml(x.summary)}</b></p>`:""}<div class="blog-content">${escapeHtml(body)}</div><div class="small" style="margin-top:auto;padding-top:12px">வெளியிடப்பட்டது ${escapeHtml(smvDateTime(x.publishedAt||x.createdAt))}</div></article>`;}));blogBox.innerHTML=cards.join("");}
   }
   if(mediaBox){mediaBox.innerHTML=media.length?`<div class="grid">${media.map(x=>{const title=escapeHtml(x.title||"Content"),desc=x.description?`<p class="small">${escapeHtml(x.description)}</p>`:"";if(x.mediaType==="image")return `<article class="card media-card"><h3>${title}</h3><img src="${escapeHtml(x.url)}" alt="${title}" loading="lazy">${desc}</article>`;if(x.mediaType==="video")return `<article class="card media-card"><h3>${title}</h3><video controls preload="metadata" src="${escapeHtml(x.url)}"></video>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener">OPEN VIDEO</a></article>`;if(x.mediaType==="music")return `<article class="card media-card"><h3>🎵 ${title}</h3><audio controls preload="metadata" src="${escapeHtml(x.url)}"></audio><p class="small">Music · ${escapeHtml(smvFormatBytes(x.size))}</p>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener">OPEN MUSIC</a></article>`;return `<article class="card media-card"><h3>${title}</h3><p class="small">PDF · ${escapeHtml(smvFormatBytes(x.size))}</p>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener" download>DOWNLOAD PDF</a></article>`;}).join('')}</div>`:'<div class="empty">No published media yet.</div>';}
 }
@@ -8202,7 +8202,7 @@ async function loadAdminContent(){
       return `<div class="admin-content-row"><b>${escapeHtml(x.title||"Untitled")}</b> · ${escapeHtml(x.kind||"")} ${x.mediaType?`· ${escapeHtml(x.mediaType)}`:""} · ${status}<div class="small">${escapeHtml(x.summary||x.description||"")}</div><div class="admin-blog-actions">${x.kind==="blog"?`<button class="btn gray" data-content-edit="${x.id}">EDIT</button>`:""}<button class="btn gray" data-content-toggle="${x.id}">${x.published?"UNPUBLISH":"PUBLISH"}</button><button class="btn danger" data-content-delete="${x.id}">DELETE</button></div></div>`;
     }).join(""):'<div class="empty">No blogs or uploaded content yet.</div>';
     box.querySelectorAll("[data-content-edit]").forEach(b=>b.onclick=async()=>{
-      const x=items.find(i=>i.id===b.dataset.contentEdit);if(!x)return;$("blogEditId").value=x.id;$("blogTitle").value=x.titleEn||x.title||"";$("blogSummary").value=x.summaryEn??x.summary??"";$("blogBody").value=await smvFetchBlogBody(x.bodyUrlEn||x.bodyUrl);if($("blogCoverFile"))$("blogCoverFile").value="";$("saveBlogBtn").textContent="SAVE & REPUBLISH";$("adminContentManager")?.scrollIntoView({behavior:"smooth",block:"start"});
+      const x=items.find(i=>i.id===b.dataset.contentEdit);if(!x)return;$("blogEditId").value=x.id;$("blogTitle").value=x.title||"";$("blogSummary").value=x.summary||"";$("blogBody").value=await smvFetchBlogBody(x.bodyUrl);if($("blogCoverFile"))$("blogCoverFile").value="";$("saveBlogBtn").textContent="SAVE & REPUBLISH";$("adminContentManager")?.scrollIntoView({behavior:"smooth",block:"start"});
     });
     box.querySelectorAll("[data-content-toggle]").forEach(b=>b.onclick=async()=>{
       try{const item=items.find(x=>x.id===b.dataset.contentToggle);await updateDoc(doc(db,SMV_CONTENT_COLLECTION,b.dataset.contentToggle),{published:!item?.published,publishedAt:serverTimestamp(),updatedAt:serverTimestamp(),updatedBy:currentUser.uid});await loadAdminContent();await loadPublicContent();}catch(e){smvNotice("Unable to update",e.message||String(e),"!");}
@@ -8226,20 +8226,8 @@ async function saveBlog(){
   if(!title||!body){smvNotice("Blog Writer","Enter a title and blog content before publishing.","!");return;}const b=$("saveBlogBtn");b.disabled=true;b.textContent=editId?"SAVING...":"PUBLISHING...";
   try{let id=editId,old=null;if(editId){const oldSnap=await getDoc(doc(db,SMV_CONTENT_COLLECTION,editId));if(!oldSnap.exists())throw new Error("Blog not found.");old=oldSnap.data()||{};}else id=doc(collection(db,SMV_CONTENT_COLLECTION)).id;
     let coverUrl=old?.coverUrl||"",coverPath=old?.coverPath||"";const file=$("blogCoverFile")?.files?.[0];if(file){const up=await smvUploadFile(file,"image",id);coverUrl=up.url;coverPath=up.path;}
-    // Translate the English blog on the secure Render server. The Gemini API key
-    // never reaches the browser. English is retained for Admin editing; Tamil is
-    // stored separately for the public Tamil-only website.
-    const tr=await withTimeout(renderApi("/admin/translate-blog",{method:"POST",body:JSON.stringify({title,summary,body})}),60000);
-    if(!tr?.ok || !tr.titleTa || !tr.bodyTa) throw new Error("Tamil translation could not be completed. Please try again.");
-    const textUpEn=await smvUploadBlogText(body,id);
-    const textUpTa=await smvUploadBlogText(tr.bodyTa,`${id}-ta`);
-    const data={kind:"blog",
-      title:title,titleEn:title,summary,summaryEn:summary,
-      titleTa:String(tr.titleTa||""),summaryTa:String(tr.summaryTa||""),
-      bodyUrl:textUpTa.url,bodyPublicId:textUpTa.publicId,bodySize:textUpTa.size,
-      bodyUrlTa:textUpTa.url,bodyPublicIdTa:textUpTa.publicId,bodySizeTa:textUpTa.size,
-      bodyUrlEn:textUpEn.url,bodyPublicIdEn:textUpEn.publicId,bodySizeEn:textUpEn.size,
-      coverUrl,coverPath,published:true,updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
+    const textUp=await smvUploadBlogText(body,id);
+    const data={kind:"blog",title,summary,bodyUrl:textUp.url,bodyPublicId:textUp.publicId,bodySize:textUp.size,coverUrl,coverPath,published:true,updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
     if(editId)await updateDoc(doc(db,SMV_CONTENT_COLLECTION,editId),data);else await setDoc(doc(db,SMV_CONTENT_COLLECTION,id),{...data,createdAt:serverTimestamp(),publishedAt:serverTimestamp(),authorUid:currentUser.uid});
     smvClearBlogForm();await loadAdminContent();await loadPublicContent();$("blogManagerMsg").innerHTML='<span class="success">Blog published successfully. Blog text is stored on Cloudinary.</span>';
   }catch(e){$("blogManagerMsg").innerHTML='<span class="error">'+escapeHtml(e.message||String(e))+'</span>';}finally{b.disabled=false;if(!b.textContent.includes("PUBLISH"))b.textContent="PUBLISH BLOG";}
@@ -9522,7 +9510,7 @@ window.__SMV_APP_READY=true;
 <script>
 /* Tamil Horoscope Generator - V121: server-side astronomical calculation engine. */
 (function(){
-  const BACKEND_URL='https://smvastro-tamil.onrender.com';
+  const BACKEND_URL='https://smv-astro-1fco.onrender.com';
   const $=id=>document.getElementById(id);
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const rasiList=['மேஷம்','ரிஷபம்','மிதுனம்','கடகம்','சிம்மம்','கன்னி','துலாம்','விருச்சிகம்','தனுசு','மகரம்','கும்பம்','மீனம்'];
@@ -10402,7 +10390,7 @@ window.__SMV_APP_READY=true;
       dashas:(d.dashas?.mahadashas||d.dashas?.periods||[]).slice(0,12).map(x=>({name:x.name,start:x.start,end:x.end}))
     };
     try{
-      const r=await fetch((window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com')+'/api/horoscope/ai-future',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chart,language:lang})});
+      const r=await fetch((window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com')+'/api/horoscope/ai-future',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chart,language:lang})});
       const body=await r.json().catch(()=>({}));
       if(!r.ok)throw new Error(body.error||`AI generation failed (HTTP ${r.status})`);
       const text=String(body.text||'').trim();
@@ -10886,7 +10874,7 @@ window.__SMV_APP_READY=true;
     const slot=root.querySelector('#smvPhase4DasaSlot'); if(!slot)return;
     const escSafe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     try{
-      const base=window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com';
+      const base=window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com';
       let chart=chartOrPayload;
       if(!chart || !Array.isArray(chart.planets) || !chart.lagna){
         const p=chartOrPayload||{};
@@ -10922,7 +10910,7 @@ window.__SMV_APP_READY=true;
     const root=document.getElementById(rootId); if(!root)return;
     const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const ta=lang!=='en'; const R=ta?['மேஷம்','ரிஷபம்','மிதுனம்','கடகம்','சிம்மம்','கன்னி','துலாம்','விருச்சிகம்','தனுசு','மகரம்','கும்பம்','மீனம்']:['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
-    const base=window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com'; const payload={date,time,lat:Number(lat),lon:Number(lon),language:lang,timezone:'Asia/Kolkata',utcOffsetMinutes:330};
+    const base=window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com'; const payload={date,time,lat:Number(lat),lon:Number(lon),language:lang,timezone:'Asia/Kolkata',utcOffsetMinutes:330};
     try{
       const [tr,pa]=await Promise.all([fetch(base+'/api/horoscope/transit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}),fetch(base+'/api/horoscope/panchang',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})]);
       const td=await tr.json().catch(()=>({})), pd=await pa.json().catch(()=>({})); if(!tr.ok)throw new Error(td.error||'Transit calculation failed'); if(!pa.ok)throw new Error(pd.error||'Panchang calculation failed');
@@ -11027,7 +11015,7 @@ window.__SMV_APP_READY=true;
     const root=document.getElementById(rootId); if(!root)return;
     const escSafe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const isCurrent=()=>generationId==null || Number(generationId)===Number(window.__smvHoroscopeGenerationId||generationId);
-    const base=window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com';
+    const base=window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com';
 
     // FAST/SAFE FIX: cancel any older advanced horoscope request before starting
     // a new one.  This prevents hidden Tamil/English copies from continuing to
@@ -11236,7 +11224,7 @@ if(lat===''||lon===''){
       const timeout=setTimeout(()=>controller.abort(),120000);
       let r;
       try{
-        r=await fetch((window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com')+'/api/horoscope/calculate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,time:normalizedTime,lat:Number(lat),lon:Number(lon),height:0,timezone:'Asia/Kolkata',utcOffsetMinutes:330,houseSystem:'S'}),signal:controller.signal});
+        r=await fetch((window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com')+'/api/horoscope/calculate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,time:normalizedTime,lat:Number(lat),lon:Number(lon),height:0,timezone:'Asia/Kolkata',utcOffsetMinutes:330,houseSystem:'S'}),signal:controller.signal});
       }finally{clearTimeout(timeout);}
       const d=await r.json().catch(()=>({})); if(!r.ok) throw new Error(d.error||`Calculation failed (HTTP ${r.status})`);
       // Render the core horoscope into the hidden result container first.
@@ -11293,7 +11281,7 @@ if(lat===''||lon===''){
 <!-- Legacy fallback authentication block removed in V109. Main Firebase auth is the single login system. -->
 <script>
 (function(){
-  const BACKEND_URL = "https://smvastro-tamil.onrender.com";
+  const BACKEND_URL = "https://smv-astro-1fco.onrender.com";
   const form = document.getElementById("contactForm");
   if(!form) return;
   const btn = document.getElementById("contactSubmit");
@@ -11334,7 +11322,7 @@ if(lat===''||lon===''){
 </script>
 <script type="module">
 (function(){
-  const BACKEND="https://smvastro-tamil.onrender.com";
+  const BACKEND="https://smv-astro-1fco.onrender.com";
   const FBCONFIG={apiKey:"AIzaSyCKXyfZ9sjGmej7ygxHpzHNcNysMXHuvSs",authDomain:"smv-astro.firebaseapp.com",projectId:"smv-astro",storageBucket:"smv-astro.firebasestorage.app",messagingSenderId:"299081899217",appId:"1:299081899217:web:8d558df08e86037ea539f0"};
   let db=null,auth=null;
   const $=id=>document.getElementById(id);
@@ -11862,7 +11850,7 @@ document.addEventListener("click",function(e){
     controller=new AbortController();
     setStatus('Searching location…','');
     try{
-      const r=await fetch('https://smvastro-tamil.onrender.com/api/geocode?q='+encodeURIComponent(q),{signal:controller.signal,headers:{Accept:'application/json'},cache:'no-store'});
+      const r=await fetch('https://smv-astro-1fco.onrender.com/api/geocode?q='+encodeURIComponent(q),{signal:controller.signal,headers:{Accept:'application/json'},cache:'no-store'});
       const data=await r.json().catch(()=>({}));
       if(!r.ok) throw new Error(data.error||'Location search failed');
       render(data.results||[]);
@@ -11895,7 +11883,7 @@ document.addEventListener("click",function(e){
 </style>
 <script id="smv-v145-english-location-and-generator">
 (function(){
-  const BACKEND_URL='https://smvastro-tamil.onrender.com';
+  const BACKEND_URL='https://smv-astro-1fco.onrender.com';
   const $=id=>document.getElementById(id);
 
   function setupLocation(prefix){
@@ -11910,7 +11898,7 @@ document.addEventListener("click",function(e){
     function statusText(t,c){status.textContent=t||'';status.className='smv-location-status'+(c?' '+c:'');}
     function choose(x){place.value=x.place||'';lat.value=Number(x.latitude).toFixed(6);lon.value=Number(x.longitude).toFixed(6);place.dataset.locationSelected='1';place.dataset.latitude=String(x.latitude);place.dataset.longitude=String(x.longitude);clear();statusText('');}
     function render(items){clear();if(!items.length){statusText('No matching location found. Please type a little more.','err');return;}items.forEach(x=>{const b=document.createElement('button');b.type='button';b.className='smv-location-suggestion';b.setAttribute('role','option');b.textContent=x.place;b.addEventListener('click',()=>choose(x));list.appendChild(b);});list.classList.add('show');statusText('Select your exact place from the list.','');}
-    async function search(q){if(q.length<2){clear();statusText('','');return;}if(q===lastQuery)return;lastQuery=q;if(controller)controller.abort();controller=new AbortController();statusText('Searching location…','');try{const r=await fetch((window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com')+'/api/geocode?q='+encodeURIComponent(q),{signal:controller.signal,headers:{Accept:'application/json'},cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Location search failed');render(Array.isArray(data.results)?data.results:[]);}catch(e){if(e.name==='AbortError')return;clear();statusText(e.message||'Unable to search location.','err');}}
+    async function search(q){if(q.length<2){clear();statusText('','');return;}if(q===lastQuery)return;lastQuery=q;if(controller)controller.abort();controller=new AbortController();statusText('Searching location…','');try{const r=await fetch((window.SMV_BACKEND_URL||'https://smv-astro-1fco.onrender.com')+'/api/geocode?q='+encodeURIComponent(q),{signal:controller.signal,headers:{Accept:'application/json'},cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Location search failed');render(Array.isArray(data.results)?data.results:[]);}catch(e){if(e.name==='AbortError')return;clear();statusText(e.message||'Unable to search location.','err');}}
     place.addEventListener('input',()=>{place.dataset.locationSelected='0';lat.value='';lon.value='';lastQuery='';clearTimeout(timer);timer=setTimeout(()=>search(place.value.trim()),500);});
     place.addEventListener('focus',()=>{if(place.value.trim().length>=2&&list.children.length)list.classList.add('show');});
     document.addEventListener('click',e=>{if(!parent.contains(e.target))clear();});
