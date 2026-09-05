@@ -34,10 +34,6 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 const FieldValue = admin.firestore.FieldValue;
-const firestoreTimestampFromUnixSeconds = (value) => {
-  const n = Number(value);
-  return Number.isFinite(n) && n > 0 ? admin.firestore.Timestamp.fromMillis(Math.floor(n * 1000)) : null;
-};
 const RAZORPAY_KEY_ID = String(process.env.RAZORPAY_KEY_ID || "").trim();
 const RAZORPAY_KEY_SECRET = String(process.env.RAZORPAY_KEY_SECRET || "").trim();
 const ADMIN_EMAIL = String(process.env.ADMIN_EMAIL || "").trim();
@@ -1207,10 +1203,7 @@ app.post("/admin/reject-question", express.json({limit:"10kb"}), async (req,res)
           patch.refundId=refund.id||FieldValue.delete();
           patch.refundStatus=String(refund.status||"pending").toLowerCase();
           patch.refundAmount=refund.amount!=null?Number(refund.amount)/100:amount;
-          const refundCreatedTs=firestoreTimestampFromUnixSeconds(refund?.created_at);
-          if(refundCreatedTs) patch.refundCreatedAt=refundCreatedTs;
-          else patch.refundCreatedAt=FieldValue.serverTimestamp();
-          if(String(refund?.status||'').toLowerCase()==='processed') patch.refundProcessedAt=refundCreatedTs||FieldValue.serverTimestamp();
+          patch.refundCreatedAt=FieldValue.serverTimestamp();
           patch.refundPaymentId=refund.payment_id||q.razorpayPaymentId;
           patch.refundRrn=refund?.acquirer_data?.rrn||refund?.acquirer_data?.bank_reference_number||refund?.acquirer_data?.reference_number||FieldValue.delete();
         }catch(refundError){
@@ -1346,41 +1339,14 @@ app.post("/customer/sync-refund", express.json({limit:"10kb"}), async (req,res)=
     const status=String(refund?.status||q.refundStatus||"pending").toLowerCase();
     const amount=refund?.amount!=null?Number(refund.amount)/100:Number(q.refundAmount||q.amount||0);
     const resolvedRrn=refund?.acquirer_data?.rrn||refund?.acquirer_data?.bank_reference_number||refund?.acquirer_data?.reference_number||refund?.rrn||q.refundRrn||null;
-    const refundCreatedTs=firestoreTimestampFromUnixSeconds(refund?.created_at);
     const patch={refundId:refund?.id||q.refundId,refundPaymentId:refund?.payment_id||q.refundPaymentId||q.razorpayPaymentId,refundAmount:amount,refundStatus:status,refundRrn:resolvedRrn||FieldValue.delete(),updatedAt:FieldValue.serverTimestamp()};
-    if(refundCreatedTs) patch.refundCreatedAt=refundCreatedTs;
-    if(status==="processed"||status==="completed") patch.refundProcessedAt=refundCreatedTs||FieldValue.serverTimestamp();
+    if(status==="processed"||status==="completed") patch.refundProcessedAt=FieldValue.serverTimestamp();
     if(status==="failed") patch.refundFailedAt=FieldValue.serverTimestamp();
     await qRef.set(patch,{merge:true});
     return res.json({success:true,refundStatus:status,refundId:patch.refundId,refundAmount:amount,refundRrn:resolvedRrn,refundProcessed:status==="processed"||status==="completed"});
   }catch(e){
     console.error("Refund status sync failed:",e);
     return res.status(502).json({error:e?.error?.description||e?.description||e?.message||"Unable to sync refund status from Razorpay."});
-  }
-});
-
-app.post("/admin/repair-refund-dates", async (req,res)=>{
-  const user=await requireUser(req,res); if(!user)return;
-  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
-  try{
-    const snap=await db.collection("smv_questions").get();
-    const candidates=snap.docs.filter(d=>{const q=d.data()||{};return ["question_rejected","admin_rejected"].includes(String(q.status||"")) && !!q.refundId && !q.refundCreatedAt;});
-    const results=await Promise.allSettled(candidates.map(async d=>{
-      const q=d.data()||{};
-      const refund=await razorpay.refunds.fetch(String(q.refundId));
-      const createdTs=firestoreTimestampFromUnixSeconds(refund?.created_at);
-      if(!createdTs) return null;
-      const status=String(refund?.status||q.refundStatus||"pending").toLowerCase();
-      const patch={refundCreatedAt:createdTs,refundStatus:status,refundAmount:refund?.amount!=null?Number(refund.amount)/100:Number(q.refundAmount||q.amount||0),refundPaymentId:refund?.payment_id||q.refundPaymentId||q.razorpayPaymentId,updatedAt:FieldValue.serverTimestamp()};
-      if(["processed","completed"].includes(status)) patch.refundProcessedAt=createdTs;
-      await d.ref.set(patch,{merge:true});
-      return {questionId:d.id,createdAt:new Date(createdTs.toMillis()).toISOString()};
-    }));
-    const repaired=results.filter(x=>x.status==="fulfilled"&&x.value).map(x=>x.value);
-    return res.json({success:true,repairedCount:repaired.length,repaired});
-  }catch(e){
-    console.error("Refund date repair failed:",e);
-    return res.status(502).json({error:e?.message||"Unable to repair refund dates."});
   }
 });
 
@@ -1397,10 +1363,8 @@ app.post("/admin/sync-refund", express.json({limit:"10kb"}), async (req,res)=>{
     const refund=await razorpay.refunds.fetch(String(q.refundId));
     const status=String(refund?.status||q.refundStatus||"pending").toLowerCase();
     const amount=refund?.amount!=null?Number(refund.amount)/100:Number(q.refundAmount||q.amount||0);
-    const refundCreatedTs=firestoreTimestampFromUnixSeconds(refund?.created_at);
     const patch={refundId:refund?.id||q.refundId,refundPaymentId:refund?.payment_id||q.refundPaymentId||q.razorpayPaymentId,refundAmount:amount,refundStatus:status,updatedAt:FieldValue.serverTimestamp()};
-    if(refundCreatedTs) patch.refundCreatedAt=refundCreatedTs;
-    if(status==="processed"||status==="completed") patch.refundProcessedAt=refundCreatedTs||FieldValue.serverTimestamp();
+    if(status==="processed"||status==="completed") patch.refundProcessedAt=FieldValue.serverTimestamp();
     if(status==="failed") patch.refundFailedAt=FieldValue.serverTimestamp();
     await qRef.set(patch,{merge:true});
     await writeAdminAudit("REFUND_STATUS_SYNCED",questionId,user.uid,{refundId:patch.refundId,refundStatus:status,refundAmount:amount});
@@ -2029,23 +1993,7 @@ app.get("/customer/consultations", async (req, res) => {
     // Read through the trusted backend so Customer Dashboard is not blocked by
     // client-side Firestore rules/indexes. Always return the canonical document
     // ID as questionId, even for older questions created before this fix.
-    // Query only this customer's questions instead of downloading the entire
-    // smv_questions collection. This keeps the Customer Dashboard fast as the
-    // question history grows.
-    const uid = String(user.uid);
-    const email = String(user.email || "").trim().toLowerCase();
-    // Canonical field first. If an older question was written with a legacy
-    // customer identifier field, verify those identifiers as well.
-    const [byCustomerId, byCustomerUid, byFirebaseUid, byCustomerEmail] = await Promise.all([
-      db.collection("smv_questions").where("customerId", "==", uid).get(),
-      db.collection("smv_questions").where("customerUid", "==", uid).get(),
-      db.collection("smv_questions").where("firebaseUid", "==", uid).get(),
-      email ? db.collection("smv_questions").where("customerEmail", "==", email).get() : Promise.resolve({ docs: [] })
-    ]);
-    const seen = new Set();
-    const docs = [...byCustomerId.docs, ...byCustomerUid.docs, ...byFirebaseUid.docs, ...byCustomerEmail.docs]
-      .filter(d => { if (seen.has(d.id)) return false; seen.add(d.id); return true; });
-    const snap = { docs };
+    const snap = await db.collection("smv_questions").get();
     const toIso = (v) => {
       try {
         if (!v) return null;
@@ -2056,12 +2004,7 @@ app.get("/customer/consultations", async (req, res) => {
       } catch (_) { return null; }
     };
     const questions = snap.docs
-      .filter(d => {
-        const q = d.data() || {};
-        const ids = [q.customerId, q.customerUid, q.firebaseUid].map(v => String(v || ""));
-        const qEmail = String(q.customerEmail || q.email || "").trim().toLowerCase();
-        return ids.includes(uid) || (!!email && qEmail === email);
-      })
+      .filter(d => String(d.data()?.customerId || "") === String(user.uid))
       .map(d => {
         const q = d.data() || {};
         return {
@@ -2845,105 +2788,6 @@ app.post("/api/horoscope/calculate", async (req,res)=>{
   }
 });
 
-
-app.post("/admin/translate-blog", express.json({ limit: "250kb" }), async (req, res) => {
-  try {
-    const user = await requireUser(req, res);
-    if (!user) return;
-    if (!(await isAdminUser(user))) return res.status(403).json({ error: "Admin access denied." });
-    if (!GEMINI_API_KEY) {
-      return res.status(503).json({ error: "Blog translation is not configured. Add GEMINI_API_KEY in Render Environment Variables." });
-    }
-
-    const title = String(req.body?.title || "").trim();
-    const summary = String(req.body?.summary || "").trim();
-    const body = String(req.body?.body || "").trim();
-    if (!title || !body) return res.status(400).json({ error: "Blog title and content are required." });
-    if (body.length > 180000) return res.status(413).json({ error: "Blog content is too large for automatic translation." });
-
-    const prompt = `
-Translate the following English blog content into natural, fluent Tamil.
-
-Rules:
-- Translate the title, summary and full blog faithfully; do not summarize, shorten, add facts, or change meaning.
-- Output Tamil only. Keep proper names, brand names, website names, product names, and technical terms when a natural Tamil equivalent would be unclear.
-- Keep SMV exactly as "SMV".
-- Preserve paragraph breaks, bullet/numbered-list structure, punctuation, and headings as closely as possible.
-- Do not add translator notes, quotation marks, explanations, or markdown fences.
-- This is a website blog, so use clear, polished, reader-friendly Tamil.
-- Do not translate URLs or email addresses.
-- Return valid JSON only with exactly these keys: titleTa, summaryTa, bodyTa.
-
-English title:
-${JSON.stringify(title)}
-
-English summary:
-${JSON.stringify(summary)}
-
-English blog:
-${JSON.stringify(body)}
-`;
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 45000);
-    try {
-      let r = null, data = {}, lastDetail = "";
-      for (let attempt = 0; attempt < 3; attempt++) {
-        r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
-          method: "POST",
-          headers: { "x-goog-api-key": GEMINI_API_KEY, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            system_instruction: {
-              parts: [{
-                text: "You are a professional English-to-Tamil website translator. Translate faithfully and return only the requested JSON object. Never add commentary."
-              }]
-            },
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: {
-              maxOutputTokens: Math.min(12000, Math.max(2500, Math.ceil((title.length + summary.length + body.length) * 1.7))),
-              thinkingConfig: { thinkingLevel: "low" },
-              responseMimeType: "application/json"
-            }
-          }),
-          signal: controller.signal
-        });
-        data = await r.json().catch(() => ({}));
-        if (r.ok) break;
-        lastDetail = data?.error?.message || `Gemini API HTTP ${r.status}`;
-        if (![429,500,502,503,504].includes(r.status) || attempt === 2) break;
-        await new Promise(resolve => setTimeout(resolve, 1200 * (2 ** attempt)));
-      }
-      if (!r?.ok) return res.status(502).json({ error: `Blog translation service error: ${lastDetail}` });
-
-      const raw = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim();
-      if (!raw) return res.status(502).json({ error: "Blog translation service returned an empty result. Please try again." });
-
-      let translated;
-      try { translated = JSON.parse(raw); }
-      catch (_) {
-        const cleaned = raw.replace(/^```json\s*/i, "").replace(/\s*```$/i, "").trim();
-        try { translated = JSON.parse(cleaned); } catch (e) {
-          return res.status(502).json({ error: "Blog translation returned an invalid format. Please try again." });
-        }
-      }
-
-      const titleTa = String(translated?.titleTa || "").trim();
-      const summaryTa = String(translated?.summaryTa || "").trim();
-      const bodyTa = String(translated?.bodyTa || "").trim();
-      if (!titleTa || !bodyTa) return res.status(502).json({ error: "Tamil translation was incomplete. Please try again." });
-
-      return res.json({ ok: true, titleTa, summaryTa, bodyTa, model: GEMINI_MODEL });
-    } finally {
-      clearTimeout(timer);
-    }
-  } catch (e) {
-    console.error("Blog translation error:", e?.stack || e);
-    return res.status(500).json({
-      error: e?.name === "AbortError" ? "Blog translation timed out. Please try again." : (e?.message || "Blog translation failed.")
-    });
-  }
-});
-
 app.post("/api/horoscope/ai-future", express.json({ limit: "60kb" }), async (req, res) => {
   try {
     if (!GEMINI_API_KEY) {
@@ -3111,11 +2955,8 @@ app.post("/razorpay/webhook", express.raw({ type: "application/json" }), async (
               refundStatus: status || (eventType === "refund.processed" ? "processed" : eventType.replace("refund.", "")),
               updatedAt: FieldValue.serverTimestamp()
             };
-            const webhookRefundCreatedTs=firestoreTimestampFromUnixSeconds(refundEntity.created_at);
-            const webhookEventTs=firestoreTimestampFromUnixSeconds(event?.created_at);
-            if(webhookRefundCreatedTs) patch.refundCreatedAt=webhookRefundCreatedTs;
-            if (eventType === "refund.processed" || status === "processed") patch.refundProcessedAt = webhookEventTs || webhookRefundCreatedTs || FieldValue.serverTimestamp();
-            if (eventType === "refund.failed" || status === "failed") patch.refundFailedAt = webhookEventTs || webhookRefundCreatedTs || FieldValue.serverTimestamp();
+            if (eventType === "refund.processed" || status === "processed") patch.refundProcessedAt = FieldValue.serverTimestamp();
+            if (eventType === "refund.failed" || status === "failed") patch.refundFailedAt = FieldValue.serverTimestamp();
             await qRef.set(patch, {merge:true});
           }
         } catch (reconcileError) {
