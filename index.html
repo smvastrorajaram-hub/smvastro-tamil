@@ -7652,10 +7652,14 @@ const userStatus=String(
      withdrawalSnap=withdrawalSnapFast||{docs:[]};
    }catch(e){ console.warn('Astrologer dashboard primary data load skipped:',e); }
    let availableகேள்விs=qs.docs.filter(d=>{const q=d.data()||{};return q.astrologerId===currentUser.uid&&!!q.adminகேள்விApprovedAt&&['assigned_to_astrologer','available_to_astrologers','reallocated'].includes(String(q.allocationStatus||''))&&['admin_approved','paid'].includes(String(q.status||''));}).map(d=>({id:d.id,...d.data()}));
-   try{const autoInbox=await withTimeout(renderApi('/astrologer/available-questions',{method:'GET'}),12000);const autoQuestions=(autoInbox?.questions||[]).map(q=>({id:q.id,...q,astrologerCommissionAmount:Number(q.astrologerCommissionAmount||0)}));availableகேள்விs=[...availableகேள்விs,...autoQuestions.filter(a=>!availableகேள்விs.some(x=>x.id===a.id))];}catch(e){console.warn('Auto-mode available questions load skipped:',e);}
+   try{const autoInbox=await withTimeout(renderApi('/astrologer/available-questions',{method:'GET'}),12000);const autoQuestions=(autoInbox?.questions||[]).map(q=>{const amount=Number(q.amount??q.paymentAmount??q.paidAmount??q.price??0);const pct=Number(q.commissionPercent??q.commissionRate??autoInbox?.commissionPercent??0);const commission=Number(q.astrologerCommissionAmount??q.commissionAmount);const finalCommission=Number.isFinite(commission)&&commission>0?commission:((Number.isFinite(amount)&&amount>0&&Number.isFinite(pct))?Math.round(amount*pct)/100:0);return {id:q.id,...q,amount,commissionPercent:pct,commissionRate:pct,astrologerCommissionAmount:finalCommission};});availableகேள்விs=[...availableகேள்விs,...autoQuestions.filter(a=>!availableகேள்விs.some(x=>x.id===a.id))];}catch(e){console.warn('Auto-mode available questions load skipped:',e);}
    // Astrologer question lists: newest first.
    availableகேள்விs.sort((a,b)=>smvகேள்விSortTime(b)-smvகேள்விSortTime(a));
    const activeகேள்விs=qs.docs.filter(d=>{const q=d.data()||{};const st=String(q.status||'');const al=String(q.allocationStatus||'');const hasAnswer=!!String(q.answer||'').trim();const isPublicAvailable=['paid','admin_approved'].includes(st)&&['assigned_to_astrologer','available_to_astrologers','reallocated'].includes(al)&&!!q.adminகேள்விApprovedAt;const isClaimedUnanswered=st==='admin_approved'&&al==='claimed_by_astrologer'&&(!hasAnswer||q.astrologerEditMode===true);return q.astrologerId===currentUser.uid&&(isPublicAvailable||isClaimedUnanswered);});
+   // In Auto Approval mode, unclaimed public questions are active work items too.
+   // Include them in the dashboard count without changing ownership/allocation.
+   const publicActiveகேள்விs=availableகேள்விs.filter(q=>!q.astrologerId && String(q.workflowMode||'').toLowerCase()==='auto' && String(q.allocationStatus||'').toLowerCase()==='available_to_astrologers' && ['available_to_astrologers','paid'].includes(String(q.status||'').toLowerCase()) && !String(q.answer||'').trim());
+   activeகேள்விs.push(...publicActiveகேள்விs.filter(pq=>!activeகேள்விs.some(d=>d.id===pq.id)));
    const approved=ad.status==='approved';
   // Earnings and withdrawals are optional dashboard data. Load them in
   // parallel so neither one can unnecessarily hold up the other. The critical
@@ -7726,7 +7730,7 @@ ${ad.status === 'rejected' && ad.rejectionReason
   : ''}</div>
     <div class="card"><h3>மொத்த வருமானம்</h3><p style="font-size:28px"><b class="smv-earnings-total ${Number(ep.totalEarnings||0)>=300?'is-green':''}">₹${Number(ep.totalEarnings||0).toFixed(2)}</b></p><p>மொத்தத் தொகைத் திரும்பப் பெறுதல்: <b>₹${Number(ep.totalWithdrawals||0).toFixed(2)}</b></p><p>திரும்பப் பெறக்கூடிய தொகை: <b class="smv-earnings-available ${Number(ep.availableToWithdraw||0)>=300?'is-green':'is-red'}">₹${Number(ep.availableToWithdraw||0).toFixed(2)}</b></p><p class="small">குறைந்தபட்சத் தொகைத் திரும்பப் பெறுதல்: ₹${Number(ep.minimumWithdrawal||300).toFixed(2)}</p>${ep.withdrawalCooldownActive ? `<p class="smv-withdraw-locked"><b>🔒 Withdrawal locked for 7 days after the last withdrawal request.</b><br><span class="small">Available again: ${escapeHtml(smvDateTime(new Date(ep.withdrawalCooldownEndsAt)))}</span></p><button class="btn smv-withdraw-btn is-red" id="withdrawBtn" disabled>WITHDRAW</button>` : ep.withdrawalEligible ? '<p class="smv-withdraw-ready"><b>✓ You can withdraw</b></p><button class="btn smv-withdraw-btn is-green" id="withdrawBtn">WITHDRAW</button>' : '<p class="smv-withdraw-locked"><b>Reach ₹300 to request a withdrawal.</b></p><button class="btn smv-withdraw-btn is-red" id="withdrawBtn" disabled>WITHDRAW</button>'}</div>
    </div>
-   <div class="card" style="margin-top:16px"><h3>பொது கேள்விப் பெட்டி</h3><p class="small">நிர்வாகி உங்களுக்கு ஒதுக்கிய பிறப்பு விவரங்களும் கேள்விக் கட்டணமும் கொண்ட கிடைக்கக்கூடிய கேள்விகள் இங்கே காட்டப்படும்.</p>${!approved?'<div class="empty">Your astrologer profile must be approved by Admin before you can claim questions.</div>':availableகேள்விs.length?availableகேள்விs.slice(0,50).map(q=>`<div class="card" style="margin:10px 0"><b>${escapeHtml(q.question||'கேள்வி')}</b><div class="small"><b>பிறப்பு விவரங்கள்:</b> ${escapeHtml(q.birthName||q.birthDetails?.name||'')} · ${escapeHtml(q.birthDate||q.birthDetails?.birthDate||'')} · ${escapeHtml(q.birthTime||q.birthDetails?.birthTime||'')} · ${escapeHtml(q.birthPlace||q.birthDetails?.birthPlace||'')} · ${escapeHtml(q.birthGender||q.birthDetails?.birthGender||'')}</div><div class="small"><b>கேள்வி எண்: ${escapeHtml(q.id||'')}</b> · <b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(q.createdAt||q.paymentRecordedAt||q.updatedAt))}</div><div class="small"><b>கேள்வி Price: ₹${Number(q.astrologerCommissionAmount||0).toFixed(2)}</b></div><button class="btn" data-claim-question="${q.id}">CLAIM & ANSWER</button></div>`).join(''):'<div class="empty">தற்போது பணம் செலுத்தப்பட்ட பொது கேள்விகள் எதுவும் இல்லை.</div>'}</div>
+   <div class="card" style="margin-top:16px"><h3>பொது கேள்விப் பெட்டி</h3><p class="small">நிர்வாகி உங்களுக்கு ஒதுக்கிய பிறப்பு விவரங்களும் கேள்விக் கட்டணமும் கொண்ட கிடைக்கக்கூடிய கேள்விகள் இங்கே காட்டப்படும்.</p>${!approved?'<div class="empty">Your astrologer profile must be approved by Admin before you can claim questions.</div>':availableகேள்விs.length?availableகேள்விs.slice(0,50).map(q=>`<div class="card" style="margin:10px 0"><b>${escapeHtml(q.question||'கேள்வி')}</b><div class="small"><b>பிறப்பு விவரங்கள்:</b> ${escapeHtml(q.birthName||q.birthDetails?.name||'')} · ${escapeHtml(q.birthDate||q.birthDetails?.birthDate||'')} · ${escapeHtml(q.birthTime||q.birthDetails?.birthTime||'')} · ${escapeHtml(q.birthPlace||q.birthDetails?.birthPlace||'')} · ${escapeHtml(q.birthGender||q.birthDetails?.birthGender||'')}</div><div class="small"><b>கேள்வி எண்: ${escapeHtml(q.id||'')}</b> · <b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(q.createdAt||q.paymentRecordedAt||q.updatedAt))}</div><div class="small"><b>கேள்வி Price: ₹${Number(q.astrologerCommissionAmount??(Number(q.amount||q.paymentAmount||0)*Number(q.commissionPercent||q.commissionRate||0)/100)||0).toFixed(2)}</b></div><button class="btn" data-claim-question="${q.id}">CLAIM & ANSWER</button></div>`).join(''):'<div class="empty">தற்போது பணம் செலுத்தப்பட்ட பொது கேள்விகள் எதுவும் இல்லை.</div>'}</div>
 <div class="card" id="astroகேள்விQueue" style="margin-top:16px">
   <h3>கேள்விகள் — பதிலளிக்கப்படாத வரிசை</h3>
   <p class="small">உங்களுக்காகப் பெறப்பட்டு, உங்கள் பதிலுக்காகக் காத்திருக்கும் கேள்விகள் இங்கே காட்டப்படும்.</p>
@@ -8968,7 +8972,7 @@ answerBox.innerHTML =
         return `<div class="card" style="margin:10px 0">
           <b>கேள்வி எண்: ${escapeHtml(d.id)}</b><br><b>${escapeHtml(q.question || 'கேள்வி')}</b>
           <p style="white-space:pre-wrap">${escapeHtml(q.answer || '')}</p>
-          <div class="small">ஜோதிடர்: <b>${escapeHtml(q.astrologerName||q.astrologerId||'')}</b> · Word Count: <b>${Number(q.answerWordCount||0)}</b> · Commission: <b>₹${Number(q.astrologerCommissionAmount||0).toFixed(2)}</b></div>
+          <div class="small">ஜோதிடர்: <b>${escapeHtml(q.astrologerName||q.astrologerId||'')}</b> · Word Count: <b>${Number(q.answerWordCount||0)}</b> · Commission: <b>₹${Number(q.astrologerCommissionAmount??(Number(q.amount||q.paymentAmount||0)*Number(q.commissionPercent||q.commissionRate||0)/100)||0).toFixed(2)}</b></div>
           ${String(q.status||'').toLowerCase()==='revision_required' ? '<div class="small" style="margin-top:6px;color:#a61f1f;font-weight:800">🔴 Revision required — waiting for the same Astrologer to resubmit.</div>' : (q.editReopenedAt && ['processing','answer_draft','admin_review'].includes(String(q.status||'').toLowerCase()) ? '<div class="small" style="margin-top:6px;color:#176b45;font-weight:800">🟢 Revised answer received — ready for Admin review.</div>' : '')}
           <div class="action-row">
             <button class="btn" data-approve-answer="${d.id}">APPROVE ANSWER</button>
@@ -9714,7 +9718,7 @@ $('adminReviews')
     };
 
   });
-  $('adminகேள்விs').innerHTML=questions.empty?'<div class="empty">No questions yet.</div>':questions.docs.slice().sort((a,b)=>smvAdminSortTime(b)-smvAdminSortTime(a)).slice(0,50).map(d=>{const q=d.data();return `<div style="padding:10px;border-bottom:1px solid #eee"><b>${escapeHtml(q.question||'கேள்வி')}</b><div class="small">நிலை: ${escapeHtml(q.status||'')} · Customer: ${escapeHtml(q.customerId||'')} · Price paid: ₹${Number(q.amount||0).toFixed(2)} · Astrologer share: ₹${Number(q.astrologerCommissionAmount||0).toFixed(2)} · Admin share: ₹${Number(q.adminCommissionAmount||0).toFixed(2)} · ${escapeHtml(q.astrologerName||'Unclaimed')}</div><div class="small"><b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(q.updatedAt||q.answerApprovedAt||q.adminகேள்விApprovedAt||q.createdAt))}</div></div>`}).join('');
+  $('adminகேள்விs').innerHTML=questions.empty?'<div class="empty">No questions yet.</div>':questions.docs.slice().sort((a,b)=>smvAdminSortTime(b)-smvAdminSortTime(a)).slice(0,50).map(d=>{const q=d.data();return `<div style="padding:10px;border-bottom:1px solid #eee"><b>${escapeHtml(q.question||'கேள்வி')}</b><div class="small">நிலை: ${escapeHtml(q.status||'')} · Customer: ${escapeHtml(q.customerId||'')} · Price paid: ₹${Number(q.amount||0).toFixed(2)} · Astrologer share: ₹${Number(q.astrologerCommissionAmount??(Number(q.amount||q.paymentAmount||0)*Number(q.commissionPercent||q.commissionRate||0)/100)||0).toFixed(2)} · Admin share: ₹${Number(q.adminCommissionAmount||0).toFixed(2)} · ${escapeHtml(q.astrologerName||'Unclaimed')}</div><div class="small"><b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(q.updatedAt||q.answerApprovedAt||q.adminகேள்விApprovedAt||q.createdAt))}</div></div>`}).join('');
  }catch(e){$('adminSummary').innerHTML='';$('pendingAstros').innerHTML='<div class="empty error">Unable to load admin data: '+escapeHtml(e.message||String(e))+'</div>';}
 }
 if(auth){ onAuthStateChanged(auth,async user=>{
@@ -14220,6 +14224,22 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
   setTimeout(start,800);
+})();
+</script>
+
+<script id="smv-install-app-homepage-only">
+(function(){
+  var section=document.getElementById('smvInstallAppSection');
+  if(!section) return;
+  function isDashboardVisible(){
+    var ids=['dashboard','admin'];
+    return ids.some(function(id){var el=document.getElementById(id);return el && !el.classList.contains('hidden') && getComputedStyle(el).display!=='none';});
+  }
+  function sync(){ section.style.display=isDashboardVisible()?'none':''; }
+  sync();
+  var obs=new MutationObserver(sync);
+  ['dashboard','admin'].forEach(function(id){var el=document.getElementById(id);if(el) obs.observe(el,{attributes:true,attributeFilter:['class','style']});});
+  setInterval(sync,1000);
 })();
 </script>
 
