@@ -280,7 +280,7 @@ footer{text-align:center;padding:35px 16px;color:var(--muted);border-top:3px dou
 .customer-option{border-top:3px solid #8f1d1d}
 .astrologer-option{border-top:3px solid #b8860b}
 @media(max-width:760px){
- .hero{padding:34px 8px 32px}.hero h1{font-size:clamp(34px,10vw,49px)}.hero p{font-size:15px;line-height:1.75}.home-rule:before,.home-rule:after{width:18vw}.hero-subline{font-size:9px;letter-spacing:1.2px}.registration-option{min-height:0}
+ .hero{padding:34px 8px 32px}.hero h1{font-size:clamp(34px,10vw,49px);text-align:center;width:100%;margin-left:auto;margin-right:auto}.hero p{font-size:15px;line-height:1.75}.home-rule:before,.home-rule:after{width:18vw}.hero-subline{font-size:9px;letter-spacing:1.2px}.registration-option{min-height:0}
 }
 
 /* V58 astrologer registration: traditional temple-gold identity */
@@ -5253,6 +5253,239 @@ html body header .brand .brand-text .logo a {
   margin-right:auto!important;
 }
 </style>
+
+<style id="smv-media-horizontal-desktop-final-fix">
+/* FINAL MEDIA / MEDIA DESKTOP FIX
+   Desktop: use the available website width with wide horizontal cards.
+   Mobile: keep the normal compact single-column layout. */
+#smv-content-hub #publicMedia{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+
+#smv-content-hub #publicMedia > .grid{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  display:grid!important;
+  align-items:start!important;
+  justify-items:stretch!important;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr))!important;
+  gap:16px!important;
+  margin:10px 0 0!important;
+  box-sizing:border-box!important;
+}
+
+#smv-content-hub #publicMedia > .grid > .media-card{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  align-self:start!important;
+  box-sizing:border-box!important;
+}
+
+#smv-content-hub #publicMedia > .grid > .media-card > img,
+#smv-content-hub #publicMedia > .grid > .media-card > video{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:auto!important;
+  max-height:360px!important;
+  object-fit:contain!important;
+  box-sizing:border-box!important;
+}
+
+/* PDF cards no longer stretch to match a taller video/media card. */
+#smv-content-hub #publicMedia > .grid > .media-card:not(:has(img)):not(:has(video)):not(:has(audio)){
+  align-self:start!important;
+}
+
+@media (min-width:768px){
+  #smv-content-hub{
+    width:100%!important;
+    max-width:1180px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    box-sizing:border-box!important;
+  }
+  #smv-content-hub .feature-shell{
+    width:100%!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+  }
+}
+
+@media (max-width:700px){
+  /* Mobile remains compact and single-column. */
+  #smv-content-hub #publicMedia > .grid{
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+    margin-top:7px!important;
+  }
+  #smv-content-hub #publicMedia > .grid > .media-card{
+    width:100%!important;
+    margin:0!important;
+    padding:7px!important;
+  }
+  #smv-content-hub #publicMedia > .grid > .media-card > img,
+  #smv-content-hub #publicMedia > .grid > .media-card > video{
+    max-height:180px!important;
+  }
+}
+
+@media (min-width:701px) and (max-width:767px){
+  #smv-content-hub #publicMedia > .grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+}
+</style>
+
+<style id="smv-media-desktop-video-music-pdf-final">
+/* FINAL MEDIA ORDER + DESKTOP HORIZONTAL LAYOUT
+   Desktop: Video first, Music next, PDF files after that, all side-by-side.
+   Mobile: keep the normal compact single-column layout. */
+#smv-content-hub #publicMedia .smv-media-horizontal-grid{width:100%!important;max-width:none!important;min-width:0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important;align-items:start!important;margin:10px 0 0!important;box-sizing:border-box!important;}
+#smv-content-hub #publicMedia .smv-media-horizontal-grid > .media-card{width:100%!important;min-width:0!important;max-width:none!important;margin:0!important;align-self:start!important;box-sizing:border-box!important;overflow:hidden!important;}
+#smv-content-hub #publicMedia .smv-media-horizontal-grid > .media-card h3{overflow-wrap:anywhere!important;word-break:break-word!important;}
+#smv-content-hub #publicMedia .media-video video,#smv-content-hub #publicMedia .media-image img{display:block!important;width:100%!important;max-width:100%!important;height:260px!important;max-height:260px!important;object-fit:contain!important;box-sizing:border-box!important;}
+#smv-content-hub #publicMedia .media-music audio{width:100%!important;max-width:100%!important;}
+#smv-content-hub #publicMedia .media-pdf{min-height:150px!important;}
+@media (min-width:768px) and (max-width:1100px){#smv-content-hub #publicMedia .smv-media-horizontal-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
+@media (min-width:1101px){#smv-content-hub #publicMedia .smv-media-horizontal-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}}
+@media (max-width:767px){#smv-content-hub #publicMedia .smv-media-horizontal-grid{grid-template-columns:1fr!important;gap:7px!important;margin-top:7px!important;}#smv-content-hub #publicMedia .smv-media-horizontal-grid > .media-card{width:100%!important;margin:0!important;padding:7px!important;}#smv-content-hub #publicMedia .media-video video,#smv-content-hub #publicMedia .media-image img{height:auto!important;max-height:180px!important;}}
+</style>
+
+<style id="smv-media-desktop-stacked-type-rows-final">
+/* FINAL MEDIA LAYOUT: desktop only. Each media type gets its own horizontal row.
+   Order: Video row, Music row, PDF row, then Images if present. Mobile stays compact. */
+#smv-content-hub #publicMedia{width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;}
+#smv-content-hub #publicMedia .smv-media-horizontal-grid{display:block!important;width:100%!important;margin:0!important;}
+#smv-content-hub #publicMedia .smv-media-type-section{display:block!important;width:100%!important;margin:0 0 18px!important;padding:0!important;}
+#smv-content-hub #publicMedia .smv-media-type-title{font-size:18px!important;line-height:1.25!important;font-weight:800!important;margin:0 0 8px!important;padding:0 0 5px!important;border-bottom:1px solid var(--line,#e3d6bd)!important;color:var(--maroon,#7a2a1c)!important;}
+#smv-content-hub #publicMedia .smv-media-type-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;width:100%!important;min-width:0!important;margin:0!important;align-items:start!important;}
+#smv-content-hub #publicMedia .smv-media-type-grid>.media-card{width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;margin:0!important;padding:10px!important;box-sizing:border-box!important;align-self:start!important;overflow:hidden!important;}
+#smv-content-hub #publicMedia .smv-media-type-grid>.media-card h3{font-size:16px!important;line-height:1.3!important;margin:0 0 7px!important;overflow-wrap:anywhere!important;word-break:break-word!important;}
+#smv-content-hub #publicMedia .media-video video{display:block!important;width:100%!important;height:190px!important;max-height:190px!important;object-fit:contain!important;box-sizing:border-box!important;}
+#smv-content-hub #publicMedia .media-music audio{display:block!important;width:100%!important;height:40px!important;margin:5px 0!important;}
+#smv-content-hub #publicMedia .media-pdf{min-height:0!important;}
+#smv-content-hub #publicMedia .media-image img{display:block!important;width:100%!important;height:170px!important;max-height:170px!important;object-fit:contain!important;box-sizing:border-box!important;}
+#smv-content-hub #publicMedia .media-card .btn{margin-top:6px!important;}
+@media (min-width:768px) and (max-width:1050px){
+  #smv-content-hub #publicMedia .smv-media-type-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+}
+@media (max-width:767px){
+  /* Mobile: compact, normal single-column cards; no desktop row sizing. */
+  #smv-content-hub #publicMedia .smv-media-type-section{margin:0 0 9px!important;}
+  #smv-content-hub #publicMedia .smv-media-type-title{font-size:15px!important;margin:0 0 5px!important;padding:0 0 3px!important;}
+  #smv-content-hub #publicMedia .smv-media-type-grid{grid-template-columns:1fr!important;gap:7px!important;}
+  #smv-content-hub #publicMedia .smv-media-type-grid>.media-card{width:100%!important;padding:7px!important;margin:0!important;}
+  #smv-content-hub #publicMedia .smv-media-type-grid>.media-card h3{font-size:14px!important;margin:0 0 5px!important;}
+  #smv-content-hub #publicMedia .media-video video{height:auto!important;max-height:180px!important;}
+  #smv-content-hub #publicMedia .media-image img{height:auto!important;max-height:120px!important;}
+  #smv-content-hub #publicMedia .media-music audio{height:36px!important;}
+}
+</style>
+<style id="smv-media-fixed-desktop-size-final">
+/* FINAL REQUEST: fixed card size on DESKTOP ONLY. Mobile is intentionally untouched. */
+@media (min-width: 768px){
+  #smv-content-hub #publicMedia .smv-media-type-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:14px!important;
+    align-items:start!important;
+  }
+  #smv-content-hub #publicMedia .smv-media-type-grid>.media-card{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    align-self:start!important;
+  }
+  /* Video: fixed compact desktop box */
+  #smv-content-hub #publicMedia .media-video.media-card{
+    height:285px!important;
+    min-height:285px!important;
+    max-height:285px!important;
+  }
+  #smv-content-hub #publicMedia .media-video video{
+    width:100%!important;
+    height:190px!important;
+    max-height:190px!important;
+    object-fit:contain!important;
+  }
+  /* Music: deliberately shorter than video */
+  #smv-content-hub #publicMedia .media-music.media-card{
+    height:115px!important;
+    min-height:115px!important;
+    max-height:115px!important;
+  }
+  #smv-content-hub #publicMedia .media-music audio{
+    width:100%!important;
+    height:38px!important;
+    margin:5px 0!important;
+  }
+  /* PDF: fixed compact desktop box */
+  #smv-content-hub #publicMedia .media-pdf.media-card{
+    height:205px!important;
+    min-height:205px!important;
+    max-height:205px!important;
+  }
+  #smv-content-hub #publicMedia .media-pdf iframe,
+  #smv-content-hub #publicMedia .media-pdf embed{
+    width:100%!important;
+    height:125px!important;
+    max-height:125px!important;
+    display:block!important;
+  }
+  #smv-content-hub #publicMedia .media-card h3{
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+}
+@media (min-width:768px) and (max-width:1050px){
+  #smv-content-hub #publicMedia .smv-media-type-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+}
+</style>
+<style id="smv-hero-madurai-veeran-final">
+#home.hero .hero-quote{font-family:Georgia,"Times New Roman",serif;font-weight:800;color:#7e1818;font-size:18px;line-height:1.6;margin:8px auto 18px!important}
+#home.hero p:not(.hero-quote){max-width:780px}
+@media(max-width:600px){#home.hero .hero-quote{font-size:15px;line-height:1.6;margin:7px auto 14px!important}}
+</style>
+<style id="smv-tamil-hero-third-line-left-final">
+/* Mobile only: move the third Hero line slightly left so it visually aligns with the second line. */
+@media (max-width: 767px){
+  #home.hero h1 .smv-hero-line-3{
+    display:inline-block!important;
+    transform:translateX(-12px)!important;
+  }
+}
+</style>
+
+<style id="smv-tamil-header-two-buttons-full-fit-final">
+/* Only the two Tamil header labels need extra width so every character remains visible. */
+#contentNav, #dashLink{
+  width:132px !important;
+  min-width:132px !important;
+  white-space:nowrap !important;
+  overflow:visible !important;
+}
+@media(max-width:760px){
+  #contentNav, #dashLink{
+    width:132px !important;
+    min-width:132px !important;
+    padding-left:6px !important;
+    padding-right:6px !important;
+  }
+}
+</style>
 </head>
 <body class="lang-tamil">
 <header>
@@ -5267,9 +5500,9 @@ html body header .brand .brand-text .logo a {
 <nav>
 <a href="#home">முகப்பு</a>
 <a href="#tamil-horoscope" id="horoscopeNav">ஜாதகம்</a>
-<button class="btn" id="contentNav" type="button">வலைப்பதிவுகள்</button>
+<button class="btn" id="contentNav" type="button">வலைப்பதிவு</button>
 <a href="#contact" id="contactNav">தொடர்பு</a>
-<a class="hidden" href="#dashboard" id="dashLink">முகப்புப் பலகை</a>
+<a class="hidden" href="#dashboard" id="dashLink">டாஷ்போர்டு</a>
 <!-- adminLink retained for backward compatibility, but NEVER shown in the header -->
 <a aria-hidden="true" class="hidden" href="#admin" id="adminLink" tabindex="-1">நிர்வாகம்</a>
 <button class="btn" id="authBtn">உள்நுழைவு</button>
@@ -5279,11 +5512,13 @@ html body header .brand .brand-text .logo a {
 </header>
 <main class="container">
 <section class="hero" id="home">
-<div class="home-rule"><span>ॐ</span><span>வேதம் • ஜோதிடம் • வழிகாட்டுதல்</span><span>ॐ</span></div>
-<span class="badge">SMV ASTRO-க்கு வரவேற்கிறோம்</span>
-<h1>சிறந்த நாளைக்கான நம்பகமான ஜோதிட வழிகாட்டுதல்</h1>
-<p>பாரம்பரிய இந்திய ஜோதிட முறையின் அடிப்படையில், வாழ்க்கை, உறவுகள், தொழில் மற்றும் முக்கிய முடிவுகளுக்கான நம்பகமான ஜோதிட வழிகாட்டுதலை வழங்குகிறோம் — நம்பகமான ஜோதிடர்களுடன் தனிப்பட்ட ஆலோசனை அனுபவம்.</p>
-<div class="hero-subline"><span>பாரம்பரிய ஞானம்</span><span>•</span><span>தனிப்பட்ட வழிகாட்டுதல்</span><span>•</span><span>நம்பகமான ஆலோசனை</span></div>
+<div class="home-rule"><span>ॐ</span><span>🔱 SMV ASTRO 🔱</span><span>ॐ</span></div>
+<span class="badge">🔱 ஓம் ஸ்ரீ மதுரை வீரையா துணை 🔱</span>
+<h1><span class="smv-hero-line-1">அருள் வழி <span class="smv-hero-dot">•</span></span> <span class="smv-hero-line-2">துணிவு வழி <span class="smv-hero-dot">•</span></span> <span class="smv-hero-line-3">தெளிவு வழி</span></h1>
+<p>மதுரை வீரனின் அருளோடு, உங்கள் வாழ்க்கைப் பாதையின் தெளிவான வழிகாட்டுதல்</p>
+<p class="hero-quote">“துணிவுடன் முன்னேறுங்கள்… நம்பிக்கையுடன் வாழுங்கள்…”</p>
+<p>தமிழர் பாரம்பரியத்தில் வீரத்தையும் காவலையும் நினைவூட்டும் மதுரை வீரன் அருள் என்ற நம்பிக்கையையும், பாரம்பரிய ஜோதிட அறிவையும் இணைத்து, உங்கள் வாழ்க்கைப் பயணத்தைப் புரிந்துகொள்ள <b>SMV ASTRO</b> ஒரு நம்பகமான தளமாக உருவாக்கப்பட்டுள்ளது.</p>
+<div class="hero-subline"><span>ஜாதகம்</span><span>•</span><span>பஞ்சாங்கம்</span><span>•</span><span>கிரக நிலைகள்</span><span>•</span><span>தசா காலங்கள்</span><span>•</span><span>கோச்சாரம்</span><span>•</span><span>ஜோதிடப் பகுப்பாய்வு</span></div>
 </section>
 <section aria-labelledby="askNowHeading" class="smv-new-asknow" id="askNowSection">
 <div class="smv-new-asknow-inner">
@@ -5968,7 +6203,7 @@ function setHeaderRoleLabel(role){
 
   if(dash){
     dash.classList.remove('smv-role-green');
-    dash.textContent='முகப்புப் பலகை';
+    dash.textContent='டாஷ்போர்டு';
 
     if(r==='customer'){
       dash.textContent='வாடிக்கையாளர்';
@@ -8260,7 +8495,35 @@ async function smvRenderPublicContent(items){
     if(!blogs.length) blogBox.innerHTML='<div class="empty">வெளியிடப்பட்ட வலைப்பதிவுகள் எதுவும் இல்லை.</div>';
     else {const cards=await Promise.all(blogs.map(async x=>{const body=await smvFetchBlogBody(x.bodyUrl);return `<article class="card blog-card"><h3>${escapeHtml(x.title||"Untitled")}</h3>${x.coverUrl?`<img class="content-thumb" src="${escapeHtml(x.coverUrl)}" alt="${escapeHtml(x.title||"Blog")}">`:""}${x.summary?`<p class="small"><b>${escapeHtml(x.summary)}</b></p>`:""}<div class="blog-content">${escapeHtml(body)}</div><div class="small" style="margin-top:auto;padding-top:12px">வெளியிடப்பட்டது ${escapeHtml(smvDateTime(x.publishedAt||x.createdAt))}</div></article>`;}));blogBox.innerHTML=cards.join("");}
   }
-  if(mediaBox){mediaBox.innerHTML=media.length?`<div class="grid">${media.map(x=>{const title=escapeHtml(x.title||"Content"),desc=x.description?`<p class="small">${escapeHtml(x.description)}</p>`:"";if(x.mediaType==="image")return `<article class="card media-card"><h3>${title}</h3><img src="${escapeHtml(x.url)}" alt="${title}" loading="lazy">${desc}</article>`;if(x.mediaType==="video")return `<article class="card media-card"><h3>${title}</h3><video controls preload="metadata" src="${escapeHtml(x.url)}"></video>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener">OPEN VIDEO</a></article>`;if(x.mediaType==="music")return `<article class="card media-card"><h3>🎵 ${title}</h3><audio controls preload="metadata" src="${escapeHtml(x.url)}"></audio><p class="small">Music · ${escapeHtml(smvFormatBytes(x.size))}</p>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener">OPEN MUSIC</a></article>`;return `<article class="card media-card"><h3>${title}</h3><p class="small">PDF · ${escapeHtml(smvFormatBytes(x.size))}</p>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener" download>DOWNLOAD PDF</a></article>`;}).join('')}</div>`:'<div class="empty">வெளியிடப்பட்ட ஊடகங்கள் எதுவும் இல்லை.</div>';}
+  if(mediaBox){
+    const mediaTypeRank={video:0,music:1,pdf:2,image:3};
+    const orderedMedia=[...media].sort((a,b)=>{
+      const ar=mediaTypeRank[a.mediaType]??9, br=mediaTypeRank[b.mediaType]??9;
+      if(ar!==br) return ar-br;
+      const av=a.publishedAt?.seconds||a.createdAt?.seconds||0, bv=b.publishedAt?.seconds||b.createdAt?.seconds||0;
+      return bv-av;
+    });
+    mediaBox.innerHTML=orderedMedia.length?(()=>{
+  const groups=[
+    ['video','வீடியோ'],
+    ['music','இசை'],
+    ['pdf','PDF'],
+    ['image','படங்கள்']
+  ];
+  const renderCard=x=>{
+    const title=escapeHtml(x.title||"Content"),desc=x.description?`<p class="small">${escapeHtml(x.description)}</p>`:"";
+    if(x.mediaType==="video") return `<article class="card media-card media-video"><h3>${title}</h3><video controls preload="metadata" src="${escapeHtml(x.url)}"></video>${desc}</article>`;
+    if(x.mediaType==="music") return `<article class="card media-card media-music"><h3>🎵 ${title}</h3><audio controls preload="metadata" src="${escapeHtml(x.url)}"></audio><p class="small">Music · ${escapeHtml(smvFormatBytes(x.size))}</p>${desc}</article>`;
+    if(x.mediaType==="pdf") return `<article class="card media-card media-pdf"><h3>${title}</h3><p class="small">PDF · ${escapeHtml(smvFormatBytes(x.size))}</p>${desc}<a class="btn" href="${escapeHtml(x.url)}" target="_blank" rel="noopener" download>PDF பதிவிறக்கம்</a></article>`;
+    return `<article class="card media-card media-image"><h3>${title}</h3><img src="${escapeHtml(x.url)}" alt="${title}" loading="lazy">${desc}</article>`;
+  };
+  return groups.map(([type,label])=>{
+    const items=orderedMedia.filter(x=>x.mediaType===type);
+    if(!items.length)return '';
+    return `<section class="smv-media-type-section smv-media-type-${type}"><h3 class="smv-media-type-title">${label}</h3><div class="smv-media-type-grid">${items.map(renderCard).join('')}</div></section>`;
+  }).join('');
+})():'<div class="empty">வெளியிடப்பட்ட ஊடகங்கள் எதுவும் இல்லை.</div>';
+  }
 }
 async function loadPublicContent(){try{await smvRenderPublicContent(await smvGetவெளியிடப்பட்டதுContent());}catch(e){console.warn("Public content unavailable:",e);if($("publicBlogs"))$("publicBlogs").innerHTML='<div class="empty">உள்ளடக்கம் தற்காலிகமாக கிடைக்கவில்லை.</div>';if($("publicMedia"))$("publicMedia").innerHTML='<div class="empty">ஊடகம் தற்காலிகமாக கிடைக்கவில்லை.</div>';}}
 function smvClearBlogForm(){
@@ -10122,7 +10385,7 @@ window.__SMV_APP_READY=true;
       <div id="specialLagnasNextToநவாம்சம்"></div>
       <h3 style="margin-top:22px" class="bhava-chart-title">📐 பாவ கட்டம்</h3>
       <div id="bhavaChart" class="south-indian-chart bhava-chart" aria-label="பாவ கட்டம்"></div>
-      <h3 style="margin-top:22px" class="bhava-table-title">📋 பாவ கட்டம்</h3>
+      <h3 style="margin-top:22px" class="bhava-table-title">📋 பாவ அட்டவணை</h3>
       <div class="data-table-wrap bhava-table-wrap"><table class="data-table bhava-table"><thead><tr><th>பாவம்</th><th>ஆரம்பம்</th><th>மத்தியம்</th><th>முடிவு</th><th>ராசி</th><th>கிரகங்கள்</th></tr></thead><tbody>${(d.bhavas||[]).map(b=>{const ps=(d.planets||[]).filter(p=>p.bhava===b.house).map(p=>p.name).join(', ');return `<tr><td><b>${b.house}</b></td><td>${esc(b.arambha||'—')}</td><td><b>${esc(b.madhya||b.degree||'—')}</b></td><td>${esc(b.antya||'—')}</td><td>${esc(b.rasi||'—')}</td><td>${esc(ps||'—')}</td></tr>`}).join('')}</tbody></table></div>
       <h3 style="margin-top:22px">🪷 நவாம்ச நிலைகள்</h3>
       <div class="data-table-wrap"><table class="data-table navamsa-table"><thead><tr><th>கிரகம்</th><th>ராசி கட்டம்</th><th>D9 நவாம்ச ராசி</th><th>நவாம்ச பாதம்</th><th>பாவம்</th></tr></thead><tbody>${(d.planets||[]).map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.rasi)}</td><td>${esc(p.navamsa?.rasi||'—')}</td><td>${p.navamsa?.pada||'—'}</td><td>${p.bhava||'—'}</td></tr>`).join('')}</tbody></table></div>
@@ -10498,6 +10761,294 @@ window.__SMV_APP_READY=true;
     // Shared rendering helpers must be initialized before any Phase 1/2/3 section uses them.
     const escSafe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const ta=lang==='ta';
+    // Kota name fields: preserve engine-calculated values; only fill missing display fields
+    // from the entered native name/initial and the standard nakshatra syllable mapping.
+  const ensureKotaNameFields=()=>{
+  if(!data || typeof data!=='object') return;
+
+  data.kota=data.kota&&typeof data.kota==='object'?data.kota:{};
+
+  if(!data.kota.nativeName && data.nativeName)
+    data.kota.nativeName=data.nativeName;
+
+  if(!data.kota.nativeName){
+    try{
+      const formName=document.getElementById('birthName')?.value?.trim();
+      if(formName) data.kota.nativeName=formName;
+    }catch(_e){}
+  }
+
+  const nameRows=[
+    {
+      en:'Ashwini', ta:'அஸ்வினி',
+      enSounds:['chu','che','cho','la'],
+      taSounds:['சு','செ','சோ','ல']
+    },
+    {
+      en:'Bharani', ta:'பரணி',
+      enSounds:['li','lu','le','lo'],
+      taSounds:['லி','லு','லே','லோ']
+    },
+    {
+      en:'Krittika', ta:'கிருத்திகை',
+      enSounds:['a','i','u','e'],
+      taSounds:['அ','இ','உ','எ']
+    },
+    {
+      en:'Rohini', ta:'ரோகிணி',
+      enSounds:['o','va','vi','vu'],
+      taSounds:['ஓ','வா','வி','வு']
+    },
+    {
+      en:'Mrigashira', ta:'மிருகசீரிடம்',
+      enSounds:['ve','vo','ka','ki'],
+      taSounds:['வே','வோ','க','கி']
+    },
+    {
+      en:'Ardra', ta:'திருவாதிரை',
+      enSounds:['ku','gha','nga','chha'],
+      taSounds:['கு','க','ங','ச']
+    },
+    {
+      en:'Punarvasu', ta:'புனர்பூசம்',
+      enSounds:['ke','ko','ha','hi'],
+      taSounds:['கே','கோ','ஹ','ஹி']
+    },
+    {
+      en:'Pushya', ta:'பூசம்',
+      enSounds:['hu','he','ho','da'],
+      taSounds:['ஹு','ஹே','ஹோ','ட']
+    },
+    {
+      en:'Ashlesha', ta:'ஆயில்யம்',
+      enSounds:['di','du','de','do'],
+      taSounds:['டி','டு','டே','டோ']
+    },
+    {
+      en:'Magha', ta:'மகம்',
+      enSounds:['ma','mi','mu','me'],
+      taSounds:['ம','மி','மு','மே']
+    },
+    {
+      en:'Purva Phalguni', ta:'பூரம்',
+      enSounds:['mo','ta','ti','tu'],
+      taSounds:['மோ','ட','டி','து']
+    },
+    {
+      en:'Uttara Phalguni', ta:'உத்திரம்',
+      enSounds:['te','to','pa','pi'],
+      taSounds:['தே','தோ','ப','பி']
+    },
+    {
+      en:'Hasta', ta:'ஹஸ்தம்',
+      enSounds:['pu','sha','na','tha'],
+      taSounds:['பு','ஷ','ந','த']
+    },
+    {
+      en:'Chitra', ta:'சித்திரை',
+      enSounds:['pe','po','ra','ri'],
+      taSounds:['பே','போ','ர','ரி']
+    },
+    {
+      en:'Swati', ta:'சுவாதி',
+      enSounds:['ru','re','ro','ta'],
+      taSounds:['ரு','ரே','ரோ','த']
+    },
+    {
+      en:'Vishakha', ta:'விசாகம்',
+      enSounds:['ti','tu','te','to'],
+      taSounds:['தி','து','தே','தோ']
+    },
+    {
+      en:'Anuradha', ta:'அனுஷம்',
+      enSounds:['na','ni','nu','ne'],
+      taSounds:['ந','நி','நு','நே']
+    },
+    {
+      en:'Jyeshtha', ta:'கேட்டை',
+      enSounds:['no','ya','yi','yu'],
+      taSounds:['நோ','ய','யி','யு']
+    },
+    {
+      en:'Mula', ta:'மூலம்',
+      enSounds:['ye','yo','bha','bhi'],
+      taSounds:['யே','யோ','ப','பி']
+    },
+    {
+      en:'Purva Ashadha', ta:'பூராடம்',
+      enSounds:['bhu','dha','pha','dha'],
+      taSounds:['பு','த','ப','த']
+    },
+    {
+      en:'Uttara Ashadha', ta:'உத்திராடம்',
+      enSounds:['bhe','bho','ja','ji'],
+      taSounds:['பே','போ','ஜ','ஜி']
+    },
+    {
+      en:'Shravana', ta:'திருவோணம்',
+      enSounds:['ju','je','jo','gha'],
+      taSounds:['ஜு','ஜே','ஜோ','க']
+    },
+    {
+      en:'Dhanishtha', ta:'அவிட்டம்',
+      enSounds:['ga','gi','gu','ge'],
+      taSounds:['க','கி','கு','கே']
+    },
+    {
+      en:'Shatabhisha', ta:'சதயம்',
+      enSounds:['go','sa','si','su'],
+      taSounds:['கோ','ச','சி','சு']
+    },
+    {
+      en:'Purva Bhadrapada', ta:'பூரட்டாதி',
+      enSounds:['se','so','da','di'],
+      taSounds:['சே','சோ','ட','டி']
+    },
+    {
+      en:'Uttara Bhadrapada', ta:'உத்திரட்டாதி',
+      enSounds:['du','tha','jha','jna'],
+      taSounds:['து','த','ஜ','ஞ']
+    },
+    {
+      en:'Revati', ta:'ரேவதி',
+      enSounds:['de','do','cha','chi'],
+      taSounds:['தே','தோ','ச','சி']
+    }
+  ];
+
+  const nm=String(data.kota.nativeName||'').trim();
+
+  if(!nm) return;
+
+  /*
+   * ----------------------------------------------------
+   * Detect English and Tamil name beginnings separately
+   * ----------------------------------------------------
+   */
+
+  const latin=(nm.match(/^[A-Za-z]+/)?.[0]||'').toLowerCase();
+
+  const taMatch=nm.match(/^[\u0B80-\u0BFF]+/);
+  const tamilName=taMatch?.[0]||'';
+
+  data.kota.nameInitialEN=latin
+    ? latin.charAt(0).toUpperCase()+latin.slice(1)
+    : '';
+
+  data.kota.nameInitialTA=tamilName
+    ? Array.from(tamilName)[0]
+    : '';
+
+  /*
+   * ----------------------------------------------------
+   * English name sound matching
+   * ----------------------------------------------------
+   */
+
+  let foundEN=null;
+
+  if(latin){
+    for(const row of nameRows){
+      for(let p=0;p<row.enSounds.length;p++){
+        const sound=row.enSounds[p];
+
+        if(latin.startsWith(sound)){
+          foundEN={
+            row,
+            pada:p+1,
+            sound
+          };
+          break;
+        }
+      }
+
+      if(foundEN) break;
+    }
+  }
+
+  /*
+   * ----------------------------------------------------
+   * Tamil name sound matching
+   * ----------------------------------------------------
+   */
+
+  let foundTA=null;
+
+  if(tamilName){
+    for(const row of nameRows){
+      for(let p=0;p<row.taSounds.length;p++){
+        const sound=row.taSounds[p];
+
+        if(tamilName.startsWith(sound)){
+          foundTA={
+            row,
+            pada:p+1,
+            sound
+          };
+          break;
+        }
+      }
+
+      if(foundTA) break;
+    }
+  }
+
+  /*
+   * ----------------------------------------------------
+   * Save English + Tamil results separately
+   * ----------------------------------------------------
+   */
+
+  if(foundEN){
+    data.kota.nameNakshatraEN=foundEN.row.en;
+    data.kota.nameSyllableEN=foundEN.sound;
+    data.kota.namePadaEN=foundEN.pada;
+  }
+
+  if(foundTA){
+    data.kota.nameNakshatraTA=foundTA.row.ta;
+    data.kota.nameSyllableTA=foundTA.sound;
+    data.kota.namePadaTA=foundTA.pada;
+  }
+
+  /*
+   * ----------------------------------------------------
+   * Main display values
+   * Tamil site: prefer Tamil match
+   * ----------------------------------------------------
+   */
+
+  if(foundTA){
+    data.kota.nameNakshatra=foundTA.row.ta;
+    data.kota.nameNakshatraPada=foundTA.pada;
+    data.kota.nameSyllable=foundTA.sound;
+    data.kota.nameMatchType='Tamil name sound';
+  }
+  else if(foundEN){
+    data.kota.nameNakshatra=foundEN.row.ta;
+    data.kota.nameNakshatraPada=foundEN.pada;
+    data.kota.nameSyllable=foundEN.sound;
+    data.kota.nameMatchType='English name sound';
+  }
+
+  /*
+   * ----------------------------------------------------
+   * If both are available, keep BOTH names available
+   * ----------------------------------------------------
+   */
+
+  if(foundEN && foundTA){
+    data.kota.nameBoth=
+      `${foundTA.row.ta} / ${foundEN.row.en}`;
+
+    data.kota.nameSyllableBoth=
+      `${foundTA.sound} / ${foundEN.sound}`;
+
+    data.kota.namePadaBoth=
+      `${foundTA.pada} / ${foundEN.pada}`;
+  }
+};
+    ensureKotaNameFields();
     const R=ta?['மேஷம்','ரிஷபம்','மிதுனம்','கடகம்','சிம்மம்','கன்னி','துலாம்','விருச்சிகம்','தனுசு','மகரம்','கும்பம்','மீனம்']:['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
     const planetMap={சூரியன்:'Sun',சந்திரன்:'Moon',செவ்வாய்:'Mars',புதன்:'Mercury',குரு:'Jupiter',சுக்கிரன்:'Venus',சனி:'Saturn',ராகு:'Rahu',கேது:'Ketu'};
     const nakMap={அஸ்வினி:'Ashwini',பரணி:'Bharani',கார்த்திகை:'Krittika',ரோகிணி:'Rohini',மிருகசீரிஷம்:'Mrigashira',திருவாதிரை:'Ardra',புனர்பூசம்:'Punarvasu',பூசம்:'Pushya',ஆயில்யம்:'Ashlesha',மகம்:'Magha',பூரம்:'Purva Phalguni',உத்திரம்:'Uttara Phalguni',ஹஸ்தம்:'Hasta',சித்திரை:'Chitra',சுவாதி:'Swati',விசாகம்:'Vishakha',அனுஷம்:'Anuradha',கேட்டை:'Jyeshtha',மூலம்:'Mula',பூராடம்:'Purva Ashadha',உத்திராடம்:'Uttara Ashadha',திருவோணம்:'Shravana',அவிட்டம்:'Dhanishtha',சதயம்:'Shatabhisha',பூரட்டாதி:'Purva Bhadrapada',உத்திரட்டாதி:'Uttara Bhadrapada',ரேவதி:'Revati'};
@@ -10534,7 +11085,8 @@ window.__SMV_APP_READY=true;
     const relRows=arr(rel.rows).map(x=>{const map={friend:ta?'நட்பு':'Friend',enemy:ta?'பகை':'Enemy',neutral:ta?'சமம்':'Neutral',adhimitra:ta?'அதிமித்திரம்':'Adhimitra',mitra:ta?'மித்திரம்':'Mitra',sama:ta?'சமம்':'Sama',satru:ta?'சத்ரு':'Satru',adhisatru:ta?'அதிசத்ரு':'Adhisatru'};return `<tr><td>${P(x.from)}</td><td>${P(x.to)}</td><td>${map[x.temporary]}</td><td>${map[x.natural]}</td><td><b>${map[x.compound]}</b></td><td>${esc(x.houseFrom)}</td></tr>`}).join('');
     h+=`<div class="adv-section v5-module"><h3>🤝 ${title('Planet Relations','கிரக உறவுகள்')}</h3>${simpleTable([title('Planet','கிரகம்'),title('Other Planet','மற்ற கிரகம்'),title('Temporary','தற்காலிகம்'),title('Naisargika','நைசர்கிகம்'),title('Panchadha / Compound','பஞ்சத / இணைந்த உறவு'),title('House From','இருந்த பாவம்')],relRows)}</div>`;
     const rem=data.remedies||{};
-    const remRows=arr(rem.rows).map(x=>`<tr><td><b>${P(x.planet)}</b></td><td>${esc(x.gemstone)}</td><td>${esc(x.metal)}</td><td>${esc(x.goodDeed)}</td><td>${esc(x.grain)}</td><td>${esc(x.deity)}</td></tr>`).join('');
+    const remTa=v=>{const q=String(v??'—').trim();const m={'Ruby':'மாணிக்கம்','Gold':'தங்கம்','White pearl':'வெள்ளை முத்து','Music institute support / help a fair lady':'இசைப் பயிற்சி நிலையத்திற்கு ஆதரவு / நல்ல மனமுடைய பெண்ணுக்கு உதவி','Rice':'அரிசி','Gauri / Lalita / Saraswati / Krishna':'கௌரி / லலிதா / சரஸ்வதி / கிருஷ்ணர்','Red coral':'சிவப்பு பவளம்','Copper':'செம்பு','Physical exercise / support a school gym':'உடற்பயிற்சி / பள்ளி உடற்பயிற்சிக் கூடத்திற்கு ஆதரவு','Toor daal':'துவரம் பருப்பு','Hanuman / Rudra / Kartikeya / Narasimha':'அனுமன் / ருத்ரர் / கார்த்திகேயன் / நரசிம்மர்','Emerald':'மரகதம்','Silver / Platinum':'வெள்ளி / பிளாட்டினம்','Support scholars / seek a scholar’s blessing':'அறிஞர்களுக்கு ஆதரவு / அறிஞரின் ஆசீர்வாதம் பெறுதல்','Moong daal':'பாசிப்பருப்பு','Vishnu / Narayana / Buddha':'விஷ்ணு / நாராயணர் / புத்தர்','Yellow sapphire':'புஷ்பராகம்','Respect/support a learned Brahmin or priest':'கற்றறிந்த பிராமணர் அல்லது புரோகிதரை மதித்தல் / ஆதரித்தல்','Chick peas':'கொண்டைக்கடலை','Hayagreeva / Vishnu / Parameswara / Dattatreya / Guru':'ஹயக்ரீவர் / விஷ்ணு / பரமேஸ்வரர் / தத்தாத்ரேயர் / குரு','Diamond':'வைரம்','Read poetry / help a poet':'கவிதை வாசித்தல் / கவிஞருக்கு உதவுதல்','Whitish grain':'வெண்மை நிற தானியம்','Lakshmi / Parvati':'லட்சுமி / பார்வதி','Blue sapphire':'நீலக்கல்','Iron / Silver':'இரும்பு / வெள்ளி','Physical labour / help manual workers':'உடல் உழைப்பு / உடல் உழைப்பாளர்களுக்கு உதவி','Sesame seeds':'எள்','Hessonite (Gomedh)':'கோமேதகம்','Support research / pilgrimage':'ஆராய்ச்சிக்கு ஆதரவு / புனித யாத்திரை','Black gram daal':'உளுந்து','Durga / Narasimha':'துர்கை / நரசிம்மர்','Cat’s eye':'வைடூரியம்','Meditation':'தியானம்','Ganesha':'விநாயகர்','Wheat':'கோதுமை','Temple service / temple donation':'கோவில் சேவை / கோவில் நன்கொடை'};return m[q]||q||'—';};
+    const remRows=arr(rem.rows).map(x=>`<tr><td><b>${P(x.planet)}</b></td><td>${esc(ta?remTa(x.gemstone):x.gemstone)}</td><td>${esc(ta?remTa(x.metal):x.metal)}</td><td>${esc(ta?remTa(x.goodDeed):x.goodDeed)}</td><td>${esc(ta?remTa(x.grain):x.grain)}</td><td>${esc(ta?remTa(x.deity):x.deity)}</td></tr>`).join('');
     h+=`<div class="adv-section v5-module remedial-module"><h3>🪔 ${title('Remedial Measures','பரிகார நடவடிக்கைகள்')}</h3>${simpleTable([title('Planet','கிரகம்'),title('Gemstone','ரத்தினம்'),title('Metal','உலோகம்'),title('Good Deed / Service','நல்ல செயல் / சேவை'),title('Grain','தானியம்'),title('Deity','தெய்வம்')],remRows)}</div>`;
 
     const avc=av.validation||{}, checks=avc.checks||{};
@@ -10580,20 +11132,68 @@ window.__SMV_APP_READY=true;
       const alertRows=arr(av154Data.alertness).map(x=>`<tr><td>${P(x.planet)}</td><td><b>${esc(x.alertState)}</b></td></tr>`).join('');
       h+=`<div class="adv-section avastha154-section"><h3>👁️ ${aLabel.alert}</h3><div class="adv-table-wrap"><table class="adv-wide"><thead><tr><th>${labels.planet}</th><th>${aLabel.state}</th></tr></thead><tbody>${alertRows}</tbody></table></div></div>`;
       h+=`<div class="adv-section avastha154-section"><h3>🧠 ${aLabel.mood}</h3><div class="adv-table-wrap"><table class="adv-wide"><thead><tr><th>${labels.planet}</th><th>${aLabel.state}</th><th>${ta?'விளக்கம்':'Interpretation'}</th></tr></thead><tbody>${arr(av154Data.alertness).map(x=>{const desc={Deepta:ta?'பிரகாசம் / உயர்ந்த வெளிப்பாடு':'Bright / elevated expression',Svastha:ta?'சுயநிலை / இயல்பு':'Comfortable / natural',Mudita:ta?'மகிழ்ச்சி':'Delighted',Saanta:ta?'அமைதி':'Peaceful',Deena:ta?'சோர்வு / தாழ்வு':'Sad / depressed',Duhkhita:ta?'துயரம்':'Distressed',Vikala:ta?'குழப்பம் / குறைபாடு':'Confused / constrained',Khala:ta?'தந்திரமான போக்கு':'Scheming tendency',Kopita:ta?'கோபம்':'Angry',Lajjita:ta?'வெட்கம்':'Ashamed',Garvita:ta?'பெருமை':'Proud',Kshudhita:ta?'பசி / திருப்தியின்மை':'Hungry / dissatisfied',Trishita:ta?'தாகம்':'Thirsty',Kshobhita:ta?'அதிர்ச்சி / கலக்கம்':'Agitated'};return `<tr><td>${P(x.planet)}</td><td><b>${esc(avTa(x.moodState))}</b></td><td>${desc[x.moodState]||avTa(x.moodState)||'—'}</td></tr>`}).join('')}</tbody></table></div></div>`;
-      const rows=arr(av154Data.activity).filter(x=>x&&!x.error).map(x=>`<tr><td><b>${P(x.planet)}</b></td><td>${x.house??'—'}</td><td>${esc(x.state)}</td><td>${esc(x.stateTa||avTa(x.state)||x.meaning||'—')}</td><td>${esc(avTa(x.activityStrength))}</td><td><b>${esc(avTa(x.resultLevel))}</b></td><td>${esc(avTa(x.prediction))}</td></tr>`).join('');
+      const rows=arr(av154Data.activity).filter(x=>x&&!x.error).map(x=>`<tr><td><b>${P(x.planet)}</b></td><td>${x.house??'—'}</td><td>${esc(avTa(x.state))}</td><td>${esc(x.stateTa||avTa(x.state)||avTa(x.meaning)||'—')}</td><td>${esc(avTa(x.activityStrength))}</td><td><b>${esc(avTa(x.resultLevel))}</b></td><td>${esc(avTa(x.prediction))}</td></tr>`).join('');
       h+=`<div class="adv-section avastha154-section avastha154-important"><h3>${aLabel.act}</h3><div class="kota-name-details"><div><b>${aLabel.initial}</b><span>${esc(av154Data.nativeInitial||'—')}</span></div><div><b>${aLabel.sound}</b><span>${av154Data.soundNumber??arr(av154Data.activity)[0]?.sound??'—'}</span></div></div><div class="adv-table-wrap"><table class="adv-wide"><thead><tr><th>${labels.planet}</th><th>${labels.house}</th><th>${aLabel.state}</th><th>${aLabel.meaning}</th><th>${aLabel.strength}</th><th>${aLabel.result}</th><th>${aLabel.prediction}</th></tr></thead><tbody>${rows}</tbody></table></div><div class="adv-table-wrap"><table class="adv-wide"><thead><tr><th>${labels.planet}</th><th>C</th><th>P</th><th>A</th><th>M</th><th>G</th><th>L</th><th>குறியீடு</th><th>செயல்பாடு</th><th>முடிவு</th></tr></thead><tbody>${arr(av154Data.activity).filter(x=>x&&!x.error).map(x=>`<tr><td>${P(x.planet)}</td><td>${x.C}</td><td>${x.P}</td><td>${x.A}</td><td>${x.M}</td><td>${x.G}</td><td>${x.L}</td><td>${x.index}</td><td>${esc(avTa(x.activityStrength))}</td><td>${esc(avTa(x.resultLevel))}</td></tr>`).join('')}</tbody></table></div><p class="small"><b>${aLabel.calc}:</b> ${ta?'சேஷ்டா = முழுப் பலன் · த்ருஷ்டி = மிதமான பலன் · விசேஷ்டா = மிகக் குறைந்த பலன்.':'Cheshta = full results · Drishti = medium results · Vicheshta = very little results.'}</p></div>`;
     }
     h+=`<div class="adv-section"><h3>🏰 ${labels.kota}</h3><div class="kota-summary-grid">
-      <div><b>${ta?'ஜன்ம ராசி':'Janma Rashi'}</b><span>${S(data.kota?.moonராசி||'—')}</span></div>
+      <div><b>${ta?'ஜன்ம ராசி':'Janma Rashi'}</b><span>${S(data.kota?.moonராசி||data.kota?.moonRasi||data.kota?.janmaRasi||'—')}</span></div>
       <div><b>${ta?'ஜன்ம நட்சத்திரம்':'Janma Nakshatra'}</b><span>${N(data.kota?.janmaNakshatra||'—')} · ${data.kota?.janmaNakshatraPada??'—'}</span></div>
       <div><b>${ta?'கோட்டா சுவாமி':'Kota Swami / Durgapati'}</b><span><strong>${P(data.kota?.kotaSwami?.planet||'—')}</strong></span></div>
       <div><b>${ta?'கோட்டா பாலா':'Kota Paala'}</b><span><strong>${data.kota?.kotaPala?.planet?P(data.kota.kotaPala.planet):'—'}</strong></span></div>
     </div><div class="kota-zones-grid">
-      <div><b>Stambha</b><span>4, 11, 18, 25</span></div><div><b>Durgantara / Madhya</b><span>3, 5, 10, 12, 17, 19, 24, 26</span></div><div><b>Prakaara</b><span>2, 6, 9, 13, 16, 20, 23, 27</span></div><div><b>Bahya</b><span>1, 7, 8, 14, 15, 21, 22, 28</span></div>
+      <div><b>${ta?'ஸ்தம்பம்':'Stambha'}</b><span>4, 11, 18, 25</span></div><div><b>${ta?'துர்காந்தர / மத்திய':'Durgantara / Madhya'}</b><span>3, 5, 10, 12, 17, 19, 24, 26</span></div><div><b>${ta?'பிரகார':'Prakaara'}</b><span>2, 6, 9, 13, 16, 20, 23, 27</span></div><div><b>${ta?'பாஹ்ய':'Bahya'}</b><span>1, 7, 8, 14, 15, 21, 22, 28</span></div>
     </div><div class="kota-path-grid"><div><b>${ta?'நுழைவு பாதை':'Entry Path'}</b><span>${(data.kota?.entryPath||[]).join(' · ')}</span></div><div><b>${ta?'வெளியேறும் பாதை':'Exit Path'}</b><span>${(data.kota?.exitPath||[]).join(' · ')}</span></div></div>
-    <div class="adv-table-wrap"><table class="adv-wide"><thead><tr><th>#</th><th>${ta?'நட்சத்திரம்':'Nakshatra'}</th><th>${ta?'பகுதி':'Zone'}</th><th>${ta?'கிரகங்கள்':'Planets'}</th></tr></thead><tbody>${arr(data.kota?.nakshatras).map(x=>{const occ=arr(data.kota?.planets).filter(p=>p.relativeNakshatra===x.relative);return `<tr><td>${x.relative}</td><td>${N(x.nakshatra)}</td><td>${esc(x.zone)}</td><td>${occ.map(p=>`${P(p.planet)} ${esc(p.degree||'')}`).join(', ')||'—'}</td></tr>`}).join('')}</tbody></table></div>
-    <div class="adv-table-wrap"><table class="adv-wide"><thead><tr><th>${labels.planet}</th><th>${labels.rasi}</th><th>${labels.nak}</th><th>${labels.pada}</th><th>${labels.degree}</th><th>${ta?'பகுதி':'Zone'}</th></tr></thead><tbody>${arr(data.kota?.planets).map(p=>`<tr><td>${P(p.planet)}</td><td>${S(p.rasi||'—')}</td><td>${esc(nakEnglish(p.nakshatra))}</td><td>${p.pada??'—'}</td><td>${esc(p.degree||'—')}</td><td>${esc(p.zone||'—')}</td></tr>`).join('')}</tbody></table></div>
-    <div class="kota-name-details"><div><b>${ta?'பெயர்':'Native Name'}</b><span>${esc(data.kota?.nativeName||'—')}</span></div><div><b>${ta?'பெயர் ஆரம்ப ஒலி':'Name Initial'}</b><span>${esc(data.kota?.nameInitial||'—')}</span></div><div><b>${ta?'ஜன்ம பாத ஒலி':'Janma Pada Sound'}</b><span>${esc(data.kota?.janmaNakshatraSound||'—')}</span></div><div><b>${ta?'பெயர் நட்சத்திரம்':'Name Nakshatra'}</b><span>${N(data.kota?.nameNakshatra||'—')} · ${data.kota?.nameNakshatraPada??'—'}</span></div><div><b>${ta?'பெயர் ஒலி':'Matched Sound'}</b><span>${esc(data.kota?.nameSyllable||'—')}</span></div><div><b>${ta?'பொருத்த விதி':'Match Rule'}</b><span>${esc(data.kota?.nameMatchType||'—')}</span></div></div></div>`;
+    <div class="adv-table-wrap"><table class="adv-wide"><thead><tr><th>#</th><th>${ta?'நட்சத்திரம்':'Nakshatra'}</th><th>${ta?'பகுதி':'Zone'}</th><th>${ta?'கிரகங்கள்':'Planets'}</th></tr></thead><tbody>${arr(data.kota?.nakshatras).map(x=>{const occ=arr(data.kota?.planets).filter(p=>p.relativeNakshatra===x.relative);return `<tr><td>${x.relative}</td><td>${N(x.nakshatra)}</td><td>${esc(ta?({'Stambha':'ஸ்தம்பம்','Durgantara / Madhya':'துர்காந்தர / மத்திய','Prakaara':'பிரகார','Bahya':'பாஹ்ய'}[x.zone]||x.zone):x.zone)}</td><td>${occ.map(p=>`${P(p.planet)} ${esc(p.degree||'')}`).join(', ')||'—'}</td></tr>`}).join('')}</tbody></table></div>
+    <div class="adv-table-wrap"><table class="adv-wide"><thead><tr><th>${labels.planet}</th><th>${labels.rasi}</th><th>${labels.nak}</th><th>${labels.pada}</th><th>${labels.degree}</th><th>${ta?'பகுதி':'Zone'}</th></tr></thead><tbody>${arr(data.kota?.planets).map(p=>`<tr><td>${P(p.planet)}</td><td>${S(p.rasi||'—')}</td><td>${esc(nakEnglish(p.nakshatra))}</td><td>${p.pada??'—'}</td><td>${esc(p.degree||'—')}</td><td>${esc(ta?({'Stambha':'ஸ்தம்பம்','Durgantara / Madhya':'துர்காந்தர / மத்திய','Prakaara':'பிரகார','Bahya':'பாஹ்ய'}[p.zone]||p.zone||'—'):p.zone||'—')}</td></tr>`).join('')}</tbody></table></div>
+  <div class="kota-name-details">
+
+  <div>
+    <b>பெயர் / Native Name</b>
+    <span>${esc(data.kota?.nativeName || '—')}</span>
+  </div>
+
+  <div>
+    <b>பெயர் ஆரம்ப ஒலி / Name Initial</b>
+    <span>
+      ${esc(data.kota?.nameInitialTA || '—')}
+      /
+      ${esc(data.kota?.nameInitialEN || '—')}
+    </span>
+  </div>
+
+  <div>
+    <b>பெயர் ஒலி / Name Sound</b>
+    <span>
+      ${esc(data.kota?.nameSyllableTA || '—')}
+      /
+      ${esc(data.kota?.nameSyllableEN || '—')}
+    </span>
+  </div>
+
+  <div>
+    <b>பெயர் நட்சத்திரம் / Name Nakshatra</b>
+    <span>
+      ${esc(data.kota?.nameNakshatraTA || '—')}
+      /
+      ${esc(data.kota?.nameNakshatraEN || '—')}
+    </span>
+  </div>
+
+  <div>
+    <b>பாதம் / Pada</b>
+    <span>
+      ${data.kota?.nameNakshatraPada || '—'}
+    </span>
+  </div>
+
+  <div>
+    <b>பொருத்த விதி / Match Rule</b>
+    <span>
+      ${esc(data.kota?.nameMatchType || '—')}
+    </span>
+  </div>
+
+</div></div>`;
     h+=`<div class="adv-section"><h3>🕉️ ${labels.sud}</h3><p class="small">${ta?'லக்னம், சந்திரன், சூரியன் ஆகிய மூன்று reference points-லிருந்து 12 பாவங்கள் பார்க்கப்படுகின்றன.':'Three reference points are used: Lagna, Moon and Sun. Each ring shows the 12 houses from that reference.'}</p>`;
     arr(data.sudarshana?.rings).forEach(r=>{const sn=ta?({ 'Lagna Chakra':'லக்ன சக்கரம்','Chandra Chakra':'சந்திர சக்கரம்','Surya Chakra':'சூரிய சக்கரம்'}[r.name]||r.name):r.name;const sc=ta?({Lagna:'லக்னம்',Moon:'சந்திரன்',Sun:'சூரியன்','லக்னம்':'லக்னம்','சந்திரன்':'சந்திரன்','சூரியன்':'சூரியன்'}[r.center]||r.center):r.center;h+=`<h4>${esc(sn)} — ${esc(sc)}</h4><div class="adv-table-wrap"><table class="adv-wide"><thead><tr><th>${labels.house}</th><th>${labels.rasi}</th><th>${labels.planet}</th><th>${labels.degree}</th><th>${labels.nak}</th><th>${labels.pada}</th></tr></thead><tbody>${arr(r.houses).map(x=>`<tr><td>${x.house}</td><td>${S(x.rasi)}</td><td>${arr(x.planetDetails).map(p=>P(p.planet)).join(', ')||'—'}</td><td>${arr(x.planetDetails).map(p=>esc(p.degree)).join(', ')||'—'}</td><td>${arr(x.planetDetails).map(p=>N(p.nakshatra)).join(', ')||'—'}</td><td>${arr(x.planetDetails).map(p=>p.pada??'').join(', ')||'—'}</td></tr>`).join('')}</tbody></table></div>`}); h+=`</div>`;
     const sb=data.sarvatobhadra||{};
@@ -10869,13 +11469,13 @@ window.__SMV_APP_READY=true;
         head.className='smv-advanced-part-title smv-accordion-trigger';
         head.setAttribute('role','button'); head.setAttribute('tabindex','0');
         head.setAttribute('aria-expanded','false'); head.setAttribute('aria-controls',partId+'-content');
-        head.innerHTML=`<span class="smv-part-medallion" aria-hidden="true">${roman}</span><span class="smv-part-heading"><h3>${language==='ta'?taText:en}</h3><span class="smv-part-tap">☝ ${language==='ta'?'தொடுவதன் மூலம் பார்க்கவும்':'Tap to view'}</span></span><span class="smv-part-chevron" aria-hidden="true">⌄</span>`;
+        head.innerHTML=`<span class="smv-part-medallion" aria-hidden="true">${roman}</span><span class="smv-part-heading"><h3>${language==='ta'?taText:en}</h3><span class="smv-part-tap">☝ உள்ளே பார்க்க</span></span><span class="smv-part-chevron" aria-hidden="true">⌄</span>`;
         const content=document.createElement('div');
         content.className='smv-advanced-part-content'; content.id=partId+'-content'; content.hidden=true;
         p.appendChild(head); p.appendChild(content); p.__smvContent=content;
         const card=document.createElement('button'); card.type='button';
         card.className='smv-advanced-quick-card'; card.dataset.smvTarget=cls;
-        card.innerHTML=`<span class="smv-quick-medallion">${roman}</span><span class="smv-quick-title"><b>${language==='ta'?taText:en}</b><small>☝ ${language==='ta'?'தொடுவதன் மூலம் பார்க்கவும்':'Tap to view'}</small></span><span class="smv-quick-chevron">⌄</span>`;
+        card.innerHTML=`<span class="smv-quick-medallion">${roman}</span><span class="smv-quick-title"><b>${language==='ta'?taText:en}</b><small>☝ உள்ளே பார்க்க</small></span><span class="smv-quick-chevron">⌄</span>`;
         // Keep only the Part-I quick icon. Parts II-V and all their content remain intact.
         if(roman==='I') quickNav.appendChild(card);
         return p;
@@ -11055,6 +11655,10 @@ window.__SMV_APP_READY=true;
     const rmap={மேஷம்:'Aries',ரிஷபம்:'Taurus',மிதுனம்:'Gemini',கடகம்:'Cancer',சிம்மம்:'Leo',கன்னி:'Virgo',துலாம்:'Libra',விருச்சிகம்:'Scorpio',தனுசு:'Sagittarius',மகரம்:'Capricorn',கும்பம்:'Aquarius',மீனம்:'Pisces'};
     const R=ta?['மேஷம்','ரிஷபம்','மிதுனம்','கடகம்','சிம்மம்','கன்னி','துலாம்','விருச்சிகம்','தனுசு','மகரம்','கும்பம்','மீனம்']:['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
     const P_EN=['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+    // Local helpers for this renderer. These must not depend on helpers scoped
+    // inside renderAdvancedAstrology(), because this function is called separately.
+    const P=v=>{const q=typeof v==='object'?(v?.name??v?.planet??''):v;const en=pmap[q]||nmap[q]||q||'—';return ta?({Sun:'சூரியன்',Moon:'சந்திரன்',Mars:'செவ்வாய்',Mercury:'புதன்',Jupiter:'குரு',Venus:'சுக்கிரன்',Saturn:'சனி',Rahu:'ராகு',Ketu:'கேது'}[en]||en):en;};
+    const S=v=>{const q=typeof v==='object'?(v?.name??v?.rasi??v?.sign??''):v;return ta?(q||'—'):(rmap[q]||q||'—');};
     const pLabel=x=>{const q=typeof x==='object'?(x?.name??x?.planet??''):x; const en=pmap[q]||nmap[q]||q||'—'; return ta?({Sun:'சூரியன்',Moon:'சந்திரன்',Mars:'செவ்வாய்',Mercury:'புதன்',Jupiter:'குரு',Venus:'சுக்கிரன்',Saturn:'சனி',Rahu:'ராகு',Ketu:'கேது'}[en]||en):en;};
     const rLabel=x=>{const q=typeof x==='object'?(x?.name??x?.rasi??x?.sign??''):x; return ta?String(q||'—'):(rmap[q]||q||'—');};
     const lonOf=x=>Number(x?.longitude);
@@ -11104,6 +11708,11 @@ window.__SMV_APP_READY=true;
     const nakNames=['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishtha','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'];
     const pmap={சூரியன்:'Sun',சந்திரன்:'Moon',செவ்வாய்:'Mars',புதன்:'Mercury',குரு:'Jupiter',சுக்கிரன்:'Venus',சனி:'Saturn',ராகு:'Rahu',கேது:'Ketu'};
     const pkey=v=>{const q=typeof v==='object'?(v?.name??v?.planet??''):v;return pmap[q]||q||''};
+    // Local display helpers for Topic 26. This renderer is separate from
+    // renderAdvancedAstrology() and renderBookTransitAnalysis(), so it must
+    // not rely on their block-scoped P/S helpers.
+    const P=v=>{const q=typeof v==='object'?(v?.name??v?.planet??''):v;const en=pmap[q]||q||'—';return ta?({Sun:'சூரியன்',Moon:'சந்திரன்',Mars:'செவ்வாய்',Mercury:'புதன்',Jupiter:'குரு',Venus:'சுக்கிரன்',Saturn:'சனி',Rahu:'ராகு',Ketu:'கேது'}[en]||en):en;};
+    const S=v=>{const q=typeof v==='object'?(v?.name??v?.rasi??v?.sign??''):v;return ta?String(q||'—'):({Aries:'Aries',Taurus:'Taurus',Gemini:'Gemini',Cancer:'Cancer',Leo:'Leo',Virgo:'Virgo',Libra:'Libra',Scorpio:'Scorpio',Sagittarius:'Sagittarius',Capricorn:'Capricorn',Aquarius:'Aquarius',Pisces:'Pisces'}[q]||q||'—');};
     const natalPlanets=Array.isArray(natal?.planets)?natal.planets:[], transitPlanets=Array.isArray(transit?.planets)?transit.planets:[];
     const nakIndex=x=>{const q=String(x?.nakshatra?.name??x?.nakshatra??'').toLowerCase();let i=nakNames.findIndex(n=>q===n.toLowerCase()||q.includes(n.toLowerCase())); if(i>=0)return i; const lon=Number(x?.longitude); return Number.isFinite(lon)?Math.floor((((lon%360)+360)%360)/(360/27)):-1;};
     const moon=natalPlanets.find(x=>pkey(x.name)==='Moon')||{}, janma=nakIndex(moon), lagnaNak=nakIndex(natal?.lagna||{}), countFrom=(a,b)=>a>=0&&b>=0?((b-a+27)%27)+1:null;
@@ -11117,31 +11726,26 @@ window.__SMV_APP_READY=true;
     const rasiIndex=x=>{const lon=Number(x?.longitude);if(Number.isFinite(lon))return Math.floor((((lon%360)+360)%360)/30);const q=String(x?.rasi??'').trim().toLowerCase();if(Object.prototype.hasOwnProperty.call(rasiAliases,q))return rasiAliases[q];return rasiNames.findIndex(r=>q.includes(r.toLowerCase()))};
     const natalMoonராசி=rasiIndex(moon);
     const vedha={Sun:{3:9,6:12,10:4,11:5},Moon:{1:5,3:9,6:12,7:2,10:4,11:8},Mars:{3:12,6:9,11:5},Mercury:{2:5,4:3,6:9,8:1,10:8,11:12},Jupiter:{2:12,5:4,7:3,9:10,11:8},Venus:{1:8,2:7,3:1,4:10,5:9,8:5,9:11,11:6,12:3},Saturn:{3:12,6:9,11:5}};
-    const gochRows=transitPlanets.filter(x=>vedha[pkey(x.name)]).map(x=>{const ti=rasiIndex(x),from=natalMoonராசி>=0&&ti>=0?((ti-natalMoonராசி+12)%12)+1:null,vh=from?vedha[pkey(x.name)]?.[from]:null;const blockers=vh?transitPlanets.filter(y=>{const yi=rasiIndex(y);return yi>=0&&natalMoonராசி>=0&&((yi-natalMoonராசி+12)%12)+1===vh&&pkey(y.name)!==pkey(x.name)&&!((pkey(x.name)==='Sun'&&pkey(y.name)==='Saturn')||(pkey(x.name)==='Saturn'&&pkey(y.name)==='Sun')||(pkey(x.name)==='Moon'&&pkey(y.name)==='Mercury')||(pkey(x.name)==='Mercury'&&pkey(y.name)==='Moon'))}).map(y=>pkey(y.name)):[];return`<tr><td>${esc(pkey(x.name))}</td><td>${esc(x.rasi||'—')}</td><td>${from??'—'}</td><td>${vh??'—'}</td><td>${esc(blockers.join(', ')||'—')}</td></tr>`}).join('');
+    const taText26=v=>{if(!ta)return String(v??'—');const q=String(v??'—');const m={Ashwini:'அசுவினி',Bharani:'பரணி',Krittika:'கார்த்திகை',Rohini:'ரோகிணி',Mrigashira:'மிருகசீரிடம்',Ardra:'திருவாதிரை',Punarvasu:'புனர்பூசம்',Pushya:'பூசம்',Ashlesha:'ஆயில்யம்',Magha:'மகம்','Purva Phalguni':'பூரம்','Uttara Phalguni':'உத்திரம்',Hasta:'ஹஸ்தம்',Chitra:'சித்திரை',Swati:'சுவாதி',Vishakha:'விசாகம்',Anuradha:'அனுஷம்',Jyeshtha:'கேட்டை',Mula:'மூலம்','Purva Ashadha':'பூராடம்','Uttara Ashadha':'உத்திராடம்',Shravana:'திருவோணம்',Dhanishtha:'அவிட்டம்',Shatabhisha:'சதயம்','Purva Bhadrapada':'பூரட்டாதி','Uttara Bhadrapada':'உத்திரட்டாதி',Revati:'ரேவதி'};return m[q]||q;};
+    // Define the shared Nakshatra text helper before any rows use it.
+    const taText=taText26;
+    const gochRows=transitPlanets.filter(x=>vedha[pkey(x.name)]).map(x=>{const ti=rasiIndex(x),from=natalMoonராசி>=0&&ti>=0?((ti-natalMoonராசி+12)%12)+1:null,vh=from?vedha[pkey(x.name)]?.[from]:null;const blockers=vh?transitPlanets.filter(y=>{const yi=rasiIndex(y);return yi>=0&&natalMoonராசி>=0&&((yi-natalMoonராசி+12)%12)+1===vh&&pkey(y.name)!==pkey(x.name)&&!((pkey(x.name)==='Sun'&&pkey(y.name)==='Saturn')||(pkey(x.name)==='Saturn'&&pkey(y.name)==='Sun')||(pkey(x.name)==='Moon'&&pkey(y.name)==='Mercury')||(pkey(x.name)==='Mercury'&&pkey(y.name)==='Moon'))}).map(y=>P(y.name)):[];return`<tr><td>${esc(P(x.name))}</td><td>${esc(S(x.rasi||'—'))}</td><td>${from??'—'}</td><td>${vh??'—'}</td><td>${esc(blockers.join(', ')||'—')}</td></tr>`}).join('');
     const aspectOffsets={Sun:[14,15],Moon:[14,15],Mars:[1,3,7,8,15],Mercury:[1,15],Venus:[1,15],Jupiter:[10,15,19],Saturn:[3,5,15,19]};
-    const aspRows=transitPlanets.filter(x=>aspectOffsets[pkey(x.name)]).flatMap(x=>aspectOffsets[pkey(x.name)].map(o=>{const ni=nakIndex(x),target=ni>=0?(ni+o-1)%27:-1;return`<tr><td>${esc(pkey(x.name))}</td><td>${esc(nakNames[ni]||'—')}</td><td>${o}</td><td>${esc(nakNames[target]||'—')}</td><td>${['Moon','Mercury','Jupiter','Venus'].includes(pkey(x.name))?'Benefic':'Malefic'}</td></tr>`})).join('');
+    const aspRows=transitPlanets.filter(x=>aspectOffsets[pkey(x.name)]).flatMap(x=>aspectOffsets[pkey(x.name)].map(o=>{const ni=nakIndex(x),target=ni>=0?(ni+o-1)%27:-1;return`<tr><td>${esc(P(x.name))}</td><td>${esc(taText26(nakNames[ni]||'—'))}</td><td>${o}</td><td>${esc(taText26(nakNames[target]||'—'))}</td><td>${['Moon','Mercury','Jupiter','Venus'].includes(pkey(x.name))?'சுப கிரகம்':'பாப கிரகம்'}</td></tr>`})).join('');
     const latta={Sun:[12,1],Mars:[3,1],Jupiter:[6,1],Saturn:[8,1],Moon:[22,-1],Mercury:[7,-1],Venus:[5,-1],Rahu:[9,-1]};
-    const latRows=transitPlanets.filter(x=>latta[pkey(x.name)]).map(x=>{const ni=nakIndex(x),[n,dir]=latta[pkey(x.name)],target=ni>=0?(ni+dir*(n-1)+270)%27:-1;return`<tr${target===janma||target===lagnaNak?' class="highlight-row"':''}><td>${esc(pkey(x.name))}</td><td>${esc(nakNames[ni]||'—')}</td><td>${n}</td><td>${dir>0?'Forward':'Backward'}</td><td>${esc(nakNames[target]||'—')}</td><td>${target===janma||target===lagnaNak?'Hits Janma/Lagna Nakshatra':'—'}</td></tr>`}).join('');
+    const latRows=transitPlanets.filter(x=>latta[pkey(x.name)]).map(x=>{const ni=nakIndex(x),[n,dir]=latta[pkey(x.name)],target=ni>=0?(ni+dir*(n-1)+270)%27:-1;return`<tr${target===janma||target===lagnaNak?' class="highlight-row"':''}><td>${esc(P(x.name))}</td><td>${esc(taText(nakNames[ni]||'—'))}</td><td>${n}</td><td>${dir>0?'முன்னோக்கு':'பின்னோக்கு'}</td><td>${esc(taText26(nakNames[target]||'—'))}</td><td>${target===janma||target===lagnaNak?'ஜென்மம் / லக்ன நட்சத்திரத்தைத் தாக்குகிறது':'—'}</td></tr>`}).join('');
     const body=[['Sun',[['1','Mouth / Face','Destruction'],['2–5','Head','Influx of wealth'],['6–9','Chest','Victory'],['10–13','Right hand','Wealth'],['14–19','Two feet','Poverty'],['20–23','Left hand','Physical ailments'],['24–25','Eyes','Gains'],['26–27','Private parts','Death']]],['Moon',[['1–2','Face','Great fear'],['3–6','Head','Well-being'],['7–8','Back','Victory over enemies'],['9–10','Eyes','Money'],['11–15','Heart','Comforts and peace'],['16–18','Left hand','Quarrels'],['19–24','Two feet','Going abroad'],['25–27','Right hand','Financial gains']]],['Mars',[['1–2','Mouth / Face','Death'],['3–8','Two feet','Separation'],['9–11','Chest','Victory'],['12–15','Left hand','Poverty'],['16–17','Head','Gains'],['18–21','Face','Great fear'],['22–25','Right hand','Well-being'],['26–27','Eyes','Going abroad']]],['Mercury / Jupiter / Venus',[['1–3','Head','Grief'],['4–6','Face','Gains'],['7–12','Two hands','Misfortune'],['13–17','Stomach','Amassing of wealth'],['18–19','Private parts','Destruction'],['20–27','Two feet','Honor and fame']]],['Saturn / Rahu / Ketu',[['1','Face','Grief'],['2–5','Right hand','Comforts'],['6–8','Right leg','Travels'],['9–11','Left leg','Destruction'],['12–15','Left hand','Gains'],['16–20','Stomach','Pleasures'],['21–23','Head','Comforts'],['24–25','Eyes','Comforts'],['26–27','Back','Death']]]];
     const bodyTa={Sun:'சூரியன்',Moon:'சந்திரன்',Mars:'செவ்வாய்','Mercury / Jupiter / Venus':'புதன் / குரு / சுக்கிரன்','Saturn / Rahu / Ketu':'சனி / ராகு / கேது','Mouth / Face':'வாய் / முகம்',Head:'தலை',Chest:'மார்பு','Right hand':'வலது கை','Two feet':'இரு பாதங்கள்','Left hand':'இடது கை','Physical ailments':'உடல் உபாதைகள்','Private parts':'மர்ம உறுப்புகள்','Eyes':'கண்கள்',Face:'முகம்',Back:'முதுகு','Victory over enemies':'எதிரிகளை வெல்லுதல்',Money:'பணம்','Heart':'இதயம்','Comforts and peace':'சுகம் மற்றும் அமைதி',Quarrels:'சண்டைகள்','Going abroad':'வெளிநாடு செல்லுதல்','Financial gains':'பண ஆதாயம்',Death:'மரணம்',Separation:'பிரிவு',Victory:'வெற்றி',Poverty:'வறுமை',Gains:'ஆதாயம்','Great fear':'பெரும் பயம்','Well-being':'நலன்',Grief:'துயரம்','Misfortune':'துரதிர்ஷ்டம்','Amassing of wealth':'செல்வச் சேர்க்கை','Honor and fame':'மரியாதை மற்றும் புகழ்',Comforts:'சுகங்கள்',Travels:'பயணங்கள்',Pleasures:'இன்பங்கள்'};
     const bodyHtml=body.map(([pn,rs])=>`<h5>${esc(ta?(bodyTa[pn]||pn):pn)}</h5><div class="adv-table-wrap"><table class="adv-wide"><thead><tr><th>${ta?'ஜென்ம நட்சத்திர எண்ணிக்கை':'Janma-star count'}</th><th>${ta?'உடல் பகுதி':'Body part'}</th><th>${ta?'வழக்கமான முடிவு':'Standard result'}</th></tr></thead><tbody>${rs.map(r=>`<tr><td>${r[0]}</td><td>${esc(ta?(bodyTa[r[1]]||r[1]):r[1])}</td><td>${esc(ta?(bodyTa[r[2]]||r[2]):r[2])}</td></tr>`).join('')}</tbody></table></div>`).join('');
-    const murthiRows=transitPlanets.map(x=>{const ti=rasiIndex(x),h=natalMoonராசி>=0&&ti>=0?((ti-natalMoonராசி+12)%12)+1:null;const m=h&&[1,6,11].includes(h)?['Swarna','Highly favorable']:h&&[2,5,9].includes(h)?['Rajata','Favorable']:h&&[3,7,10].includes(h)?['Taamra','Unfavorable']:h&&[4,8,12].includes(h)?['Loha','Highly unfavorable']:['—','—'];return`<tr><td>${esc(pkey(x.name))}</td><td>${esc(x.rasi||'—')}</td><td>${h??'—'}</td><td>${m[0]}</td><td>${m[1]}</td></tr>`}).join('');
+    const murthiRows=transitPlanets.map(x=>{const ti=rasiIndex(x),h=natalMoonராசி>=0&&ti>=0?((ti-natalMoonராசி+12)%12)+1:null;const m=h&&[1,6,11].includes(h)?['தங்கம்','மிகவும் சாதகமானது']:h&&[2,5,9].includes(h)?['வெள்ளி','சாதகமானது']:h&&[3,7,10].includes(h)?['தாமிரம்','பாதகமானது']:h&&[4,8,12].includes(h)?['இரும்பு','மிகவும் பாதகமானது']:['—','—'];return`<tr><td>${esc(P(x.name))}</td><td>${esc(S(x.rasi||'—'))}</td><td>${h??'—'}</td><td>${m[0]}</td><td>${m[1]}</td></tr>`}).join('');
     const transitRows=transitPlanets.map(x=>{const ni=nakIndex(x),c=countFrom(janma,ni),[tara,result]=taraInfo(ni),hit=special.filter(s=>c===s[1]).map(s=>s[0]).join(', ');return`<tr${hit?' class="highlight-row"':''}><td>${esc(pkey(x.name))}</td><td>${esc(nakNames[ni]||'—')}</td><td>${c??'—'}</td><td>${esc(tara)}</td><td>${esc(result)}</td><td>${esc(hit||'—')}</td></tr>`}).join('');
     const simple=(heads,body)=>`<div class="adv-table-wrap"><table class="adv-wide"><thead><tr>${heads.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
+    const simpleTa=simple;
     const taNak={
       Ashwini:'அசுவினி',Bharani:'பரணி',Krittika:'கார்த்திகை',Rohini:'ரோகிணி',Mrigashira:'மிருகசீரிடம்',Ardra:'திருவாதிரை',Punarvasu:'புனர்பூசம்',Pushya:'பூசம்',Ashlesha:'ஆயில்யம்',Magha:'மகம்', 'Purva Phalguni':'பூரம்','Uttara Phalguni':'உத்திரம்',Hasta:'ஹஸ்தம்',Chitra:'சித்திரை',Swati:'சுவாதி',Vishakha:'விசாகம்',Anuradha:'அனுஷம்',Jyeshtha:'கேட்டை',Mula:'மூலம்','Purva Ashadha':'பூராடம்','Uttara Ashadha':'உத்திராடம்',Shravana:'திருவோணம்',Dhanishtha:'அவிட்டம்',Shatabhisha:'சதயம்','Purva Bhadrapada':'பூரட்டாதி','Uttara Bhadrapada':'உத்திரட்டாதி',Revati:'ரேவதி'
     };
     const taராசி={Aries:'மேஷம்',Taurus:'ரிஷபம்',Gemini:'மிதுனம்',Cancer:'கடகம்',Leo:'சிம்மம்',Virgo:'கன்னி',Libra:'துலாம்',Scorpio:'விருச்சிகம்',Sagittarius:'தனுசு',Capricorn:'மகரம்',Aquarius:'கும்பம்',Pisces:'மீனம்'};
-    const taWord=v=>{let q=String(v??''); if(!ta)return q;
-      const exact={Planet:'கிரகம்',ராசி:'ராசி','Transit ராசி':'கோச்சார ராசி','House from Natal Moon':'ஜென்ம சந்திரனிலிருந்து பாவம்',Murthi:'மூர்த்தி',Result:'முடிவு',House:'பாவம்','Vedha House':'வேதா பாவம்',Obstructors:'தடுப்பவர்கள்','Transit Planet':'கோச்சார கிரகம்','Transit Nakshatra':'கோச்சார நட்சத்திரம்','Count from Janma':'ஜென்மத்திலிருந்து எண்ணிக்கை',Tara:'தாரை','Special Nakshatra':'சிறப்பு நட்சத்திரம்',Name:'பெயர்',Count:'எண்ணிக்கை','Nakshatra Name':'நட்சத்திரப் பெயர்',Area:'பிரிவு',Offset:'இடைவெளி','From Nakshatra':'தொடக்க நட்சத்திரம்','Aspected Nakshatra':'பார்வையிடப்படும் நட்சத்திரம்',Nature:'தன்மை','Janma-star count':'ஜென்ம நட்சத்திர எண்ணிக்கை','Body part':'உடல் பகுதி','Standard result':'வழக்கமான முடிவு',Direction:'திசை','Latta Nakshatra':'லட்டா நட்சத்திரம்','Janma/Lagna Hit':'ஜென்மம்/லக்னம் தாக்கம்'};
-      return exact[q]||q;
-    };
-    const taText=v=>{if(!ta)return String(v??'—');let q=String(v??'—'); if(taNak[q])return taNak[q]; if(taராசி[q])return taராசி[q];
-      const m={'Janma Tara':'ஜென்ம தாரை','Sampat Tara':'சம்பத் தாரை','Vipat Tara':'விபத் தாரை','Kshema Tara':'க்ஷேம தாரை','Pratyak Tara':'பிரத்யக் தாரை','Saadhana Tara':'சாதன தாரை','Naidhana/Vadha Tara':'நைதன / வத தாரை','Mitra Tara':'மித்ர தாரை','Parama Mitra Tara':'பரம மித்ர தாரை','Favorable':'நன்மை','Unfavorable':'தீமை','Mixed':'கலப்பு','Forward':'முன்னோக்கு','Backward':'பின்னோக்கு','Highly favorable':'மிகவும் நன்மை','Highly unfavorable':'மிகவும் தீமை','Swarna':'ஸ்வர்ணம்','Rajata':'ரஜதம்','Taamra':'தாம்ரம்','Loha':'லோகம்','No supported vedha detected.':'ஆதரிக்கப்படும் வேதா எதுவும் கண்டறியப்படவில்லை.','Hits Janma/Lagna Nakshatra':'ஜென்மம் / லக்ன நட்சத்திரத்தைத் தாக்குகிறது','—':'—'};
-      return m[q]||q;
-    };
-    const simpleTa=(heads,body)=>simple(ta?heads.map(taWord):heads,body);
-    const html=`<div class="adv-section v5-module topic26-special"><h3>🌟 ${ta?'சிறப்பு நட்சத்திர கோச்சார விவரங்கள்':'Special Nakshatra Transit Details'}</h3><h4>${ta?'மூர்த்திகள்':'Murthis'}</h4>${simpleTa(['Planet','ராசி','House from Natal Moon','Murthi','Result'],murthiRows)}<h4>${ta?'ராசி கோச்சார வேதா':'ராசி Gochara Vedha'}</h4>${simpleTa(['Planet','Transit ராசி','House','Vedha House','Obstructors'],gochRows||`<tr><td colspan="5">${ta?'ஆதரிக்கப்படும் வேதா எதுவும் கண்டறியப்படவில்லை.':'No supported vedha detected.'}</td></tr>`)}<h4>${ta?'தாரைகள் மற்றும் சிறப்பு நட்சத்திரங்கள்':'Taras & Special Nakshatras'}</h4>${simpleTa(['Transit Planet','Transit Nakshatra','Count from Janma','Tara','Result','Special Nakshatra'],transitRows)}<h5>${ta?'சிறப்பு நட்சத்திர விளக்கங்கள்':'Special Nakshatra Definitions'}</h5>${simpleTa(['Name','Count','Nakshatra Name','Area'],specialRows)}<h4>${ta?'நட்சத்திர அடிப்படையிலான பார்வைகள்':'Nakshatra-based Aspects'}</h4>${simpleTa(['Planet','From Nakshatra','Offset','Aspected Nakshatra','Nature'],aspRows)}<h4>${ta?'நட்சத்திரங்கள் மற்றும் உடல் உறுப்புகள்':'Constellations & Body Parts'}</h4>${bodyHtml}<h4>${ta?'லட்டா':'Latta'}</h4>${simpleTa(['Planet','Transit Nakshatra','Count','Direction','Latta Nakshatra','Janma/Lagna Hit'],latRows)}<p class="small"><b>${ta?'ஜென்ம நட்சத்திரம்':'Janma Nakshatra'}:</b> ${esc(taText(nakNames[janma])||'—')} · <b>${ta?'லக்ன நட்சத்திரம்':'Lagna Nakshatra'}:</b> ${esc(taText(nakNames[lagnaNak])||'—')}</p></div>`;
+    const html=`<div class="adv-section v5-module topic26-special"><h3>🌟 ${ta?'சிறப்பு நட்சத்திர கோச்சார விவரங்கள்':'Special Nakshatra Transit Details'}</h3><h4>${ta?'முர்த்திகள்':'Murthis'}</h4>${simpleTa(['Planet','ராசி','House from Natal Moon','Murthi','Result'],murthiRows)}<h4>${ta?'ராசி கோச்சார வேதா':'ராசி Gochara Vedha'}</h4>${simpleTa(['Planet','Transit ராசி','House','Vedha House','Obstructors'],gochRows||`<tr><td colspan="5">${ta?'ஆதரிக்கப்படும் வேதா எதுவும் கண்டறியப்படவில்லை.':'No supported vedha detected.'}</td></tr>`)}<h4>${ta?'தாரைகள் மற்றும் சிறப்பு நட்சத்திரங்கள்':'Taras & Special Nakshatras'}</h4>${simpleTa(['Transit Planet','Transit Nakshatra','Count from Janma','Tara','Result','Special Nakshatra'],transitRows)}<h5>${ta?'சிறப்பு நட்சத்திர விளக்கங்கள்':'Special Nakshatra Definitions'}</h5>${simpleTa(['Name','Count','Nakshatra Name','Area'],specialRows)}<h4>${ta?'நட்சத்திர அடிப்படையிலான பார்வைகள்':'Nakshatra-based Aspects'}</h4>${simpleTa(['Planet','From Nakshatra','Offset','Aspected Nakshatra','Nature'],aspRows)}<h4>${ta?'நட்சத்திரங்கள் மற்றும் உடல் உறுப்புகள்':'Constellations & Body Parts'}</h4>${bodyHtml}<h4>${ta?'லட்டா':'Latta'}</h4>${simpleTa(['Planet','Transit Nakshatra','Count','Direction','Latta Nakshatra','Janma/Lagna Hit'],latRows)}<p class="small"><b>${ta?'ஜென்ம நட்சத்திரம்':'Janma Nakshatra'}:</b> ${esc(taText(nakNames[janma])||'—')} · <b>${ta?'லக்ன நட்சத்திரம்':'Lagna Nakshatra'}:</b> ${esc(taText(nakNames[lagnaNak])||'—')}</p></div>`;
     const transitTarget =
       root.querySelector?.('.smv-advanced-part.transit-analysis') ||
       root.querySelector?.('.smv-advanced-shell .transit-analysis') ||
@@ -11167,6 +11771,7 @@ window.__SMV_APP_READY=true;
     // Keep the Advanced host hidden until the first advanced response is ready.
     // This prevents an old/partial module from flashing below the fresh horoscope.
     root.classList.add('hidden');
+    const advancedTimeout=setTimeout(()=>{try{advancedAbortController.abort();}catch(_e){}},90000);
     const post=(path,body=payload)=>fetch(base+path,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify(body),signal:advancedAbortController.signal}).then(async r=>{const b=await r.json().catch(()=>({}));if(!r.ok)throw new Error(b.error||`HTTP ${r.status}`);return b;});
 
     // Birth Panchang is calculated for the native's birth date/time.
@@ -11223,6 +11828,29 @@ window.__SMV_APP_READY=true;
 
       window.__smvAdvancedDataByRoot=window.__smvAdvancedDataByRoot||{};
       window.__smvAdvancedDataByRoot[rootId]=advancedData;
+      // Kota Chakra safety fallback: preserve the backend calculation when present,
+      // but restore Janma Rasi/Nakshatra and planet placements from the verified
+      // natal chart if a backend response omits those fields.
+      try{
+        const k=advancedData.kota=advancedData.kota||{};
+        const pls=Array.isArray(chart?.planets)?chart.planets:[];
+        const moonPl=pls.find(p=>{const n=String(p?.name||'').trim();return n==='சந்திரன்'||n==='Moon'||n==='Mo';})||null;
+        const kotaRasi=k.moonராசி||k.moonRasi||k.janmaRasi||moonPl?.rasi||'';
+        if(kotaRasi) k.moonராசி=kotaRasi;
+        const kotaNak=k.janmaNakshatra||k.janmaNakshatraName||moonPl?.nakshatra||'';
+        if(kotaNak) k.janmaNakshatra=kotaNak;
+        if(k.janmaNakshatraPada==null && moonPl?.pada!=null) k.janmaNakshatraPada=moonPl.pada;
+        if(!Array.isArray(k.planets) || !k.planets.length){
+          const names=['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishta','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'];
+          const zone={1:'Bahya',2:'Prakaara',3:'Durgantara / Madhya',4:'Stambha',5:'Durgantara / Madhya',6:'Prakaara',7:'Bahya',8:'Bahya',9:'Prakaara',10:'Durgantara / Madhya',11:'Stambha',12:'Durgantara / Madhya',13:'Prakaara',14:'Bahya',15:'Bahya',16:'Prakaara',17:'Durgantara / Madhya',18:'Stambha',19:'Durgantara / Madhya',20:'Prakaara',21:'Bahya',22:'Bahya',23:'Prakaara',24:'Durgantara / Madhya',25:'Stambha',26:'Durgantara / Madhya',27:'Prakaara',28:'Bahya'};
+          const janmaIdx=names.findIndex(n=>n===kotaNak || String(kotaNak).trim()===String(n).trim());
+          k.planets=pls.filter(p=>p&&p.name).map(p=>{
+            const ni=names.indexOf(String(p.nakshatra||'').trim());
+            const relative=ni>=0&&janmaIdx>=0?((ni-janmaIdx+28)%28)+1:ni>=0?ni+1:null;
+            return {...p,relativeNakshatra:relative,zone:relative?zone[relative]:'—'};
+          });
+        }
+      }catch(_kotaFallback){}
       try{
         renderAdvancedAstrology({...((chart&&typeof chart==='object')?chart:{}), ...((advancedData&&typeof advancedData==='object')?advancedData:{})},lang,rootId);
         if(full?.phase4 && typeof window.__smvRenderPhase4Dasa==='function') window.__smvRenderPhase4Dasa(full.phase4,lang,rootId);
@@ -11246,10 +11874,10 @@ window.__SMV_APP_READY=true;
       }
     }).catch(e=>{
       if(!isCurrent()) return;
-      if(birthSlot) birthSlot.innerHTML=`<div class="card birth-time-panchang" style="margin:0 0 18px"><h3>📅 ${lang==='ta'?'பிறந்த பஞ்சாங்கம்':'Birth Panchang'}</h3><div class="error"><b>${lang==='en'?'Horoscope calculation could not be completed.':'ஜாதக கணக்கீடு முடிக்க முடியவில்லை.'}</b><p class="small">${escSafe(e?.message||e||'Calculation failed')}</p></div></div>`;
+      if(birthSlot) birthSlot.innerHTML=`<div class="card birth-time-panchang" style="margin:0 0 18px"><h3>📅 ${lang==='ta'?'பிறந்த பஞ்சாங்கம்':'Birth Panchang'}</h3><div class="error"><b>${lang==='en'?'Horoscope calculation could not be completed.':'ஜாதக கணக்கீடு முடிக்க முடியவில்லை.'}</b><p class="small">${escSafe(e?.name==='AbortError'?'மேம்பட்ட கணக்கீடு 90 விநாடிகளுக்கு மேல் எடுத்தது. அடிப்படை ஜாதகம் தொடர்ந்து கிடைக்கும்.':(e?.message||e||'Calculation failed'))}</p></div></div>`;
       if(transitSlot) transitSlot.innerHTML='';
       root.classList.remove('hidden');
-    });
+    }).finally(()=>{clearTimeout(advancedTimeout);});
 
   }
   
@@ -11339,12 +11967,12 @@ if(lat===''||lon===''){
     // button shows the loading state. Nothing is revealed until every calculation
     // in the advanced batch has completed.
     if(resultBox){
-      resultBox.classList.add('hidden');
+     // resultBox.classList.add('hidden');
       resultBox.setAttribute('aria-busy','true');
       resultBox.innerHTML='';
     }
     if(btn){btn.disabled=true;btn.textContent='⏳ ஜாதகம் உருவாக்கப்படுகிறது…';}
-    let progress=$('tamilHoroscopeProgress'); if(!progress&&btn){progress=document.createElement('div');progress.id='tamilHoroscopeProgress';progress.className='smv-horoscope-progress';progress.innerHTML='<span class="spin"></span><span>ஜாதகம் உருவாக்கப்படுகிறது…<br>அனைத்து கணக்கீடுகளும் தயார் செய்யப்படுகின்றன…</span>';btn.insertAdjacentElement('afterend',progress);}
+    let progress=$('tamilHoroscopeProgress'); if(!progress&&btn){progress=document.createElement('div');progress.id='tamilHoroscopeProgress';progress.className='smv-horoscope-progress';progress.innerHTML='<span class="spin"></span><span>ஜாதகம் கணக்கிடப்படுகிறது…<br>பிறப்பு விவரங்கள் சரிபார்க்கப்படுகின்றன…</span>';btn.insertAdjacentElement('afterend',progress);}
     try{
       // Native mobile time inputs normally return HH:mm (for example 22:05 for 10:05 PM).
       // Normalize common 12-hour text values too, so the API always receives HH:mm.
@@ -11365,31 +11993,51 @@ if(lat===''||lon===''){
         r=await fetch((window.SMV_BACKEND_URL||'https://smvastro-tamil.onrender.com')+'/api/horoscope/calculate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,time:normalizedTime,lat:Number(lat),lon:Number(lon),height:0,timezone:'Asia/Kolkata',utcOffsetMinutes:330,houseSystem:'S'}),signal:controller.signal});
       }finally{clearTimeout(timeout);}
       const d=await r.json().catch(()=>({})); if(!r.ok) throw new Error(d.error||`Calculation failed (HTTP ${r.status})`);
-      // Render the core horoscope into the hidden result container first.
+      d.nativeName=String(name||'');
+      if(!d.nameInitial && d.nativeName){ try{ const seg=new Intl.Segmenter(undefined,{granularity:'grapheme'}); d.nameInitial=seg.segment(d.nativeName)[Symbol.iterator]().next().value?.segment||''; }catch(_e){ d.nameInitial=Array.from(d.nativeName)[0]||''; } }
+      // RASI SAFETY FIX: derive D-1 Rasi directly from the verified sidereal
+      // longitude when the backend response does not include a usable rasi
+      // label. This only normalizes/display-fixes the returned chart data;
+      // it does not change the Swiss Ephemeris calculation or any other feature.
+      const rasiTA=['மேஷம்','ரிஷபம்','மிதுனம்','கடகம்','சிம்மம்','கன்னி','துலாம்','விருச்சிகம்','தனுசு','மகரம்','கும்பம்','மீனம்'];
+      const rasiEN=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+      const rasiAlias={'மேஷம்':'மேஷம்','ரிஷபம்':'ரிஷபம்','மிதுனம்':'மிதுனம்','கடகம்':'கடகம்','சிம்மம்':'சிம்மம்','கன்னி':'கன்னி','துலாம்':'துலாம்','விருச்சிகம்':'விருச்சிகம்','தனுசு':'தனுசு','மகரம்':'மகரம்','கும்பம்':'கும்பம்','மீனம்':'மீனம்','Aries':'மேஷம்','Taurus':'ரிஷபம்','Gemini':'மிதுனம்','Cancer':'கடகம்','Leo':'சிம்மம்','Virgo':'கன்னி','Libra':'துலாம்','Scorpio':'விருச்சிகம்','Sagittarius':'தனுசு','Capricorn':'மகரம்','Aquarius':'கும்பம்','Pisces':'மீனம்'};
+      const rasiFromLongitude=(value)=>{const L=Number(value);return Number.isFinite(L)?rasiTA[Math.floor((((L%360)+360)%360)/30)]:''};
+      const normalizeRasi=(obj)=>{if(!obj||typeof obj!=='object')return;const byLon=rasiFromLongitude(obj.longitude);const known=rasiAlias[String(obj.rasi||'').trim()];obj.rasi=byLon||known||obj.rasi||'';};
+      (d.planets||[]).forEach(normalizeRasi);
+      normalizeRasi(d.lagna);
+      const moon=(d.planets||[]).find(p=>String(p?.name||'').trim()==='சந்திரன்'||String(p?.name||'').trim()==='Moon');
+      if(moon){ d.moonராசி=rasiFromLongitude(moon.longitude)||rasiAlias[String(d.moonராசி||'').trim()]||d.moonராசி||''; }
+      // Render the verified core horoscope first. IMPORTANT: do not keep the
+      // entire horoscope page hidden while the heavy Advanced batch is running.
+      // This was the reason the user could see an endless loading state with no
+      // horoscope opening. The core chart is safe to show immediately; Advanced
+      // features continue loading into their own hidden container and are revealed
+      // when ready. No calculation/data engine is changed here.
       render(d);
-      const advRoot=$('tamilAdvancedAstrology');
-      if(loadAdvanced && advRoot && typeof window.__smvLoadAdvancedAstrology==='function'){
-        // The advanced loader waits for Birth Panchang, Daily Panchang, Transit,
-        // and every advanced module before returning. The result stays hidden here.
-        await window.__smvLoadAdvancedAstrology({date,time:normalizedTime,lat,lon,lang:getHoroscopeLang(),rootId:'tamilAdvancedAstrology',name:($('tamilAstroName')?.value||'').trim(),chart:d,generationId});
-      }
-      // SINGLE RELEASE: chart + all new features become visible together.
       if(resultBox){
-        // Disable scroll anchoring only while the large result is released.
         const smvHtml=document.documentElement;
         const smvOldAnchor=smvHtml.style.overflowAnchor;
         smvHtml.style.overflowAnchor='none';
         resultBox.classList.remove('hidden');
-        resultBox.setAttribute('aria-busy','false');
+        resultBox.setAttribute('aria-busy',loadAdvanced?'true':'false');
         window.scrollTo(smvSavedScrollX,smvSavedScrollY);
         requestAnimationFrame(()=>{
           window.scrollTo(smvSavedScrollX,smvSavedScrollY);
-          requestAnimationFrame(()=>{
-            window.scrollTo(smvSavedScrollX,smvSavedScrollY);
-            smvHtml.style.overflowAnchor=smvOldAnchor;
-          });
+          smvHtml.style.overflowAnchor=smvOldAnchor;
         });
       }
+      const advRoot=$('tamilAdvancedAstrology');
+      if(loadAdvanced && advRoot && typeof window.__smvLoadAdvancedAstrology==='function'){
+        try{
+          await window.__smvLoadAdvancedAstrology({date,time:normalizedTime,lat,lon,lang:getHoroscopeLang(),rootId:'tamilAdvancedAstrology',name:($('tamilAstroName')?.value||'').trim(),chart:d,generationId});
+        }catch(_advErr){
+          // Core horoscope is already open. Keep Advanced failure local instead of
+          // hiding/replacing the working horoscope.
+          if(advRoot && !advRoot.querySelector('.error')) advRoot.insertAdjacentHTML('beforeend',`<div class="error"><b>மேம்பட்ட ஜோதிட அம்சங்களை ஏற்ற முடியவில்லை.</b><p class="small">${esc(String(_advErr?.message||_advErr))}</p></div>`);
+        }
+      }
+      if(resultBox) resultBox.setAttribute('aria-busy','false');
       return d;
     }catch(e){
       if(e?.name==='AbortError') alert('Horoscope calculation timed out after 120 seconds. Please check the Render server and try again.');
@@ -12579,7 +13227,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </style>
 <script>
 (function(){
- const SMV_TA={"Su":"சூரியன்","Mo":"சந்திரன்","Ma":"செவ்வாய்","Me":"புதன்","Ju":"குரு","Ve":"சுக்கிரன்","Sa":"சனி","Ra":"ராகு","Ke":"கேது","Asc":"லக்னம்","Aries":"மேஷம்","Taurus":"ரிஷபம்","Gemini":"மிதுனம்","Cancer":"கடகம்","Leo":"சிம்மம்","Virgo":"கன்னி","Libra":"துலாம்","Scorpio":"விருச்சிகம்","Sagittarius":"தனுசு","Capricorn":"மகரம்","Aquarius":"கும்பம்","Pisces":"மீனம்","Ketu":"கேது","Venus":"சுக்கிரன்","Sun":"சூரியன்","Moon":"சந்திரன்","Mars":"செவ்வாய்","Rahu":"ராகு","Jupiter":"குரு","Saturn":"சனி","Mercury":"புதன்","Ascendant":"லக்னம்","Ashwini":"அஸ்வினி","Bharani":"பரணி","Krittika":"கார்த்திகை","Rohini":"ரோகிணி","Mrigashira":"மிருகசீரிடம்","Ardra":"திருவாதிரை","Punarvasu":"புனர்பூசம்","Pushya":"பூசம்","Ashlesha":"ஆயில்யம்","Magha":"மகம்","Purva Phalguni":"பூரம்","Uttara Phalguni":"உத்திரம்","Hasta":"ஹஸ்தம்","Chitra":"சித்திரை","Swati":"சுவாதி","Vishakha":"விசாகம்","Anuradha":"அனுஷம்","Jyeshtha":"கேட்டை","Mula":"மூலம்","Purva Ashadha":"பூராடம்","Uttara Ashadha":"உத்திராடம்","Shravana":"திருவோணம்","Dhanishta":"அவிட்டம்","Shatabhisha":"சதயம்","Purva Bhadrapada":"பூரட்டாதி","Uttara Bhadrapada":"உத்திரட்டாதி","Revati":"ரேவதி","Pada":"பாதம்","Date of Birth":"பிறந்த தேதி","Time":"நேரம்","Place of Birth":"பிறந்த இடம்","ராசி":"ராசி","Nakshatra":"நட்சத்திரம்","Longitude":"நீளவியல்","Moon ராசி":"சந்திர ராசி","Ayanamsa":"அயனாம்சம்","பாவம்":"பாவக","Chart":"கட்டம்","Arambha":"ஆரம்பம்","Madhya":"மத்தியம்","Antya":"முடிவு","Sphuta":"ஸ்புடம்","Sphuta ராசி":"ஸ்புட ராசி","Planets":"கிரகங்கள்","Planet":"கிரகம்","Degree":"பாகை","நவாம்சம்":"நவாம்சம்","நவாம்சம் Pada":"நவாம்ச பாதம்","நவாம்சம் Positions":"நவாம்ச நிலைகள்","Birth Details":"பிறப்பு விவரங்கள்","Planetary Positions":"கிரக நிலைகள்","Vimshottari Dasha":"விம்சோத்தரி தசா","Current / Next Dasha":"தற்போதைய / அடுத்த தசா","Next":"அடுத்தது","Next Bhukti":"அடுத்த புக்தி","Next Antara":"அடுத்த அந்தரம்","Mahadasha":"மகாதசை","Bhukti":"புக்தி","Antardasha":"அந்தர்தசை","Antara":"அந்தரம்","Pratyantara Dasha":"பிரத்யந்தர்தசை","Start":"தொடக்கம்","End":"முடிவு","No next-level information.":"அடுத்த நிலை தகவல் இல்லை.","No Bhukti information.":"புக்தி தகவல் இல்லை.","No Antara periods.":"அந்தர காலங்கள் இல்லை.","9 sub-periods":"9 துணைக் காலங்கள்","Horoscope Calculation":"தமிழ் ஜாதக கணக்கீடு","ராசி கட்டம் (D-1)":"D-1 ராசி","நவாம்ச கட்டம் ( D-9)":"நவாம்ச கட்டம் (D9)","D9 நவாம்சம் sign for each planet, including the நவாம்சம் Ascendant.":"ஒவ்வொரு கிரகத்தின் D9 நவாம்ச ராசி, லக்ன நவாம்சம் உட்பட.","பாவ கட்டம்":"பாவக கட்டம்","AI is interpreting the verified horoscope data...":"சரிபார்க்கப்பட்ட ஜாதகத் தரவை AI விளக்குகிறது...","AI Future Insights":"AI எதிர்காலப் பலன்கள்","Generate AI Future Insights":"AI எதிர்காலப் பலன்களை உருவாக்கவும்","Generating AI Future Insights...":"AI பலன் உருவாக்கப்படுகிறது...","Note":"குறிப்பு","Horoscope calculation text copied.":"ஜாதக கணக்கீட்டு உரை நகலெடுக்கப்பட்டது.","Unable to copy.":"நகலெடுக்க முடியவில்லை.","Reset":"மீட்டமை","Create Horoscope in Tamil":"தமிழில் ஜாதகம் உருவாக்குக","Tamil Horoscope":"தமிழ் ஜாதகம்","Tamil Astrology Guide":"தமிழ் ஜோதிட வழிகாட்டி","Your name":"உங்கள் பெயர்","City, State":"நகரம், மாநிலம்","e.g. 13.0827":"எ.கா. 13.0827","e.g. 80.2707":"எ.கா. 80.2707","e.g. Rohini":"எ.கா. ரோகிணி","Nakshatra (Optional)":"நட்சத்திரம் (விருப்பம்)","Name":"பெயர்","Birth Time":"பிறந்த நேரம்","Birth Place":"பிறந்த இடம்","Enter the birth time correctly. Example: 22:05 (10:05 PM).":"பிறந்த நேரம் சரியாக உள்ளிடவும். உதாரணம்: 22:05 (10:05 PM).","Enter the date and time of birth.":"பிறந்த தேதி மற்றும் பிறந்த நேரத்தை உள்ளிடவும்.","Select the Birth Place; Latitude and Longitude will be filled automatically.":"Birth Place-ஐ தேர்வு செய்யவும்; Latitude மற்றும் Longitude தானாக நிரப்பப்படும்.","Each planet is shown on a separate row: ராசி · Degree · Nakshatra · Pada.":"ஒவ்வொரு கிரகமும் தனி வரியில்: ராசி · பாகை · நட்சத்திரம் · பாதம்.","Tap a Mahadasha to open":"மகாதசையை touch செய்தால்","Tap a Bhukti to open":"புக்தியை touch செய்தால்","Initial Mahadasha balance based on the Moon’s birth Nakshatra":"பிறந்த நேர சந்திரனின் நட்சத்திரத்தை அடிப்படையாகக் கொண்ட ஆரம்ப மகாதசா balance","years":"ஆண்டுகள்","Phase 2 — Advanced Planetary Strength":"Phase 2 — மேம்பட்ட கிரக வலிமை","Six transparent strength indicators: positional, directional, temporal, motion, natural and aspect strength.":"நிலை, திசை, காலம், இயக்கம், இயற்கை மற்றும் பார்வை ஆகிய 6 வெளிப்படையான strength indicators.","This is an SMV composite index; it should not be treated as classical Shadbala.":"இது ஒரு SMV composite index; பாரம்பரிய Shadbala-வாகக் கருத வேண்டாம்.","Sthana / Dig":"ஸ்தானம் / திசை","Kala / Cheshta":"காலம் / இயக்கம்","Naisargika / Drik":"இயற்கை / பார்வை","Total":"மொத்தம்","Sthana Bala":"ஸ்தான பலம்","Dig Bala":"திக் பலம்","Kala Bala":"கால பலம்","Cheshta Bala":"சேஷ்டா பலம்","Naisargika Bala":"நைசர்கிக பலம்","Drik Bala":"த்ரிக் பலம்","Required":"தேவையானது","Uccha":"உச்ச","Saptavargaja":"வர்க","Nathonnatha":"நாதோ","Paksha":"பக்ஷம்","Ayana":"அயன","Strong":"வலிமை","Below required":"தேவையான அளவுக்கு குறைவு","Classical-style Shadbala calculation":"Classical-style Shadbala கணக்கீடு","For the seven classical planets from Sun through Saturn":"சூரியன் முதல் சனி வரை 7 கிரகங்களுக்கு","Rahu/Ketu are excluded from the classical Shadbala total.":"Rahu/Ketu இந்த classical Shadbala total-ல் சேர்க்கப்படவில்லை.","This is an astronomical ephemeris-based calculation layer.":"இது astronomical ephemeris அடிப்படையிலான கணக்கீட்டு layer.","Traditional astrology interpretations are belief-based; do not use them as the sole basis for important life decisions.":"பாரம்பரிய ஜோதிட பலன்கள் விளக்க/நம்பிக்கை சார்ந்தவை; முக்கிய வாழ்க்கை முடிவுகளுக்கு இதை ஒரே ஆதாரமாக பயன்படுத்த வேண்டாம்.","Here பாவம் Sphuta":"இங்கு பாவ ஸ்புடம்","ராசி Status":"ராசி நிலை","Planetary Strength & Status":"கிரக வலிமை & நிலை","Retrograde":"வக்கிரம்","Combustion":"அஸ்தமனம்","Sun Distance":"சூரிய தூரம்","Yes":"ஆம்","No":"இல்லை","Exaltation":"உச்சம்","Debilitation":"நீசம்","Exalted Sign":"உச்ச ராசி","Debilitated Sign":"நீச ராசி","Own Sign":"சுய ராசி","Moolatrikona":"மூலத்திரிகோணம்","Friend":"நட்பு","Enemy":"பகை","Neutral":"சமம்","Sthana":"ஸ்தானம்","Direction":"திசை","Kala":"காலம்","Cheshta":"இயக்கம்","Naisargika":"இயற்கை","Drik":"பார்வை","Planetary Strength":"கிரக வலிமை","Status":"நிலை","Exaltation/Debilitation":"உச்சம்/நீசம்","Classical":"பாரம்பரிய","Total / Required":"மொத்தம் / தேவையானது","Below Required":"தேவையான அளவுக்கு குறைவு","Bhukti / Antardasha":"புக்தி / அந்தர்தசை","Sun through Saturn":"சூரியன் முதல் சனி வரை","own sign and Moolatrikona":"சுய ராசி மற்றும் மூலத்திரிகோணம்","basic status indicators":"அடிப்படை நிலைகள்","Middle":"மத்தியம்","D1 ராசி":"D1 ராசி","D9 நவாம்சம் ராசி":"D9 நவாம்ச ராசி","நவாம்சம் ராசி":"நவாம்ச ராசி","Antara / Pratyantara":"அந்தரம் / பிரத்யந்தரம்","opens.":"திறக்கும்.","are excluded from the classical Shadbala total.":"இந்த classical Shadbala total-ல் சேர்க்கப்படவில்லை.","In Phase 3,":"Phase 3-ல்","six classical components are calculated separately.":"ஆறு classical components தனித்தனியாகக் கணக்கிடப்படுகின்றன.","Some conventions used in time calculation":"காலக் கணக்கீட்டில் பயன்படுத்தப்படும் சில","and":"மற்றும்","the":"ஆகிய","Basic status indicators: Retrograde, Combustion, Exaltation/Debilitation, Own Sign and Moolatrikona.":"வக்கிரம், அஸ்தமனம் (Combustion), உச்சம்/நீசம், சுய ராசி மற்றும் மூலத்திரிகோணம் ஆகிய அடிப்படை நிலைகள்.","Initial Mahadasha balance based on the Moon’s birth Nakshatra:":"பிறந்த நேர சந்திரனின் நட்சத்திரத்தை அடிப்படையாகக் கொண்ட ஆரம்ப மகாதசா balance:","Create Horoscope":"ஜாதகம் உருவாக்கவும்","Horoscope":"ஜாதகம்","🔮 Create Horoscope":"🔮 தமிழில் ஜாதகம் உருவாக்குக","Shukla Paksha":"சுக்ல பக்ஷம்","Krishna Paksha":"கிருஷ்ண பக்ஷம்","Tithi":"திதி","Shunya ராசிs":"சூன்ய ராசிகள்","Purnima — no Thithi Shunya":"பௌர்ணமி — திதி சூன்யம் இல்லை","Amavasya — no Thithi Shunya":"அமாவாசை — திதி சூன்யம் இல்லை","No Shunya ராசிs in the configured table":"சூன்ய ராசிகள் இல்லை","Pushkara நவாம்சம்":"புஷ்கர நவாம்சம்","Vargottama":"வர்க்கோத்தமம்","Graha Yutha":"கிரக யுத்தம் / யுதி","Yogi":"யோகி","Saha Yogi":"சஹ யோகி","Ava Yogi":"அவ யோகி","Santana Thithi":"சந்தான திதி","Dana Thithi":"தான திதி","Karma Thithi":"கர்ம திதி","Thithi Soonyam":"திதி சூன்யம்","Mudakku ராசி":"முடக்கு ராசி","Mudakku Nakshatra":"முடக்கு நட்சத்திரம்","பாவம் Special Features":"பாவ சிறப்பு அம்சங்கள்","Feature":"அம்சம்","Planets / Result":"கிரகங்கள் / முடிவு","Adhimitra":"அதிமித்திரம்","Mitra":"மித்திரம்","Sama":"சமம்","Satru":"சத்ரு","Adhisatru":"அதிசத்ரு","Interpretation":"விளக்கம்","Bright / elevated expression":"பிரகாசம் / உயர்ந்த வெளிப்பாடு","Comfortable / natural":"சுயநிலை / இயல்பு","Delighted":"மகிழ்ச்சி","Peaceful":"அமைதி","Sad / depressed":"சோர்வு / தாழ்வு","Distressed":"துயரம்","Confused / constrained":"குழப்பம் / குறைபாடு","Scheming tendency":"தந்திரமான போக்கு","Angry":"கோபம்","Ashamed":"வெட்கம்","Proud":"பெருமை","Hungry / dissatisfied":"பசி / திருப்தியின்மை","Thirsty":"தாகம்","Agitated":"அதிர்ச்சி / கலக்கம்","Cheshta = full results · Drishti = medium results · Vicheshta = very little results.":"Cheshta = முழுப் பலன் · Drishti = மிதமான பலன் · Vicheshta = மிகக் குறைந்த பலன்.","Janma Rashi":"ஜன்ம ராசி","Janma Nakshatra":"ஜன்ம நட்சத்திரம்","Kota Swami / Durgapati":"கோட்டா சுவாமி","Kota Paala":"கோட்டா பாலா","Entry Path":"நுழைவு பாதை","Exit Path":"வெளியேறும் பாதை","Zone":"பகுதி","Native Name":"பெயர்","Name Initial":"பெயர் ஆரம்ப ஒலி","Janma Pada Sound":"ஜன்ம பாத ஒலி","Name Nakshatra":"பெயர் நட்சத்திரம்","Matched Sound":"பெயர் ஒலி","Match Rule":"பொருத்த விதி","Three reference points are used: Lagna, Moon and Sun. Each ring shows the 12 houses from that reference.":"லக்னம், சந்திரன், சூரியன் ஆகிய மூன்று reference points-லிருந்து 12 பாவங்கள் பார்க்கப்படுகின்றன.","Outer Ring":"வெளிப்புற வளையம்","28 Nakshatras + corner vowels":"28 நட்சத்திரங்கள் + மூலை உயிரெழுத்துகள்","Akshara Ring":"அக்ஷர வளையம்","20 consonant/name-sound cells":"20 மெய்/பெயர் ஒலி இடங்கள்","ராசி Ring":"ராசி வளையம்","12 Rashis":"12 ராசிகள்","Tithi Ring":"திதி வளையம்","Nanda · Bhadra · Jaya · Rikta · Poorna":"நந்தா · பத்ரா · ஜயா · ரிக்தா · பூர்ணா","Planet Placement":"கிரக அமைப்பு","Nakshatra cell + Pada detail":"நட்சத்திர பெட்டி + பாதம் விவரம்","Motion":"நிலை","Direct":"நேர்கதி","Tithi groups":"திதி குழுக்கள்","Vedha rule":"வேத விதி","Loading Dasa calculations...":"தசா கணக்கீடு ஏற்றப்படுகிறது...","Advanced horoscope sections":"மேம்பட்ட ஜாதக பகுதிகள்","Tap to view":"தொடுவதன் மூலம் பார்க்கவும்","மேம்பட்ட ஜாதகப் பகுப்பாய்வு":"ஜாதகத்தின் மேம்பட்ட பகுப்பாய்வு","Seed":"தொடக்கம்","ராசி / Lord":"ராசி / அதிபதி","Years":"ஆண்டுகள்","Sub-periods":"உள் காலம்","Show Antardasas":"Antardasa காட்டு","Important:":"குறிப்பு","No sub-period data.":"தரவு இல்லை","Planetary Transit":"கிரக கோச்சாரம்","Daily Panchang":"தினசரி பஞ்சாங்கம்","Sun Sign":"சூரிய ராசி","Moon Sign":"சந்திர ராசி","Yoga":"யோகம்","Karana":"கரணம்","Sunrise":"சூரிய உதயம்","Sunset":"சூரிய அஸ்தமனம்","Transit / Panchang could not be calculated.":"கோச்சாரம் / பஞ்சாங்கம் உருவாக்க முடியவில்லை.","Transits from Janma ராசி":"ஜன்ம ராசியிலிருந்து கோச்சாரம்","Transit ராசி":"கோச்சார ராசி","House from Moon":"சந்திரனிலிருந்து பாவம்","Snapshot":"நிலை","Textbook Typical Result":"பாடநூல் குறிப்பிட்ட பொதுப் பலன்","No transit data.":"தரவு இல்லை","Transits from Natal Lagna":"லக்னத்திலிருந்து கோச்சாரம்","House from Lagna":"லக்னத்திலிருந்து பாவம்","Transit → Natal Planet Contacts":"நடப்பு கிரகம் ↔ பிறப்பு கிரகம் நெருக்கம்","Transit Planet":"கோச்சார கிரகம்","Natal Planet":"பிறப்பு கிரகம்","Orb":"தூரம்","No major contact within 3°.":"3°க்குள் குறிப்பிடத்தக்க நெருக்கம் இல்லை.","Natal ராசி ↔ Transit நவாம்சம் (D-9)":"D-9 கோச்சார செயல்படுத்தல்","Transit D-9 Sign":"கோச்சார D-9 ராசி","Natal planets activated":"அதே D-9 ராசியில் பிறப்பு கிரகங்கள்","Transit Near Natal Sahams":"சஹம் அருகாமை","Saham":"சஹம்","No transit planet is within 1° of a natal Saham.":"1°க்குள் சஹம் நெருக்கம் இல்லை.","Special Nakshatra Transit Details":"சிறப்பு நட்சத்திர கோச்சார விவரங்கள்","Birth Panchang":"பிறந்த பஞ்சாங்கம்","Tamil date":"தமிழ் தேதி","Thirukanitha Panchang calculation":"திருக்கணித பஞ்சாங்க கணிப்பு","Tamil Date + Gregorian Date":"தமிழ் தேதி + ஆங்கில தேதி","Vara":"வாரம்","Rahu Kalam":"ராகு காலம்","Yamagandam":"எமகண்டம்","Gulikai":"குளிகை","Nalla Neram":"நல்ல நேரம்","Hora":"ஹோரா","Date":"தேதி","Tamil Month + English Date":"தமிழ் மாதம் + ஆங்கில தேதி","Transit date/time:":"Transit தேதி/நேரம்:","ASTROLOGY CONSULTATION":"ஜோதிட ஆலோசனை","Blogs":"வலைப்பதிவுகள்","Dashboard":"முகப்புப் பலகை","Admin":"நிர்வாகம்","VEDA • JYOTISHA • GUIDANCE":"வேதம் • ஜோதிடம் • வழிகாட்டுதல்","WELCOME TO SMV ASTRO SERVICES":"SMV ASTRO-க்கு வரவேற்கிறோம்","Trusted Astrological Guidance for a Better Tomorrow":"சிறந்த நாளைக்கான நம்பகமான ஜோதிட வழிகாட்டுதல்","Traditional Wisdom":"பாரம்பரிய ஞானம்","Personal Guidance":"தனிப்பட்ட வழிகாட்டுதல்","Trusted ஆலோசனை":"நம்பகமான ஆலோசனை","PRIVATE ASTROLOGY CONSULTATION":"தனிப்பட்ட ஜோதிட ஆலோசனை","Have a கேள்வி About Your Life?":"உங்கள் வாழ்க்கையைப் பற்றி கேள்வி உள்ளதா?","ASK NOW":"இப்போதே கேளுங்கள்","APPROVED ASTROLOGERS":"அங்கீகரிக்கப்பட்ட ஜோதிடர்கள்","Our Approved Astrologers":"எங்கள் அங்கீகரிக்கப்பட்ட ஜோதிடர்கள்","Loading approved astrologers...":"அங்கீகரிக்கப்பட்ட ஜோதிடர்கள் ஏற்றப்படுகின்றனர்...","SMV ASTRO CONTENT":"SMV ASTRO உள்ளடக்கம்","Blogs & Media":"வலைப்பதிவுகள் & ஊடகம்","Loading blogs...":"வலைப்பதிவுகள் ஏற்றப்படுகின்றன...","Loading media...":"ஊடகம் ஏற்றப்படுகிறது...","FREQUENTLY ASKED QUESTIONS":"அடிக்கடி கேட்கப்படும் கேள்விகள்","FAQ":"அடிக்கடி கேட்கப்படும் கேள்விகள்","How do I ask an astrology question?":"ஜோதிடக் கேள்வியை எவ்வாறு கேட்பது?","Are astrologers verified?":"ஜோதிடர்கள் சரிபார்க்கப்பட்டவர்களா?","How can I contact SMV ASTRO?":"SMV ASTRO-வை எவ்வாறு தொடர்புகொள்வது?","Do I need an account?":"எனக்கு கணக்கு தேவையா?","How are astrologers selected and verified?":"ஜோதிடர்கள் எவ்வாறு தேர்வு செய்யப்பட்டு சரிபார்க்கப்படுகிறார்கள்?","When will I receive my astrology answer?":"எனது ஜோதிடப் பதில் எப்போது கிடைக்கும்?","24 hours":"24 மணி நேரம்","Is there a refund or cancellation policy?":"பணத்தைத் திரும்பப் பெறுதல் அல்லது ரத்து செய்யும் கொள்கை உள்ளதா?","48 hours":"48 மணி நேரம்","Are astrology answers guaranteed?":"ஜோதிடப் பதில்கள் உறுதியானவையா?","← Back to Home":"← முகப்புக்குத் திரும்பு","BEGIN YOUR JOURNEY WITH SMV ASTRO":"SMV ASTRO உடனான உங்கள் பயணத்தைத் தொடங்குங்கள்","Choose Your Path":"உங்கள் பாதையைத் தேர்ந்தெடுக்கவும்","Customer Registration":"வாடிக்கையாளர் பதிவு","Register as Customer":"வாடிக்கையாளராக பதிவு செய்யவும்","Astrologer Registration":"ஜோதிடர் பதிவு","Register as Astrologer":"ஜோதிடராக பதிவு செய்யவும்","My Dashboard":"எனது முகப்புப் பலகை","← Back":"← பின்செல்","Profile Photo":"சுயவிவரப் புகைப்படம்","Payment Method":"கட்டண முறை","பதிவைச் சமர்ப்பிக்கவும்":"பதிவைச் சமர்ப்பிக்கவும்","Ask Your கேள்வி":"உங்கள் கேள்வியைக் கேளுங்கள்","Loading current question price...":"தற்போதைய கேள்விக் கட்டணம் ஏற்றப்படுகிறது...","Time of Birth":"நேரம்","Gender (Optional)":"பாலினம் (விருப்பம்)","Prefer not to say":"கூற விரும்பவில்லை","Male":"ஆண்","Female":"பெண்","Other":"மற்றவை","Your கேள்வி":"உங்கள் கேள்வி","Proceed to Secure Payment":"பாதுகாப்பான கட்டணத்திற்குத் தொடரவும்","கட்டணம் வெற்றிகரமாக முடிந்தது ✓":"கட்டணம் வெற்றிகரமாக முடிந்தது ✓","CONTINUE TO DASHBOARD":"முகப்புப் பலகைக்குத் தொடரவும்","Contact Us":"எங்களைத் தொடர்புகொள்ளவும்","Name *":"பெயர் *","Email *":"மின்னஞ்சல் *","Place / City *":"இடம் / நகரம் *","Mobile Number *":"கைபேசி எண் *","Query *":"கேள்வி *","SEND QUERY":"கேள்வியை அனுப்பவும்","Admin Dashboard":"நிர்வாக முகப்புப் பலகை","Public கேள்வி Approval":"பொது கேள்வி அங்கீகாரம்","Loading questions...":"கேள்விகள் ஏற்றப்படுகின்றன...","Astrologer Applications":"ஜோதிடர் விண்ணப்பங்கள்","Loading applications...":"விண்ணப்பங்கள் ஏற்றப்படுகின்றன...","Payment Method Changes — நிர்வாகி ஒப்புதல்":"கட்டண முறை மாற்றங்கள் — நிர்வாக அங்கீகாரம்","Loading payment method changes...":"கட்டண முறை மாற்றங்கள் ஏற்றப்படுகின்றன...","Answers Awaiting Approval":"அங்கீகாரத்திற்காக காத்திருக்கும் பதில்கள்","Loading answers...":"பதில்கள் ஏற்றப்படுகின்றன...","Recent கேள்விs":"சமீபத்திய கேள்விகள்","Refunds — Rejected Paid கேள்விs":"பணத்தைத் திரும்பப் பெறுதல் — நிராகரிக்கப்பட்ட கட்டணக் கேள்விகள்","Loading refunds...":"பணத்தைத் திரும்பப் பெறும் கோரிக்கைகள் ஏற்றப்படுகின்றன...","Customer Reviews":"வாடிக்கையாளர் மதிப்புரைகள்","Loading reviews...":"மதிப்புரைகள் ஏற்றப்படுகின்றன...","SAVE":"சேமிக்கவும்","Astrologer Withdrawals":"ஜோதிடர் பணப்பெறுதல்கள்","Loading withdrawal requests...":"பணப்பெறுதல் கோரிக்கைகள் ஏற்றப்படுகின்றன...","Admin Earnings History":"நிர்வாக வருவாய் வரலாறு","கேள்வி Price":"கேள்விக் கட்டணம்","SAVE PRICE":"கட்டணத்தைச் சேமிக்கவும்","Commission Settings":"கமிஷன் அமைப்புகள்","SAVE COMMISSION":"கமிஷனைச் சேமிக்கவும்","Answer Word Limit":"பதில் சொல் வரம்பு","SAVE WORD LIMIT":"சொல் வரம்பைச் சேமிக்கவும்","Blogs & Downloadable Content":"வலைப்பதிவுகள் & பதிவிறக்கக்கூடிய உள்ளடக்கம்","Blog Writer & Publisher":"வலைப்பதிவு எழுத்தாளர் & வெளியீட்டாளர்","Blog Title *":"வலைப்பதிவு தலைப்பு *","Short Description":"சுருக்கமான விளக்கம்","Blog Content *":"வலைப்பதிவு உள்ளடக்கம் *","Cover Image (optional)":"முகப்பு படம் (விருப்பம்)","PUBLISH BLOG":"வலைப்பதிவை வெளியிடவும்","CLEAR":"அழிக்கவும்","Upload PDF / Image / Video / Music":"PDF / படம் / காணொளி / இசையைப் பதிவேற்றவும்","Title *":"தலைப்பு *","Description":"விளக்கம்","Choose Content Type *":"உள்ளடக்க வகையைத் தேர்ந்தெடுக்கவும் *","🖼️ CHOOSE IMAGE":"🖼️ படத்தைத் தேர்ந்தெடுக்கவும்","📄 CHOOSE PDF":"📄 PDF-ஐத் தேர்ந்தெடுக்கவும்","🎥 CHOOSE VIDEO":"🎥 காணொளியைத் தேர்ந்தெடுக்கவும்","🎵 CHOOSE MUSIC":"🎵 இசையைத் தேர்ந்தெடுக்கவும்","No file selected.":"கோப்பு தேர்ந்தெடுக்கப்படவில்லை.","பதிவேற்றி வெளியிடவும்":"பதிவேற்றி வெளியிடவும்","Loading content...":"உள்ளடக்கம் ஏற்றப்படுகிறது...","Razorpay Connection":"Razorpay இணைப்பு","TEST RAZORPAY CONNECTION":"Razorpay இணைப்பைச் சோதிக்கவும்","📱 Install SMV ASTRO App":"📱 SMV ASTRO செயலியை நிறுவவும்","INSTALL APP":"செயலியை நிறுவவும்","© 2026 SMV ASTRO SERVICES. All Rights Reserved.":"© 2026 SMV ASTRO SERVICES. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.","Login":"உள்நுழைவு","Register":"பதிவு","Home":"முகப்பு","Media":"ஊடகம்","English Horoscope":"ஆங்கில ஜாதகம்","Print / Save as PDF":"அச்சிடு / PDF ஆக சேமிக்கவும்","Copy Text":"உரையை நகலெடுக்கவும்","Loading...":"ஏற்றப்படுகிறது...","Submit":"சமர்ப்பிக்கவும்","Cancel":"ரத்து செய்யவும்","Close":"மூடவும்","Edit":"திருத்தவும்","Delete":"நீக்கவும்","Approve":"அங்கீகரிக்கவும்","Reject":"நிராகரிக்கவும்","Logout":"வெளியேறு","Forgot Password?":"கடவுச்சொல்லை மறந்துவிட்டீர்களா?","Password":"கடவுச்சொல்","Confirm Password":"கடவுச்சொல்லை உறுதிப்படுத்தவும்","Email":"மின்னஞ்சல்","Phone":"தொலைபேசி","Search":"தேடல்","View":"காண்க","Details":"விவரங்கள்","Pending":"நிலுவையில்","Approved":"அங்கீகரிக்கப்பட்டது","Rejected":"நிராகரிக்கப்பட்டது","Loading":"ஏற்றப்படுகிறது","உள்நுழையவும்":"உள்நுழைவு","உள்நுழையவும்":"உள்நுழைவு","உள்நுழையவும்":"உள்நுழைவு","SIGN UP":"பதிவு செய்யவும்","REGISTER":"பதிவு செய்யவும்","LOGOUT":"வெளியேறு","LOG OUT":"வெளியேறு","CUSTOMER":"வாடிக்கையாளர்","ASTROLOGER":"ஜோதிடர்","CUSTOMER LOGIN":"வாடிக்கையாளர் உள்நுழைவு","ASTROLOGER LOGIN":"ஜோதிடர் உள்நுழைவு","CUSTOMER DASHBOARD":"வாடிக்கையாளர் முகப்புப் பலகை","ASTROLOGER DASHBOARD":"ஜோதிடர் முகப்புப் பலகை","ADMIN DASHBOARD":"நிர்வாக முகப்புப் பலகை","WELCOME":"வரவேற்பு","ACCOUNT":"கணக்கு","PROFILE":"சுயவிவரம்","SETTINGS":"அமைப்புகள்","NOTIFICATIONS":"அறிவிப்புகள்","QUESTIONS":"கேள்விகள்","ANSWERS":"பதில்கள்","PAYMENTS":"கட்டணங்கள்","EARNINGS":"வருவாய்","WITHDRAWALS":"பணப்பெறுதல்கள்","REVIEWS":"மதிப்புரைகள்","APPLICATION":"விண்ணப்பம்","APPLICATIONS":"விண்ணப்பங்கள்","APPROVAL":"அங்கீகாரம்","APPROVED":"அங்கீகரிக்கப்பட்டது","PENDING":"நிலுவையில்","REJECTED":"நிராகரிக்கப்பட்டது","PROCESSING":"செயலாக்கத்தில்","ACTIVE":"செயலில்","INACTIVE":"செயலற்றது","SAVE CHANGES":"மாற்றங்களைச் சேமிக்கவும்","UPDATE":"புதுப்பிக்கவும்","REFRESH":"புதுப்பிக்கவும்","BACK":"பின்செல்","NEXT":"அடுத்து","PREVIOUS":"முந்தையது","YES":"ஆம்","NO":"இல்லை","OK":"சரி","CONFIRM":"உறுதிப்படுத்தவும்","SELECT":"தேர்ந்தெடுக்கவும்","CHOOSE":"தேர்வு செய்யவும்","UPLOAD":"பதிவேற்றவும்","DOWNLOAD":"பதிவிறக்கவும்","PRINT":"அச்சிடவும்","COPY":"நகலெடுக்கவும்","DELETE":"நீக்கவும்","EDIT":"திருத்தவும்","VIEW":"காண்க","SUBMIT":"சமர்ப்பிக்கவும்","CLOSE":"மூடவும்","HOME":"முகப்பு","CONTACT US":"எங்களைத் தொடர்புகொள்ளவும்","MEDIA":"ஊடகம்","BLOGS":"வலைப்பதிவுகள்","ASK YOUR QUESTION":"உங்கள் கேள்வியைக் கேளுங்கள்","CREATE HOROSCOPE":"ஜாதகம் உருவாக்கவும்","HOROSCOPE":"ஜாதகம்","TAMIL HOROSCOPE":"தமிழ் ஜாதகம்","RASI CHART":"ராசி கட்டம்","NAVAMSA CHART":"நவாம்ச கட்டம்","BHAVA CHART":"பாவக கட்டம்","PLANETARY POSITIONS":"கிரக நிலைகள்","BIRTH DETAILS":"பிறப்பு விவரங்கள்","VIMSHOTTARI DASHA":"விம்சோத்தரி தசா","ADVANCED ANALYSIS":"மேம்பட்ட பகுப்பாய்வு","ஜாதகப் பகுப்பாய்வு":"கட்ட பகுப்பாய்வு","தசா பகுப்பாய்வு":"தசா பகுப்பாய்வு","தாஜக பகுப்பாய்வு":"தாஜக பகுப்பாய்வு","கோச்சார பகுப்பாய்வு":"கோச்சார பகுப்பாய்வு","பரிகார நடவடிக்கைகள்":"பரிகார நடவடிக்கைகள்","DAILY PANCHANG":"தினசரி பஞ்சாங்கம்","PLANETARY TRANSIT":"கிரக கோச்சாரம்","AI FUTURE INSIGHTS":"AI எதிர்காலப் பலன்கள்","GENERATE AI FUTURE INSIGHTS":"AI எதிர்காலப் பலன்களை உருவாக்கவும்","CALCULATE":"கணக்கிடவும்","CREATE HOROSCOPE IN TAMIL":"தமிழில் ஜாதகம் உருவாக்கவும்","LOADING":"ஏற்றப்படுகிறது","LOADING...":"ஏற்றப்படுகிறது...","CREATING HOROSCOPE":"ஜாதகம் உருவாக்கப்படுகிறது","PREPARING ALL CALCULATIONS AND FEATURES":"அனைத்து கணக்கீடுகள் மற்றும் அம்சங்கள் தயாராகின்றன","PLACE / CITY":"இடம் / நகரம்","MOBILE NUMBER":"கைபேசி எண்","BIRTH PLACE":"பிறந்த இடம்","BIRTH DATE":"பிறந்த தேதி","BIRTH TIME":"பிறந்த நேரம்","GENDER":"பாலினம்","OPTIONAL":"விருப்பம்","QUESTION PRICE":"கேள்விக் கட்டணம்","SECURE PAYMENT":"பாதுகாப்பான கட்டணம்","PAYMENT SUCCESSFUL":"கட்டணம் வெற்றிகரமாக முடிந்தது","PAYMENT FAILED":"கட்டணம் தோல்வியடைந்தது","ERROR":"பிழை","SUCCESS":"வெற்றி","WARNING":"எச்சரிக்கை","NO DATA FOUND":"தரவு எதுவும் கிடைக்கவில்லை","NO RESULTS FOUND":"முடிவுகள் எதுவும் கிடைக்கவில்லை","CURRENT / NEXT DASHA":"தற்போதைய / அடுத்த தசா","MAHADASHA":"மகாதசை","BHUKTI":"புக்தி","ANTARA":"அந்தரம்","START":"தொடக்கம்","END":"முடிவு","DEGREE":"பாகை","SIGN":"ராசி","NAKSHATRA":"நட்சத்திரம்","PADA":"பாதம்","ASCENDANT":"லக்னம்","SUN":"சூரியன்","MOON":"சந்திரன்","MARS":"செவ்வாய்","MERCURY":"புதன்","JUPITER":"குரு","VENUS":"சுக்கிரன்","SATURN":"சனி","RAHU":"ராகு","KETU":"கேது"}; const keys=Object.keys(SMV_TA).sort((a,b)=>b.length-a.length);
+ const SMV_TA={"Su":"சூரியன்","Mo":"சந்திரன்","Ma":"செவ்வாய்","Me":"புதன்","Ju":"குரு","Ve":"சுக்கிரன்","Sa":"சனி","Ra":"ராகு","Ke":"கேது","Asc":"லக்னம்","Aries":"மேஷம்","Taurus":"ரிஷபம்","Gemini":"மிதுனம்","Cancer":"கடகம்","Leo":"சிம்மம்","Virgo":"கன்னி","Libra":"துலாம்","Scorpio":"விருச்சிகம்","Sagittarius":"தனுசு","Capricorn":"மகரம்","Aquarius":"கும்பம்","Pisces":"மீனம்","Ketu":"கேது","Venus":"சுக்கிரன்","Sun":"சூரியன்","Moon":"சந்திரன்","Mars":"செவ்வாய்","Rahu":"ராகு","Jupiter":"குரு","Saturn":"சனி","Mercury":"புதன்","Ascendant":"லக்னம்","Ashwini":"அஸ்வினி","Bharani":"பரணி","Krittika":"கார்த்திகை","Rohini":"ரோகிணி","Mrigashira":"மிருகசீரிடம்","Ardra":"திருவாதிரை","Punarvasu":"புனர்பூசம்","Pushya":"பூசம்","Ashlesha":"ஆயில்யம்","Magha":"மகம்","Purva Phalguni":"பூரம்","Uttara Phalguni":"உத்திரம்","Hasta":"ஹஸ்தம்","Chitra":"சித்திரை","Swati":"சுவாதி","Vishakha":"விசாகம்","Anuradha":"அனுஷம்","Jyeshtha":"கேட்டை","Mula":"மூலம்","Purva Ashadha":"பூராடம்","Uttara Ashadha":"உத்திராடம்","Shravana":"திருவோணம்","Dhanishta":"அவிட்டம்","Shatabhisha":"சதயம்","Purva Bhadrapada":"பூரட்டாதி","Uttara Bhadrapada":"உத்திரட்டாதி","Revati":"ரேவதி","Pada":"பாதம்","Date of Birth":"பிறந்த தேதி","Time":"நேரம்","Place of Birth":"பிறந்த இடம்","ராசி":"ராசி","Nakshatra":"நட்சத்திரம்","Longitude":"நீளவியல்","Moon ராசி":"சந்திர ராசி","Ayanamsa":"அயனாம்சம்","பாவம்":"பாவக","Chart":"கட்டம்","Arambha":"ஆரம்பம்","Madhya":"மத்தியம்","Antya":"முடிவு","Sphuta":"ஸ்புடம்","Sphuta ராசி":"ஸ்புட ராசி","Planets":"கிரகங்கள்","Planet":"கிரகம்","Degree":"பாகை","நவாம்சம்":"நவாம்சம்","நவாம்சம் Pada":"நவாம்ச பாதம்","நவாம்சம் Positions":"நவாம்ச நிலைகள்","Birth Details":"பிறப்பு விவரங்கள்","Planetary Positions":"கிரக நிலைகள்","Vimshottari Dasha":"விம்சோத்தரி தசா","Current / Next Dasha":"தற்போதைய / அடுத்த தசா","Next":"அடுத்தது","Next Bhukti":"அடுத்த புக்தி","Next Antara":"அடுத்த அந்தரம்","Mahadasha":"மகாதசை","Bhukti":"புக்தி","Antardasha":"அந்தர்தசை","Antara":"அந்தரம்","Pratyantara Dasha":"பிரத்யந்தர்தசை","Start":"தொடக்கம்","End":"முடிவு","No next-level information.":"அடுத்த நிலை தகவல் இல்லை.","No Bhukti information.":"புக்தி தகவல் இல்லை.","No Antara periods.":"அந்தர காலங்கள் இல்லை.","9 sub-periods":"9 துணைக் காலங்கள்","Horoscope Calculation":"தமிழ் ஜாதக கணக்கீடு","ராசி கட்டம் (D-1)":"D-1 ராசி","நவாம்ச கட்டம் ( D-9)":"நவாம்ச கட்டம் (D9)","D9 நவாம்சம் sign for each planet, including the நவாம்சம் Ascendant.":"ஒவ்வொரு கிரகத்தின் D9 நவாம்ச ராசி, லக்ன நவாம்சம் உட்பட.","பாவ கட்டம்":"பாவக கட்டம்","AI is interpreting the verified horoscope data...":"சரிபார்க்கப்பட்ட ஜாதகத் தரவை AI விளக்குகிறது...","AI Future Insights":"AI எதிர்காலப் பலன்கள்","Generate AI Future Insights":"AI எதிர்காலப் பலன்களை உருவாக்கவும்","Generating AI Future Insights...":"AI பலன் உருவாக்கப்படுகிறது...","Note":"குறிப்பு","Horoscope calculation text copied.":"ஜாதக கணக்கீட்டு உரை நகலெடுக்கப்பட்டது.","Unable to copy.":"நகலெடுக்க முடியவில்லை.","Reset":"மீட்டமை","Create Horoscope in Tamil":"தமிழில் ஜாதகம் உருவாக்குக","Tamil Horoscope":"தமிழ் ஜாதகம்","Tamil Astrology Guide":"தமிழ் ஜோதிட வழிகாட்டி","Your name":"உங்கள் பெயர்","City, State":"நகரம், மாநிலம்","e.g. 13.0827":"எ.கா. 13.0827","e.g. 80.2707":"எ.கா. 80.2707","e.g. Rohini":"எ.கா. ரோகிணி","Nakshatra (Optional)":"நட்சத்திரம் (விருப்பம்)","Name":"பெயர்","Birth Time":"பிறந்த நேரம்","Birth Place":"பிறந்த இடம்","Enter the birth time correctly. Example: 22:05 (10:05 PM).":"பிறந்த நேரம் சரியாக உள்ளிடவும். உதாரணம்: 22:05 (10:05 PM).","Enter the date and time of birth.":"பிறந்த தேதி மற்றும் பிறந்த நேரத்தை உள்ளிடவும்.","Select the Birth Place; Latitude and Longitude will be filled automatically.":"Birth Place-ஐ தேர்வு செய்யவும்; Latitude மற்றும் Longitude தானாக நிரப்பப்படும்.","Each planet is shown on a separate row: ராசி · Degree · Nakshatra · Pada.":"ஒவ்வொரு கிரகமும் தனி வரியில்: ராசி · பாகை · நட்சத்திரம் · பாதம்.","Tap a Mahadasha to open":"மகாதசையை touch செய்தால்","Tap a Bhukti to open":"புக்தியை touch செய்தால்","Initial Mahadasha balance based on the Moon’s birth Nakshatra":"பிறந்த நேர சந்திரனின் நட்சத்திரத்தை அடிப்படையாகக் கொண்ட ஆரம்ப மகாதசா balance","years":"ஆண்டுகள்","Phase 2 — Advanced Planetary Strength":"Phase 2 — மேம்பட்ட கிரக வலிமை","Six transparent strength indicators: positional, directional, temporal, motion, natural and aspect strength.":"நிலை, திசை, காலம், இயக்கம், இயற்கை மற்றும் பார்வை ஆகிய 6 வெளிப்படையான strength indicators.","This is an SMV composite index; it should not be treated as classical Shadbala.":"இது ஒரு SMV composite index; பாரம்பரிய Shadbala-வாகக் கருத வேண்டாம்.","Sthana / Dig":"ஸ்தானம் / திசை","Kala / Cheshta":"காலம் / இயக்கம்","Naisargika / Drik":"இயற்கை / பார்வை","Total":"மொத்தம்","Sthana Bala":"ஸ்தான பலம்","Dig Bala":"திக் பலம்","Kala Bala":"கால பலம்","Cheshta Bala":"சேஷ்டா பலம்","Naisargika Bala":"நைசர்கிக பலம்","Drik Bala":"த்ரிக் பலம்","Required":"தேவையானது","Uccha":"உச்ச","Saptavargaja":"வர்க","Nathonnatha":"நாதோ","Paksha":"பக்ஷம்","Ayana":"அயன","Strong":"வலிமை","Below required":"தேவையான அளவுக்கு குறைவு","Classical-style Shadbala calculation":"Classical-style Shadbala கணக்கீடு","For the seven classical planets from Sun through Saturn":"சூரியன் முதல் சனி வரை 7 கிரகங்களுக்கு","Rahu/Ketu are excluded from the classical Shadbala total.":"Rahu/Ketu இந்த classical Shadbala total-ல் சேர்க்கப்படவில்லை.","This is an astronomical ephemeris-based calculation layer.":"இது astronomical ephemeris அடிப்படையிலான கணக்கீட்டு layer.","Traditional astrology interpretations are belief-based; do not use them as the sole basis for important life decisions.":"பாரம்பரிய ஜோதிட பலன்கள் விளக்க/நம்பிக்கை சார்ந்தவை; முக்கிய வாழ்க்கை முடிவுகளுக்கு இதை ஒரே ஆதாரமாக பயன்படுத்த வேண்டாம்.","Here பாவம் Sphuta":"இங்கு பாவ ஸ்புடம்","ராசி Status":"ராசி நிலை","Planetary Strength & Status":"கிரக வலிமை & நிலை","Retrograde":"வக்கிரம்","Combustion":"அஸ்தமனம்","Sun Distance":"சூரிய தூரம்","Yes":"ஆம்","No":"இல்லை","Exaltation":"உச்சம்","Debilitation":"நீசம்","Exalted Sign":"உச்ச ராசி","Debilitated Sign":"நீச ராசி","Own Sign":"சுய ராசி","Moolatrikona":"மூலத்திரிகோணம்","Friend":"நட்பு","Enemy":"பகை","Neutral":"சமம்","Sthana":"ஸ்தானம்","Direction":"திசை","Kala":"காலம்","Cheshta":"இயக்கம்","Naisargika":"இயற்கை","Drik":"பார்வை","Planetary Strength":"கிரக வலிமை","Status":"நிலை","Exaltation/Debilitation":"உச்சம்/நீசம்","Classical":"பாரம்பரிய","Total / Required":"மொத்தம் / தேவையானது","Below Required":"தேவையான அளவுக்கு குறைவு","Bhukti / Antardasha":"புக்தி / அந்தர்தசை","Sun through Saturn":"சூரியன் முதல் சனி வரை","own sign and Moolatrikona":"சுய ராசி மற்றும் மூலத்திரிகோணம்","basic status indicators":"அடிப்படை நிலைகள்","Middle":"மத்தியம்","D1 ராசி":"D1 ராசி","D9 நவாம்சம் ராசி":"D9 நவாம்ச ராசி","நவாம்சம் ராசி":"நவாம்ச ராசி","Antara / Pratyantara":"அந்தரம் / பிரத்யந்தரம்","opens.":"திறக்கும்.","are excluded from the classical Shadbala total.":"இந்த classical Shadbala total-ல் சேர்க்கப்படவில்லை.","In Phase 3,":"Phase 3-ல்","six classical components are calculated separately.":"ஆறு classical components தனித்தனியாகக் கணக்கிடப்படுகின்றன.","Some conventions used in time calculation":"காலக் கணக்கீட்டில் பயன்படுத்தப்படும் சில","and":"மற்றும்","the":"ஆகிய","Basic status indicators: Retrograde, Combustion, Exaltation/Debilitation, Own Sign and Moolatrikona.":"வக்கிரம், அஸ்தமனம் (Combustion), உச்சம்/நீசம், சுய ராசி மற்றும் மூலத்திரிகோணம் ஆகிய அடிப்படை நிலைகள்.","Initial Mahadasha balance based on the Moon’s birth Nakshatra:":"பிறந்த நேர சந்திரனின் நட்சத்திரத்தை அடிப்படையாகக் கொண்ட ஆரம்ப மகாதசா balance:","Create Horoscope":"ஜாதகம் உருவாக்கவும்","Horoscope":"ஜாதகம்","🔮 Create Horoscope":"🔮 தமிழில் ஜாதகம் உருவாக்குக","Shukla Paksha":"சுக்ல பக்ஷம்","Krishna Paksha":"கிருஷ்ண பக்ஷம்","Tithi":"திதி","Shunya ராசிs":"சூன்ய ராசிகள்","Purnima — no Thithi Shunya":"பௌர்ணமி — திதி சூன்யம் இல்லை","Amavasya — no Thithi Shunya":"அமாவாசை — திதி சூன்யம் இல்லை","No Shunya ராசிs in the configured table":"சூன்ய ராசிகள் இல்லை","Pushkara நவாம்சம்":"புஷ்கர நவாம்சம்","Vargottama":"வர்க்கோத்தமம்","Graha Yutha":"கிரக யுத்தம் / யுதி","Yogi":"யோகி","Saha Yogi":"சஹ யோகி","Ava Yogi":"அவ யோகி","Santana Thithi":"சந்தான திதி","Dana Thithi":"தான திதி","Karma Thithi":"கர்ம திதி","Thithi Soonyam":"திதி சூன்யம்","Mudakku ராசி":"முடக்கு ராசி","Mudakku Nakshatra":"முடக்கு நட்சத்திரம்","பாவம் Special Features":"பாவ சிறப்பு அம்சங்கள்","Feature":"அம்சம்","Planets / Result":"கிரகங்கள் / முடிவு","Adhimitra":"அதிமித்திரம்","Mitra":"மித்திரம்","Sama":"சமம்","Satru":"சத்ரு","Adhisatru":"அதிசத்ரு","Interpretation":"விளக்கம்","Bright / elevated expression":"பிரகாசம் / உயர்ந்த வெளிப்பாடு","Comfortable / natural":"சுயநிலை / இயல்பு","Delighted":"மகிழ்ச்சி","Peaceful":"அமைதி","Sad / depressed":"சோர்வு / தாழ்வு","Distressed":"துயரம்","Confused / constrained":"குழப்பம் / குறைபாடு","Scheming tendency":"தந்திரமான போக்கு","Angry":"கோபம்","Ashamed":"வெட்கம்","Proud":"பெருமை","Hungry / dissatisfied":"பசி / திருப்தியின்மை","Thirsty":"தாகம்","Agitated":"அதிர்ச்சி / கலக்கம்","Cheshta = full results · Drishti = medium results · Vicheshta = very little results.":"Cheshta = முழுப் பலன் · Drishti = மிதமான பலன் · Vicheshta = மிகக் குறைந்த பலன்.","Janma Rashi":"ஜன்ம ராசி","Janma Nakshatra":"ஜன்ம நட்சத்திரம்","Kota Swami / Durgapati":"கோட்டா சுவாமி","Kota Paala":"கோட்டா பாலா","Entry Path":"நுழைவு பாதை","Exit Path":"வெளியேறும் பாதை","Zone":"பகுதி","Native Name":"பெயர்","Name Initial":"பெயர் ஆரம்ப ஒலி","Janma Pada Sound":"ஜன்ம பாத ஒலி","Name Nakshatra":"பெயர் நட்சத்திரம்","Matched Sound":"பெயர் ஒலி","Match Rule":"பொருத்த விதி","Three reference points are used: Lagna, Moon and Sun. Each ring shows the 12 houses from that reference.":"லக்னம், சந்திரன், சூரியன் ஆகிய மூன்று reference points-லிருந்து 12 பாவங்கள் பார்க்கப்படுகின்றன.","Outer Ring":"வெளிப்புற வளையம்","28 Nakshatras + corner vowels":"28 நட்சத்திரங்கள் + மூலை உயிரெழுத்துகள்","Akshara Ring":"அக்ஷர வளையம்","20 consonant/name-sound cells":"20 மெய்/பெயர் ஒலி இடங்கள்","ராசி Ring":"ராசி வளையம்","12 Rashis":"12 ராசிகள்","Tithi Ring":"திதி வளையம்","Nanda · Bhadra · Jaya · Rikta · Poorna":"நந்தா · பத்ரா · ஜயா · ரிக்தா · பூர்ணா","Planet Placement":"கிரக அமைப்பு","Nakshatra cell + Pada detail":"நட்சத்திர பெட்டி + பாதம் விவரம்","Motion":"நிலை","Direct":"நேர்கதி","Tithi groups":"திதி குழுக்கள்","Vedha rule":"வேத விதி","Loading Dasa calculations...":"தசா கணக்கீடு ஏற்றப்படுகிறது...","Advanced horoscope sections":"மேம்பட்ட ஜாதக பகுதிகள்","Tap to view":"உள்ளே பார்க்க","மேம்பட்ட ஜாதகப் பகுப்பாய்வு":"ஜாதகத்தின் மேம்பட்ட பகுப்பாய்வு","Seed":"தொடக்கம்","ராசி / Lord":"ராசி / அதிபதி","Years":"ஆண்டுகள்","Sub-periods":"உள் காலம்","Show Antardasas":"Antardasa காட்டு","Important:":"குறிப்பு","No sub-period data.":"தரவு இல்லை","Planetary Transit":"கிரக கோச்சாரம்","Daily Panchang":"தினசரி பஞ்சாங்கம்","Sun Sign":"சூரிய ராசி","Moon Sign":"சந்திர ராசி","Yoga":"யோகம்","Karana":"கரணம்","Sunrise":"சூரிய உதயம்","Sunset":"சூரிய அஸ்தமனம்","Transit / Panchang could not be calculated.":"கோச்சாரம் / பஞ்சாங்கம் உருவாக்க முடியவில்லை.","Transits from Janma ராசி":"ஜன்ம ராசியிலிருந்து கோச்சாரம்","Transit ராசி":"கோச்சார ராசி","House from Moon":"சந்திரனிலிருந்து பாவம்","Snapshot":"நிலை","Textbook Typical Result":"பாடநூல் குறிப்பிட்ட பொதுப் பலன்","No transit data.":"தரவு இல்லை","Transits from Natal Lagna":"லக்னத்திலிருந்து கோச்சாரம்","House from Lagna":"லக்னத்திலிருந்து பாவம்","Transit → Natal Planet Contacts":"நடப்பு கிரகம் ↔ பிறப்பு கிரகம் நெருக்கம்","Transit Planet":"கோச்சார கிரகம்","Natal Planet":"பிறப்பு கிரகம்","Orb":"தூரம்","No major contact within 3°.":"3°க்குள் குறிப்பிடத்தக்க நெருக்கம் இல்லை.","Natal ராசி ↔ Transit நவாம்சம் (D-9)":"D-9 கோச்சார செயல்படுத்தல்","Transit D-9 Sign":"கோச்சார D-9 ராசி","Natal planets activated":"அதே D-9 ராசியில் பிறப்பு கிரகங்கள்","Transit Near Natal Sahams":"சஹம் அருகாமை","Saham":"சஹம்","No transit planet is within 1° of a natal Saham.":"1°க்குள் சஹம் நெருக்கம் இல்லை.","Special Nakshatra Transit Details":"சிறப்பு நட்சத்திர கோச்சார விவரங்கள்","Birth Panchang":"பிறந்த பஞ்சாங்கம்","Tamil date":"தமிழ் தேதி","Thirukanitha Panchang calculation":"திருக்கணித பஞ்சாங்க கணிப்பு","Tamil Date + Gregorian Date":"தமிழ் தேதி + ஆங்கில தேதி","Vara":"வாரம்","Rahu Kalam":"ராகு காலம்","Yamagandam":"எமகண்டம்","Gulikai":"குளிகை","Nalla Neram":"நல்ல நேரம்","Hora":"ஹோரா","Date":"தேதி","Tamil Month + English Date":"தமிழ் மாதம் + ஆங்கில தேதி","Transit date/time:":"Transit தேதி/நேரம்:","ASTROLOGY CONSULTATION":"ஜோதிட ஆலோசனை","Blogs":"வலைப்பதிவுகள்","Dashboard":"முகப்புப் பலகை","Admin":"நிர்வாகம்","VEDA • JYOTISHA • GUIDANCE":"வேதம் • ஜோதிடம் • வழிகாட்டுதல்","WELCOME TO SMV ASTRO SERVICES":"SMV ASTRO-க்கு வரவேற்கிறோம்","Trusted Astrological Guidance for a Better Tomorrow":"சிறந்த நாளைய வாழ்விற்கான நம்பகமான ஜோதிட வழிகாட்டுதல்","Traditional Wisdom":"பாரம்பரிய ஞானம்","Personal Guidance":"தனிப்பட்ட வழிகாட்டுதல்","Trusted ஆலோசனை":"நம்பகமான ஆலோசனை","PRIVATE ASTROLOGY CONSULTATION":"தனிப்பட்ட ஜோதிட ஆலோசனை","Have a கேள்வி About Your Life?":"உங்கள் வாழ்க்கையைப் பற்றி கேள்வி உள்ளதா?","ASK NOW":"இப்போதே கேளுங்கள்","APPROVED ASTROLOGERS":"அங்கீகரிக்கப்பட்ட ஜோதிடர்கள்","Our Approved Astrologers":"எங்கள் அங்கீகரிக்கப்பட்ட ஜோதிடர்கள்","Loading approved astrologers...":"அங்கீகரிக்கப்பட்ட ஜோதிடர்கள் ஏற்றப்படுகின்றனர்...","SMV ASTRO CONTENT":"SMV ASTRO உள்ளடக்கம்","Blogs & Media":"வலைப்பதிவுகள் & ஊடகம்","Loading blogs...":"வலைப்பதிவுகள் ஏற்றப்படுகின்றன...","Loading media...":"ஊடகம் ஏற்றப்படுகிறது...","FREQUENTLY ASKED QUESTIONS":"அடிக்கடி கேட்கப்படும் கேள்விகள்","FAQ":"அடிக்கடி கேட்கப்படும் கேள்விகள்","How do I ask an astrology question?":"ஜோதிடக் கேள்வியை எவ்வாறு கேட்பது?","Are astrologers verified?":"ஜோதிடர்கள் சரிபார்க்கப்பட்டவர்களா?","How can I contact SMV ASTRO?":"SMV ASTRO-வை எவ்வாறு தொடர்புகொள்வது?","Do I need an account?":"எனக்கு கணக்கு தேவையா?","How are astrologers selected and verified?":"ஜோதிடர்கள் எவ்வாறு தேர்வு செய்யப்பட்டு சரிபார்க்கப்படுகிறார்கள்?","When will I receive my astrology answer?":"எனது ஜோதிடப் பதில் எப்போது கிடைக்கும்?","24 hours":"24 மணி நேரம்","Is there a refund or cancellation policy?":"பணத்தைத் திரும்பப் பெறுதல் அல்லது ரத்து செய்யும் கொள்கை உள்ளதா?","48 hours":"48 மணி நேரம்","Are astrology answers guaranteed?":"ஜோதிடப் பதில்கள் உறுதியானவையா?","← Back to Home":"← முகப்புக்குத் திரும்பு","BEGIN YOUR JOURNEY WITH SMV ASTRO":"SMV ASTRO உடனான உங்கள் பயணத்தைத் தொடங்குங்கள்","Choose Your Path":"உங்கள் பாதையைத் தேர்ந்தெடுக்கவும்","Customer Registration":"வாடிக்கையாளர் பதிவு","Register as Customer":"வாடிக்கையாளராக பதிவு செய்யவும்","Astrologer Registration":"ஜோதிடர் பதிவு","Register as Astrologer":"ஜோதிடராக பதிவு செய்யவும்","My Dashboard":"எனது முகப்புப் பலகை","← Back":"← பின்செல்","Profile Photo":"சுயவிவரப் புகைப்படம்","Payment Method":"கட்டண முறை","பதிவைச் சமர்ப்பிக்கவும்":"பதிவைச் சமர்ப்பிக்கவும்","Ask Your கேள்வி":"உங்கள் கேள்வியைக் கேளுங்கள்","Loading current question price...":"தற்போதைய கேள்விக் கட்டணம் ஏற்றப்படுகிறது...","Time of Birth":"நேரம்","Gender (Optional)":"பாலினம் (விருப்பம்)","Prefer not to say":"கூற விரும்பவில்லை","Male":"ஆண்","Female":"பெண்","Other":"மற்றவை","Your கேள்வி":"உங்கள் கேள்வி","Proceed to Secure Payment":"பாதுகாப்பான கட்டணத்திற்குத் தொடரவும்","கட்டணம் வெற்றிகரமாக முடிந்தது ✓":"கட்டணம் வெற்றிகரமாக முடிந்தது ✓","CONTINUE TO DASHBOARD":"முகப்புப் பலகைக்குத் தொடரவும்","Contact Us":"எங்களைத் தொடர்புகொள்ளவும்","Name *":"பெயர் *","Email *":"மின்னஞ்சல் *","Place / City *":"இடம் / நகரம் *","Mobile Number *":"கைபேசி எண் *","Query *":"கேள்வி *","SEND QUERY":"கேள்வியை அனுப்பவும்","Admin Dashboard":"நிர்வாக முகப்புப் பலகை","Public கேள்வி Approval":"பொது கேள்வி அங்கீகாரம்","Loading questions...":"கேள்விகள் ஏற்றப்படுகின்றன...","Astrologer Applications":"ஜோதிடர் விண்ணப்பங்கள்","Loading applications...":"விண்ணப்பங்கள் ஏற்றப்படுகின்றன...","Payment Method Changes — நிர்வாகி ஒப்புதல்":"கட்டண முறை மாற்றங்கள் — நிர்வாக அங்கீகாரம்","Loading payment method changes...":"கட்டண முறை மாற்றங்கள் ஏற்றப்படுகின்றன...","Answers Awaiting Approval":"அங்கீகாரத்திற்காக காத்திருக்கும் பதில்கள்","Loading answers...":"பதில்கள் ஏற்றப்படுகின்றன...","Recent கேள்விs":"சமீபத்திய கேள்விகள்","Refunds — Rejected Paid கேள்விs":"பணத்தைத் திரும்பப் பெறுதல் — நிராகரிக்கப்பட்ட கட்டணக் கேள்விகள்","Loading refunds...":"பணத்தைத் திரும்பப் பெறும் கோரிக்கைகள் ஏற்றப்படுகின்றன...","Customer Reviews":"வாடிக்கையாளர் மதிப்புரைகள்","Loading reviews...":"மதிப்புரைகள் ஏற்றப்படுகின்றன...","SAVE":"சேமிக்கவும்","Astrologer Withdrawals":"ஜோதிடர் பணப்பெறுதல்கள்","Loading withdrawal requests...":"பணப்பெறுதல் கோரிக்கைகள் ஏற்றப்படுகின்றன...","Admin Earnings History":"நிர்வாக வருவாய் வரலாறு","கேள்வி Price":"கேள்விக் கட்டணம்","SAVE PRICE":"கட்டணத்தைச் சேமிக்கவும்","Commission Settings":"கமிஷன் அமைப்புகள்","SAVE COMMISSION":"கமிஷனைச் சேமிக்கவும்","Answer Word Limit":"பதில் சொல் வரம்பு","SAVE WORD LIMIT":"சொல் வரம்பைச் சேமிக்கவும்","Blogs & Downloadable Content":"வலைப்பதிவுகள் & பதிவிறக்கக்கூடிய உள்ளடக்கம்","Blog Writer & Publisher":"வலைப்பதிவு எழுத்தாளர் & வெளியீட்டாளர்","Blog Title *":"வலைப்பதிவு தலைப்பு *","Short Description":"சுருக்கமான விளக்கம்","Blog Content *":"வலைப்பதிவு உள்ளடக்கம் *","Cover Image (optional)":"முகப்பு படம் (விருப்பம்)","PUBLISH BLOG":"வலைப்பதிவை வெளியிடவும்","CLEAR":"அழிக்கவும்","Upload PDF / Image / Video / Music":"PDF / படம் / காணொளி / இசையைப் பதிவேற்றவும்","Title *":"தலைப்பு *","Description":"விளக்கம்","Choose Content Type *":"உள்ளடக்க வகையைத் தேர்ந்தெடுக்கவும் *","🖼️ CHOOSE IMAGE":"🖼️ படத்தைத் தேர்ந்தெடுக்கவும்","📄 CHOOSE PDF":"📄 PDF-ஐத் தேர்ந்தெடுக்கவும்","🎥 CHOOSE VIDEO":"🎥 காணொளியைத் தேர்ந்தெடுக்கவும்","🎵 CHOOSE MUSIC":"🎵 இசையைத் தேர்ந்தெடுக்கவும்","No file selected.":"கோப்பு தேர்ந்தெடுக்கப்படவில்லை.","பதிவேற்றி வெளியிடவும்":"பதிவேற்றி வெளியிடவும்","Loading content...":"உள்ளடக்கம் ஏற்றப்படுகிறது...","Razorpay Connection":"Razorpay இணைப்பு","TEST RAZORPAY CONNECTION":"Razorpay இணைப்பைச் சோதிக்கவும்","📱 Install SMV ASTRO App":"📱 SMV ASTRO செயலியை நிறுவவும்","INSTALL APP":"செயலியை நிறுவவும்","© 2026 SMV ASTRO SERVICES. All Rights Reserved.":"© 2026 SMV ASTRO SERVICES. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.","Login":"உள்நுழைவு","Register":"பதிவு","Home":"முகப்பு","Media":"ஊடகம்","English Horoscope":"ஆங்கில ஜாதகம்","Print / Save as PDF":"அச்சிடு / PDF ஆக சேமிக்கவும்","Copy Text":"உரையை நகலெடுக்கவும்","Loading...":"ஏற்றப்படுகிறது...","Submit":"சமர்ப்பிக்கவும்","Cancel":"ரத்து செய்யவும்","Close":"மூடவும்","Edit":"திருத்தவும்","Delete":"நீக்கவும்","Approve":"அங்கீகரிக்கவும்","Reject":"நிராகரிக்கவும்","Logout":"வெளியேறு","Forgot Password?":"கடவுச்சொல்லை மறந்துவிட்டீர்களா?","Password":"கடவுச்சொல்","Confirm Password":"கடவுச்சொல்லை உறுதிப்படுத்தவும்","Email":"மின்னஞ்சல்","Phone":"தொலைபேசி","Search":"தேடல்","View":"காண்க","Details":"விவரங்கள்","Pending":"நிலுவையில்","Approved":"அங்கீகரிக்கப்பட்டது","Rejected":"நிராகரிக்கப்பட்டது","Loading":"ஏற்றப்படுகிறது","உள்நுழையவும்":"உள்நுழைவு","உள்நுழையவும்":"உள்நுழைவு","உள்நுழையவும்":"உள்நுழைவு","SIGN UP":"பதிவு செய்யவும்","REGISTER":"பதிவு செய்யவும்","LOGOUT":"வெளியேறு","LOG OUT":"வெளியேறு","CUSTOMER":"வாடிக்கையாளர்","ASTROLOGER":"ஜோதிடர்","CUSTOMER LOGIN":"வாடிக்கையாளர் உள்நுழைவு","ASTROLOGER LOGIN":"ஜோதிடர் உள்நுழைவு","CUSTOMER DASHBOARD":"வாடிக்கையாளர் முகப்புப் பலகை","ASTROLOGER DASHBOARD":"ஜோதிடர் முகப்புப் பலகை","ADMIN DASHBOARD":"நிர்வாக முகப்புப் பலகை","WELCOME":"வரவேற்பு","ACCOUNT":"கணக்கு","PROFILE":"சுயவிவரம்","SETTINGS":"அமைப்புகள்","NOTIFICATIONS":"அறிவிப்புகள்","QUESTIONS":"கேள்விகள்","ANSWERS":"பதில்கள்","PAYMENTS":"கட்டணங்கள்","EARNINGS":"வருவாய்","WITHDRAWALS":"பணப்பெறுதல்கள்","REVIEWS":"மதிப்புரைகள்","APPLICATION":"விண்ணப்பம்","APPLICATIONS":"விண்ணப்பங்கள்","APPROVAL":"அங்கீகாரம்","APPROVED":"அங்கீகரிக்கப்பட்டது","PENDING":"நிலுவையில்","REJECTED":"நிராகரிக்கப்பட்டது","PROCESSING":"செயலாக்கத்தில்","ACTIVE":"செயலில்","INACTIVE":"செயலற்றது","SAVE CHANGES":"மாற்றங்களைச் சேமிக்கவும்","UPDATE":"புதுப்பிக்கவும்","REFRESH":"புதுப்பிக்கவும்","BACK":"பின்செல்","NEXT":"அடுத்து","PREVIOUS":"முந்தையது","YES":"ஆம்","NO":"இல்லை","OK":"சரி","CONFIRM":"உறுதிப்படுத்தவும்","SELECT":"தேர்ந்தெடுக்கவும்","CHOOSE":"தேர்வு செய்யவும்","UPLOAD":"பதிவேற்றவும்","DOWNLOAD":"பதிவிறக்கவும்","PRINT":"அச்சிடவும்","COPY":"நகலெடுக்கவும்","DELETE":"நீக்கவும்","EDIT":"திருத்தவும்","VIEW":"காண்க","SUBMIT":"சமர்ப்பிக்கவும்","CLOSE":"மூடவும்","HOME":"முகப்பு","CONTACT US":"எங்களைத் தொடர்புகொள்ளவும்","MEDIA":"ஊடகம்","BLOGS":"வலைப்பதிவுகள்","ASK YOUR QUESTION":"உங்கள் கேள்வியைக் கேளுங்கள்","CREATE HOROSCOPE":"ஜாதகம் உருவாக்கவும்","HOROSCOPE":"ஜாதகம்","TAMIL HOROSCOPE":"தமிழ் ஜாதகம்","RASI CHART":"ராசி கட்டம்","NAVAMSA CHART":"நவாம்ச கட்டம்","BHAVA CHART":"பாவக கட்டம்","PLANETARY POSITIONS":"கிரக நிலைகள்","BIRTH DETAILS":"பிறப்பு விவரங்கள்","VIMSHOTTARI DASHA":"விம்சோத்தரி தசா","ADVANCED ANALYSIS":"மேம்பட்ட பகுப்பாய்வு","ஜாதகப் பகுப்பாய்வு":"கட்ட பகுப்பாய்வு","தசா பகுப்பாய்வு":"தசா பகுப்பாய்வு","தாஜக பகுப்பாய்வு":"தாஜக பகுப்பாய்வு","கோச்சார பகுப்பாய்வு":"கோச்சார பகுப்பாய்வு","பரிகார நடவடிக்கைகள்":"பரிகார நடவடிக்கைகள்","DAILY PANCHANG":"தினசரி பஞ்சாங்கம்","PLANETARY TRANSIT":"கிரக கோச்சாரம்","AI FUTURE INSIGHTS":"AI எதிர்காலப் பலன்கள்","GENERATE AI FUTURE INSIGHTS":"AI எதிர்காலப் பலன்களை உருவாக்கவும்","CALCULATE":"கணக்கிடவும்","CREATE HOROSCOPE IN TAMIL":"தமிழில் ஜாதகம் உருவாக்கவும்","LOADING":"ஏற்றப்படுகிறது","LOADING...":"ஏற்றப்படுகிறது...","CREATING HOROSCOPE":"ஜாதகம் உருவாக்கப்படுகிறது","PREPARING ALL CALCULATIONS AND FEATURES":"அனைத்து கணக்கீடுகள் மற்றும் அம்சங்கள் தயாராகின்றன","PLACE / CITY":"இடம் / நகரம்","MOBILE NUMBER":"கைபேசி எண்","BIRTH PLACE":"பிறந்த இடம்","BIRTH DATE":"பிறந்த தேதி","BIRTH TIME":"பிறந்த நேரம்","GENDER":"பாலினம்","OPTIONAL":"விருப்பம்","QUESTION PRICE":"கேள்விக் கட்டணம்","SECURE PAYMENT":"பாதுகாப்பான கட்டணம்","PAYMENT SUCCESSFUL":"கட்டணம் வெற்றிகரமாக முடிந்தது","PAYMENT FAILED":"கட்டணம் தோல்வியடைந்தது","ERROR":"பிழை","SUCCESS":"வெற்றி","WARNING":"எச்சரிக்கை","NO DATA FOUND":"தரவு எதுவும் கிடைக்கவில்லை","NO RESULTS FOUND":"முடிவுகள் எதுவும் கிடைக்கவில்லை","CURRENT / NEXT DASHA":"தற்போதைய / அடுத்த தசா","MAHADASHA":"மகாதசை","BHUKTI":"புக்தி","ANTARA":"அந்தரம்","START":"தொடக்கம்","END":"முடிவு","DEGREE":"பாகை","SIGN":"ராசி","NAKSHATRA":"நட்சத்திரம்","PADA":"பாதம்","ASCENDANT":"லக்னம்","SUN":"சூரியன்","MOON":"சந்திரன்","MARS":"செவ்வாய்","MERCURY":"புதன்","JUPITER":"குரு","VENUS":"சுக்கிரன்","SATURN":"சனி","RAHU":"ராகு","KETU":"கேது"}; const keys=Object.keys(SMV_TA).sort((a,b)=>b.length-a.length);
  function tr(s){
    let out=s;
    for(const k of keys){
@@ -12836,6 +13484,737 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 
+
+
+<style id="smv-tamil-header-hero-mobile-final-only">
+/* ONLY the requested Tamil header labels + Hero dots on mobile. Everything else remains unchanged. */
+#contentNav,
+#dashLink{
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+@media(max-width:767px){
+  #contentNav,
+  #dashLink{
+    font-size:10px!important;
+    letter-spacing:-.2px!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+  /* Mobile only: use spacing between the three Hero phrases; desktop dots remain unchanged. */
+  #home.hero h1 .smv-hero-dot{
+    display:inline!important;
+    font-size:0!important;
+    width:0!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #home.hero h1 .smv-hero-line-1,
+  #home.hero h1 .smv-hero-line-2{
+    margin-right:8px!important;
+  }
+  /* Mobile only: keep the second phrase visually centered. */
+  #home.hero h1 .smv-hero-line-2{
+    display:inline-block!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+  }
+  /* Mobile only: exact center for the third phrase. */
+  #home.hero h1 .smv-hero-line-3{
+    display:block!important;
+    width:max-content!important;
+    max-width:100%!important;
+    margin:0 auto!important;
+    position:static!important;
+    left:auto!important;
+    transform:none!important;
+    text-align:center!important;
+  }
+}
+@media(min-width:768px){
+  #contentNav,
+  #dashLink{
+    font-size:11px!important;
+    letter-spacing:-.1px!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+}
+</style>
+
+<script id="smv-tamil-horoscope-visible-english-clean-final">
+(function(){
+  'use strict';
+  if(window.__SMV_TAMIL_HOROSCOPE_ENGLISH_CLEAN) return;
+  window.__SMV_TAMIL_HOROSCOPE_ENGLISH_CLEAN=true;
+  const MAP={
+    'Print / Save as PDF':'அச்சிட / PDF ஆக சேமிக்க',
+    'Copy Text':'உரையை நகலெடுக்க',
+    'AI Future Insights':'செயற்கை நுண்ணறிவு எதிர்காலப் பலன்கள்',
+    'Generate AI Future Insights':'செயற்கை நுண்ணறிவு எதிர்காலப் பலன்களை உருவாக்குக',
+    'AI is interpreting the verified horoscope data...':'சரிபார்க்கப்பட்ட ஜாதகத் தரவை செயற்கை நுண்ணறிவு விளக்குகிறது...',
+    'AI Future Insights could not be generated.':'செயற்கை நுண்ணறிவு எதிர்காலப் பலன்களை உருவாக்க முடியவில்லை.',
+    'Classical Parashari Shadbala':'பாரம்பரிய பராசரி ஷட்பலம்',
+    'Classical-style Shadbala calculation':'பாரம்பரிய முறையிலான ஷட்பல கணக்கீடு',
+    'Classical-style Shadbala':'பாரம்பரிய முறையிலான ஷட்பலம்',
+    'Planetary Strength & Status':'கிரக வலிமை மற்றும் நிலை',
+    'Planetary Positions':'கிரக நிலைகள்',
+    'Planetary Strength':'கிரக வலிமை',
+    'Divisional Charts':'வர்க்கக் கட்டங்கள்',
+    'Wealth':'செல்வம்',
+    'Current / Next Dasha':'தற்போதைய / அடுத்த தசா',
+    'Next Dasha':'அடுத்த தசா',
+    'Next Bhukti':'அடுத்த புக்தி',
+    'Next Antara':'அடுத்த அந்தரம்',
+    'Initial Mahadasha balance based on the Moon’s birth Nakshatra':'பிறந்த நேர சந்திரனின் நட்சத்திரத்தை அடிப்படையாகக் கொண்ட ஆரம்ப மகாதசை மீதம்',
+    'Each planet is shown on a separate row: ராசி · Degree · Nakshatra · Pada.':'ஒவ்வொரு கிரகமும் தனி வரியில்: ராசி · பாகை · நட்சத்திரம் · பாதம்.',
+    'Tap a Mahadasha to open':'மகாதசையைத் தொடுவதன் மூலம் திறக்கவும்',
+    'Tap a Bhukti to open':'புக்தியைத் தொடுவதன் மூலம் திறக்கவும்',
+    'No next-level information.':'அடுத்த நிலைத் தகவல் இல்லை.',
+    'No Bhukti information.':'புக்தித் தகவல் இல்லை.',
+    'No Antara periods.':'அந்தர காலங்கள் இல்லை.',
+    'Below Required':'தேவையான அளவுக்குக் குறைவு',
+    'Strong':'வலிமையானது',
+    'Total / Required':'மொத்தம் / தேவையானது',
+    'Required':'தேவையானது',
+    'Exaltation/Debilitation':'உச்சம் / நீசம்',
+    'Exalted Sign':'உச்ச ராசி',
+    'Debilitated Sign':'நீச ராசி',
+    'Own Sign':'சுய ராசி',
+    'Sun Distance':'சூரிய தூரம்',
+    'Retrograde':'வக்கிரம்',
+    'Combustion':'அஸ்தமனம்',
+    'Direction':'திசை',
+    'Status':'நிலை',
+    'Motion':'இயக்கம்',
+    'Note':'குறிப்பு',
+    'Total':'மொத்தம்',
+    'Degree':'பாகை',
+    'Nakshatra':'நட்சத்திரம்',
+    'Pada':'பாதம்',
+    'House':'பாவம்',
+    'Planet':'கிரகம்',
+    'Planets':'கிரகங்கள்',
+    'Sign':'ராசி',
+    'Chart':'கட்டம்',
+    'Birth Details':'பிறப்பு விவரங்கள்',
+    'Date of Birth':'பிறந்த தேதி',
+    'Birth Time':'பிறந்த நேரம்',
+    'Birth Place':'பிறந்த இடம்',
+    'Ayanamsa':'அயனாம்சம்',
+    'Sthana Bala':'ஸ்தான பலம்',
+    'Dig Bala':'திக் பலம்',
+    'Kala Bala':'கால பலம்',
+    'Cheshta Bala':'சேஷ்டா பலம்',
+    'Naisargika Bala':'நைசர்கிக பலம்',
+    'Drik Bala':'த்ரிக் பலம்',
+    'Sthana':'ஸ்தானம்',
+    'Kala':'காலம்',
+    'Cheshta':'சேஷ்டா',
+    'Naisargika':'நைசர்கிகம்',
+    'Drik':'த்ரிக்',
+    'Uccha':'உச்சம்',
+    'Saptavargaja':'சப்தவர்க்கஜம்',
+    'Nathonnatha':'நாதோன்னதம்',
+    'Paksha':'பக்ஷம்',
+    'Ayana':'அயனம்',
+    'Rupa':'ரூபம்',
+    'Virupa':'விரூபம்',
+    'Rahu/Ketu':'ராகு/கேது',
+    'Sun through Saturn':'சூரியன் முதல் சனி வரை',
+    'Tap':'தொடவும்',
+    'From':'இருந்து',
+    'Result':'பலன்',
+    'Purpose':'பயன்பாடு',
+    'Source sign':'மூல ராசி',
+    'Lord sign':'அதிபதி ராசி',
+    'Lord':'அதிபதி',
+    'Arudha':'ஆரூடம்',
+    'Arudha Padas':'ஆரூட பாதங்கள்',
+    'Graha Arudhas':'கிரக ஆரூடங்கள்',
+    'Target sign':'இலக்கு ராசி',
+    'Argala sources':'ஆர்கலா ஆதாரங்கள்',
+    'Obstructions':'தடைகள்',
+    'Ketu reversal':'கேது எதிர்திசை கணக்கு',
+    'Special Lagnas':'சிறப்பு லக்னங்கள்',
+    'Kalas (Root Numbers)':'கலா (மூல எண்கள்)',
+    'How to find Indu Lagna?':'இந்து லக்னத்தை எவ்வாறு கண்டறிவது?',
+    'Results':'பலன்கள்',
+    'Remedial Measures':'பரிகார நடவடிக்கைகள்',
+    'Gemstone':'ரத்தினம்',
+    'Metal':'உலோகம்',
+    'Good Deed / Service':'நல்ல செயல் / சேவை',
+    'Grain':'தானியம்',
+    'Deity':'தெய்வம்',
+    'Tajaka Analysis':'தாஜக பகுப்பாய்வு',
+    'Tajaka Aspects':'தாஜக பார்வைகள்',
+    'Tajaka Yogas':'தாஜக யோகங்கள்',
+    'Solar Return':'சூரியத் திரும்பல்',
+    'Year Lord':'வருட அதிபதி',
+    'Yoga':'யோகம்',
+    'Category':'வகை',
+    'Detected':'கண்டறியப்பட்டது',
+    'Entry Path':'நுழைவு பாதை',
+    'Exit Path':'வெளியேறும் பாதை',
+    'Zone':'மண்டலம்',
+    'North':'வடக்கு',
+    'South':'தெற்கு',
+    'East':'கிழக்கு',
+    'West':'மேற்கு',
+    'Planet Relations':'கிரக உறவுகள்',
+    'Temporary':'தற்காலிகம்',
+    'Other Planet':'மற்ற கிரகம்',
+    'Special Nakshatra Transit':'சிறப்பு நட்சத்திர கோச்சாரம்',
+    'Planetary Transit':'கிரக கோச்சாரம்',
+    'Transit Analysis':'கோச்சார பகுப்பாய்வு',
+    'Tithi groups':'திதிக் குழுக்கள்',
+    'Vedha rule':'வேத விதி',
+    'Kakshya Chart':'கக்ஷ்யா அட்டவணை',
+    'Each sign is divided into eight 3°45′ kakshyas; the first is ruled by Saturn.':'ஒவ்வொரு ராசியும் 3°45′ கொண்ட 8 கக்ஷ்யாக்களாகப் பிரிக்கப்படுகிறது; முதல் கக்ஷ்யா சனியால் ஆளப்படுகிறது.',
+    'Prastaara Ashtakavarga':'பிரஸ்தார அஷ்டகவர்க்கம்',
+    'Bhinnashtakavarga':'பின்னாஷ்டகவர்க்கம்',
+    'Sarvashtakavarga':'சர்வாஷ்டகவர்க்கம்',
+    'Ashtakavarga':'அஷ்டகவர்க்கம்',
+    'Avastha':'அவஸ்தை',
+    'Avakhada Chakra':'அவகஹடா சக்கரம்',
+    'Kota Chakra':'கோட்டா சக்கரம்',
+    'Sudarshana Chakra':'சுதர்சன சக்கரம்',
+    'Sarvatobhadra Chakra':'சர்வதோபத்ர சக்கரம்',
+    'Kota Swami':'கோட்டா சுவாமி',
+    'Kota Paala':'கோட்டா பாலா',
+    'Special Dasa System':'சிறப்பு தசா முறை',
+    'Ashtottari Dasa':'அஷ்டோத்தரி தசா',
+    'Narayana Dasa':'நாராயண தசா',
+    'Lagna Kendradi Rasi Dasa':'லக்ன கேந்திராதி ராசி தசா',
+    'Sudasa':'சுதசா',
+    'Drigdasa':'த்ரிக்தசா',
+    'Niryaana Shoola Dasa':'நிர்யாண சூல தசா',
+    'Shoola Dasa':'சூல தசா',
+    'Kalachakra Dasa':'காலசக்கர தசா',
+    '108-year Nakshatra Dasa':'108 ஆண்டு நட்சத்திர தசா',
+    'Kendra → Panaphara → Apoklima':'கேந்திரம் → பணபரம் → அபோக்லிமம்',
+    'Sree Lagna based':'ஸ்ரீ லக்னத்தை அடிப்படையாகக் கொண்டது',
+    '9th/10th/11th house groups':'9/10/11ஆம் பாவக் குழுக்கள்',
+    'longevity timing reference':'ஆயுள் காலக் கணிப்பு குறிப்பு',
+    '9-year rasi Dasa':'9 ஆண்டு ராசி தசா',
+    'Nakshatra/Savya-Apasavya':'நட்சத்திரம் / சவ்ய-அபசவ்யம்',
+    'This is a traditional astrology interpretation based on verified horoscope data; it is not a guarantee of future events.':'இது சரிபார்க்கப்பட்ட ஜாதகத் தரவை அடிப்படையாகக் கொண்ட பாரம்பரிய ஜோதிட விளக்கம் மட்டுமே; எதிர்கால நிகழ்வுகளுக்கான உத்தரவாதம் அல்ல.',
+    'Some time/mean-motion conventions used in Cheshta/Kala calculations may vary by lineage; therefore this should not be considered reference-grade software parity.':'சேஷ்டா / காலக் கணக்கீட்டில் பயன்படுத்தப்படும் சில நேரம் / சராசரி இயக்க விதிமுறைகள் மரபுக்கு ஏற்ப மாறக்கூடும்; ஆகவே இதை ஆதாரத் தர மென்பொருள் ஒத்திசைவு எனக் கருத முடியாது.',
+    'years':'ஆண்டுகள்',
+    'Current':'தற்போதைய',
+    'Next':'அடுத்த',
+    'Start':'தொடக்கம்',
+    'End':'முடிவு',
+    'Middle':'மத்தியம்',
+    'Strong':'வலிமையானது',
+    'Weak':'பலவீனமானது',
+    'Faster Planet':'வேகமான கிரகம்',
+    'Slower Planet':'மெதுவான கிரகம்',
+    'Applying':'பயன்படும்',
+    'Separating':'பிரியும்',
+    'Connects':'இணைக்கிறது',
+    'Within Deeptaamsa':'தீப்தாம்சத்தில்',
+    'Moon':'சந்திரன்','Sun':'சூரியன்','Mars':'செவ்வாய்','Mercury':'புதன்','Jupiter':'குரு','Venus':'சுக்கிரன்','Saturn':'சனி','Rahu':'ராகு','Ketu':'கேது','Lagna':'லக்னம்',
+    'Aries':'மேஷம்','Taurus':'ரிஷபம்','Gemini':'மிதுனம்','Cancer':'கடகம்','Leo':'சிம்மம்','Virgo':'கன்னி','Libra':'துலாம்','Scorpio':'விருச்சிகம்','Sagittarius':'தனுசு','Capricorn':'மகரம்','Aquarius':'கும்பம்','Pisces':'மீனம்',
+    'Ashwini':'அஸ்வினி','Bharani':'பரணி','Krittika':'கார்த்திகை','Rohini':'ரோகிணி','Mrigashira':'மிருகசீரிடம்','Ardra':'திருவாதிரை','Punarvasu':'புனர்பூசம்','Pushya':'பூசம்','Ashlesha':'ஆயில்யம்','Magha':'மகம்','Purva Phalguni':'பூரம்','Uttara Phalguni':'உத்திரம்','Hasta':'ஹஸ்தம்','Chitra':'சித்திரை','Swati':'சுவாதி','Vishakha':'விசாகம்','Anuradha':'அனுஷம்','Jyeshtha':'கேட்டை','Mula':'மூலம்','Purva Ashadha':'பூராடம்','Uttara Ashadha':'உத்திராடம்','Shravana':'திருவோணம்','Dhanishtha':'அவிட்டம்','Shatabhisha':'சதயம்','Purva Bhadrapada':'பூரட்டாதி','Uttara Bhadrapada':'உத்திரட்டாதி','Revati':'ரேவதி'
+  };
+  const entries=Object.entries(MAP).sort((a,b)=>b[0].length-a[0].length);
+  const protectedTokens=[];
+  function translateText(text){
+    let s=String(text??'');
+    if(!s.trim()) return s;
+    for(const [from,to] of entries){
+      if(!/[A-Za-z]/.test(from)) continue;
+      const re=new RegExp('(^|[^A-Za-z])'+from.replace(/[.*+?^${}()|[\\]\\]/g,'\\$&')+'(?=$|[^A-Za-z])','gi');
+      s=s.replace(re,(m,pre)=>pre+to);
+    }
+    return s;
+  }
+  function clean(root){
+    if(!root) return;
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n=>{ if(n.parentElement?.closest('script,style,textarea')) return; const v=translateText(n.nodeValue); if(v!==n.nodeValue)n.nodeValue=v; });
+    root.querySelectorAll('button,[aria-label],[title],input[placeholder],input[value]').forEach(el=>{
+      ['aria-label','title','placeholder'].forEach(a=>{if(el.hasAttribute(a)){const v=translateText(el.getAttribute(a));el.setAttribute(a,v);}});
+      if(el.tagName==='INPUT' && el.type!=='hidden' && el.hasAttribute('value')) el.value=translateText(el.value);
+    });
+  }
+  let queued=false;
+  function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;clean(document.getElementById('tamilHoroscopeResult'));});}
+  function start(){const root=document.getElementById('tamilHoroscopeResult');if(!root)return;clean(root);/* Disabled: legacy full-horoscope MutationObserver caused repeated rescans during generation. */}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>{start();setTimeout(start,500);setTimeout(start,1500);}, {once:true});
+  else {start();setTimeout(start,500);setTimeout(start,1500);}
+})();
+</script>
+
+<script id="smv-tamil-horoscope-final-english-values-fix">
+(function(){
+  'use strict';
+  if(window.__SMV_TAMIL_HOROSCOPE_FINAL_VALUES_FIX) return;
+  window.__SMV_TAMIL_HOROSCOPE_FINAL_VALUES_FIX=true;
+
+  const MAP={
+    'Taamra':'தாமிரம்',
+    'Swarna':'தங்கம்',
+    'Rajata':'வெள்ளி',
+    'Unfavorable':'பாதகமானது',
+    'Highly favorable':'மிகவும் சாதகமானது',
+    'Highly Favorable':'மிகவும் சாதகமானது',
+    'Favorable':'சாதகமானது',
+    'Highly Unfavorable':'மிகவும் பாதகமானது',
+    'Neutral':'சமநிலை',
+    'Pratyak Tara':'பிரத்யக் தாரா',
+    'Janma Tara':'ஜென்ம தாரா',
+    'Saadhana Tara':'சாதன தாரா',
+    'Vipat Tara':'விபத் தாரா',
+    'Mitra Tara':'மித்ர தாரா',
+    'Kshema Tara':'க்ஷேம தாரா',
+    'Direct':'நேர்கதி',
+    'Retrograde':'வக்கிரம்',
+    'Good':'நல்லது',
+    'Very Good':'மிகவும் நல்லது',
+    'Average':'சராசரி',
+    'Bad':'பாதகமானது',
+    'Very Bad':'மிகவும் பாதகமானது',
+    'Malefic':'பாப கிரகம்',
+    'Benefic':'சுப கிரகம்',
+
+    'Ruby':'மாணிக்கம்',
+    'Gold':'தங்கம்',
+    'White pearl':'வெள்ளை முத்து',
+    'Music institute support / help a fair lady':'இசைப் பயிற்சி நிலையத்திற்கு ஆதரவு / நல்ல மனமுடைய பெண்ணுக்கு உதவி',
+    'Rice':'அரிசி',
+    'Gauri / Lalita / Saraswati / Krishna':'கௌரி / லலிதா / சரஸ்வதி / கிருஷ்ணர்',
+    'Red coral':'சிவப்பு பவளம்',
+    'Copper':'செம்பு',
+    'Physical exercise / support a school gym':'உடற்பயிற்சி / பள்ளி உடற்பயிற்சிக் கூடத்திற்கு ஆதரவு',
+    'Toor daal':'துவரம் பருப்பு',
+    'Hanuman / Rudra / Kartikeya / Narasimha':'அனுமன் / ருத்ரர் / கார்த்திகேயன் / நரசிம்மர்',
+    'Emerald':'மரகதம்',
+    'Silver / Platinum':'வெள்ளி / பிளாட்டினம்',
+    'Support scholars / seek a scholar’s blessing':'அறிஞர்களுக்கு ஆதரவு / அறிஞரின் ஆசீர்வாதம் பெறுதல்',
+    'Moong daal':'பாசிப்பருப்பு',
+    'Vishnu / Narayana / Buddha':'விஷ்ணு / நாராயணர் / புத்தர்',
+    'Yellow sapphire':'புஷ்பராகம்',
+    'Respect/support a learned Brahmin or priest':'கற்றறிந்த பிராமணர் அல்லது புரோகிதரை மதித்தல் / ஆதரித்தல்',
+    'Chick peas':'கொண்டைக்கடலை',
+    'Hayagreeva / Vishnu / Parameswara / Dattatreya / Guru':'ஹயக்ரீவர் / விஷ்ணு / பரமேஸ்வரர் / தத்தாத்ரேயர் / குரு',
+    'Diamond':'வைரம்',
+    'Read poetry / help a poet':'கவிதை வாசித்தல் / கவிஞருக்கு உதவுதல்',
+    'Whitish grain':'வெண்மை நிற தானியம்',
+    'Lakshmi / Parvati':'லட்சுமி / பார்வதி',
+    'Blue sapphire':'நீலக்கல்',
+    'Iron / Silver':'இரும்பு / வெள்ளி',
+    'Physical labour / help manual workers':'உடல் உழைப்பு / உடல் உழைப்பாளர்களுக்கு உதவி',
+    'Sesame seeds':'எள்',
+    'Hessonite (Gomedh)':'கோமேதகம்',
+    'Support research / pilgrimage':'ஆராய்ச்சிக்கு ஆதரவு / புனித யாத்திரை',
+    'Black gram daal':'உளுந்து',
+    'Durga / Narasimha':'துர்கை / நரசிம்மர்',
+    'Cat’s eye':'வைடூரியம்', 'Loha':'இரும்பு', 'Taamra':'தாமிரம்', 'Swarna':'தங்கம்', 'Rajata':'வெள்ளி', 'Purva Phalguni':'பூரம்', 'Punarvasu':'புனர்பூசம்', 'Uttara Phalguni':'உத்திரம்', 'Ashlesha':'ஆயில்யம்', 'Chitra':'சித்திரை', 'Revati':'ரேவதி', 'Dhanishtha':'அவிட்டம்', 'Dhanishta':'அவிட்டம்', 'Magha':'மகம்', 'Shatabhisha':'சதயம்', 'Purva Bhadrapada':'பூரட்டாதி', 'Purva Ashadha':'பூராடம்', 'Uttara Ashadha':'உத்திராடம்', 'Hasta':'ஹஸ்தம்', 'Uttara Bhadrapada':'உத்திரட்டாதி', 'Jyeshtha':'கேட்டை', 'Ashwini':'அசுவினி', 'Bharani':'பரணி', 'Rohini':'ரோகிணி', 'Krittika':'கார்த்திகை', 'Mrigashira':'மிருகசீரிடம்', 'Ardra':'திருவாதிரை', 'Pushya':'பூசம்', 'Swati':'சுவாதி', 'Vishakha':'விசாகம்', 'Anuradha':'அனுஷம்', 'Mula':'மூலம்', 'Shravana':'திருவோணம்', 'Favorable':'சாதகமானது', 'Highly favorable':'மிகவும் சாதகமானது', 'Unfavorable':'பாதகமானது', 'Highly unfavorable':'மிகவும் பாதகமானது', 'Janma Nakshatra':'ஜென்ம நட்சத்திரம்',
+    'Cat\'s eye':'வைடூரியம்',
+    'Meditation':'தியானம்',
+
+    'Wealth, good health':'செல்வம், நல்ல ஆரோக்கியம்',
+    'Comfort, good':'சௌகரியம், நல்ல',
+    'Troubles, bodily afflictions':'தொல்லைகள், உடல் பாதிப்புகள்',
+    'Wandering, losses, trouble':'அலைச்சல், இழப்புகள், தொல்லைகள்',
+    'Happiness, domestic harmony':'மகிழ்ச்சி, குடும்ப நல்லிணக்கம்',
+    'Fame, power, good':'புகழ், அதிகாரம், நல்ல',
+    'Loss of money, bad name, changes':'பண இழப்பு, கெட்ட பெயர், மாற்றங்கள்',
+    'Diseases, suffering, losses':'நோய்கள், துன்பம், இழப்புகள்',
+    'Gains, power, wealth':'ஆதாயங்கள், அதிகாரம், செல்வம்',
+
+    'Transit prediction':'கோச்சார பலன்',
+    'Transit Prediction':'கோச்சார பலன்',
+    'Prediction':'பலன்',
+    'Predictions':'பலன்கள்',
+    'Automatic Prediction':'தானியங்கி பலன்',
+    'Hits Janma':'ஜென்ம நட்சத்திரத்தைத் தொடுகிறது',
+    'Hits Janma/':'ஜென்ம நட்சத்திரத்தைத் தொடுகிறது/',
+    'Current / Next Dasha':'தற்போதைய / அடுத்த தசா',
+    'Next Dasha':'அடுத்த தசா',
+    'Next Bhukti':'அடுத்த புக்தி',
+    'Next Antara':'அடுத்த அந்தரம்',
+    'Phase 2':'கட்டம் 2',
+    'Phase 3':'கட்டம் 3',
+    'Classical':'பாரம்பரிய',
+    'Classical Parashari Shadbala':'பாரம்பரிய பராசரி ஷட்பலம்',
+    'Classical-style Shadbala':'பாரம்பரிய முறையிலான ஷட்பலம்',
+    'Classical-style Shadbala calculation':'பாரம்பரிய முறையிலான ஷட்பல கணக்கீடு',
+    'balance':'மீதம்',
+    'Time':'நேரம்',
+    'mean-motion':'சராசரி இயக்கம்',
+    'conventions':'விதிமுறைகள்',
+    'reference-grade software parity':'ஆதாரத் தர மென்பொருள் ஒத்திசைவு',
+    'Varga':'வர்க்கம்',
+    'Vargas':'வர்க்கங்கள்',
+    'Planet':'கிரகம்',
+    'Planets':'கிரகங்கள்',
+    'Degree':'பாகை',
+    'Lord':'அதிபதி',
+    'Kakshya':'கக்ஷ்யா',
+    'Rekha':'ரேகை',
+    'Planet Relations':'கிரக உறவுகள்',
+    'Other Planet':'மற்ற கிரகம்',
+    'Temporary':'தற்காலிகம்',
+    'Good Deed / Service':'நல்ல செயல் / சேவை',
+    'Gemstone':'ரத்தினம்',
+    'Metal':'உலோகம்',
+    'Deity':'தெய்வம்',
+    'Tajaka Analysis':'தாஜக பகுப்பாய்வு',
+    'Solar Return':'சூரியத் திரும்புகை',
+    'Year Lord':'வருட அதிபதி',
+    'Yoga':'யோகம்',
+    'Category':'வகை',
+    'Detected':'கண்டறியப்பட்டது',
+    'Entry Path':'நுழைவு பாதை',
+    'Exit Path':'வெளியேறும் பாதை',
+    'Zone':'மண்டலம்',
+    'North':'வடக்கு',
+    'South':'தெற்கு',
+    'East':'கிழக்கு',
+    'West':'மேற்கு',
+    'Tithi groups':'திதிக் குழுக்கள்',
+    'Vedha rule':'வேத விதி',
+    'Direct':'நேர்கதி',
+    'SAV':'சர்வாஷ்டகவர்க்கம்',
+    'PAV':'பிரஸ்தார அஷ்டகவர்க்கம்'
+  };
+
+  const entries=Object.entries(MAP).sort((a,b)=>b[0].length-a[0].length);
+  function translate(s){
+    let out=String(s??'');
+    for(const [from,to] of entries){
+      const esc=from.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      out=out.replace(new RegExp('(^|[^A-Za-z])'+esc+'(?=$|[^A-Za-z])','gi'),
+        (m,prefix)=>prefix+to);
+    }
+    return out;
+  }
+  function clean(root){
+    if(!root) return;
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    const nodes=[];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n=>{
+      if(n.parentElement?.closest('script,style,textarea')) return;
+      const v=translate(n.nodeValue);
+      if(v!==n.nodeValue) n.nodeValue=v;
+    });
+    root.querySelectorAll('button,[aria-label],[title],input[placeholder]').forEach(el=>{
+      ['aria-label','title','placeholder'].forEach(a=>{
+        if(el.hasAttribute(a)){
+          const v=translate(el.getAttribute(a));
+          if(v!==el.getAttribute(a)) el.setAttribute(a,v);
+        }
+      });
+    });
+  }
+  function start(){
+    const root=document.getElementById('tamilHoroscopeResult');
+    if(!root) return;
+    clean(root);
+    /* Disabled: legacy duplicate horoscope MutationObserver. Final targeted cleanup handles translations. */
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',start,{once:true});
+  }else start();
+  setTimeout(start,300);
+  setTimeout(start,1000);
+  setTimeout(start,2000);
+})();
+</script>
+
+<!-- SMV FINAL: Tamil Horoscope visible English cleanup -->
+<script id="smv-tamil-horoscope-visible-english-final">
+(function(){
+  const map={
+    'Atmakaraka':'ஆத்மகாரகன்',
+    'Amatyakaraka':'அமாத்யகாரகன்',
+    'Bhratrukaraka':'பிராத்ருகாரகன்',
+    'Matrukaraka':'மாத்ருகாரகன்',
+    'Putrakaraka':'புத்ரகாரகன்',
+    'Gnatikaraka':'ஞாதிகாரகன்',
+    'Darakaraka':'தாரகாரகன்',
+    'Yogas':'யோகங்கள்',
+    'Yoga':'யோகம்',
+    'Shiva / Rama':'சிவன் / ராமர்',
+    'Wheat':'கோதுமை',
+    'Temple service / temple donation':'கோவில் சேவை / கோவில் நன்கொடை',
+    'Destruction':'அழிவு',
+    'Influx of wealth':'செல்வ வரவு',
+    'Wealth':'செல்வம்',
+    'Two hands':'இரு கைகள்',
+    'Stomach':'வயிறு',
+    'Forward':'முன்னோக்கு',
+    'Backward':'பின்னோக்கு',
+    'victory':'வெற்றி',
+    'Victory':'வெற்றி',
+    'success':'வெற்றி',
+    'Success':'வெற்றி',
+    'good spirits':'நல்ல மனநிலை',
+    'Comfort, good spirits':'சௌகரியம், நல்ல மனநிலை',
+    'Comforts, pleasures, happiness, good spirits':'சௌகரியங்கள், இன்பம், மகிழ்ச்சி, நல்ல மனநிலை',
+    'good name':'நல்ல பெயர்',
+    'loss of name':'பெயர் இழப்பு',
+    'name':'பெயர்',
+    'Diseases':'நோய்கள்',
+    'diseases':'நோய்கள்',
+    'Wandering':'அலைச்சல்',
+    'wandering':'அலைச்சல்',
+    'authorities':'அதிகாரிகள்',
+    'laziness':'சோம்பேறித்தனம்',
+    'Jaagrita':'விழிப்பு நிலை',
+    'Swapna':'கனவு நிலை',
+    'Sushupta':'ஆழ்ந்த உறக்க நிலை',
+    'Svastha':'சுயநிலை / இயல்பு',
+    'Saanta':'அமைதி',
+    'Duhkhita':'துயரம்',
+    'Deepta':'பிரகாசம் / உயர்ந்த வெளிப்பாடு',
+    'Deena':'சோர்வு / தாழ்வு',
+    'Vikala':'குழப்பம் / குறைபாடு',
+    'Bhojana':'போஜனம்',
+    'Gamana':'கமனம்',
+    'Aagamana':'ஆகமனம்',
+    'Netrapaani':'நேத்ரபாணி',
+    'Kautuka':'கௌதுகம்',
+    'Very little':'மிகக் குறைவு',
+    'Medium':'மிதமானது',
+    'Full':'முழுமையானது',
+    'Joint pains':'மூட்டு வலி',
+    'Physical weakness':'உடல் பலவீனம்',
+    'wealth loss through opposite sex':'எதிர்பாலினத்தால் செல்வ இழப்பு',
+    'headaches':'தலைவலி',
+    'falsehood':'பொய்மை',
+    'Waning Moon':'தேய்பிறை சந்திரன்',
+    'waxing Moon':'வளர்பிறை சந்திரன்',
+    'cruelty':'கொடுமை',
+    'eye troubles':'கண் பிரச்சினைகள்',
+    'Honour':'மரியாதை',
+    'Servants':'பணியாளர்கள்',
+    'Destruction':'அழிவு',
+    'Honor and fame':'மரியாதை மற்றும் புகழ்',
+    'Amassing of wealth':'செல்வச் சேர்க்கை',
+    'Misfortune':'துரதிர்ஷ்டம்',
+    'Comforts':'சௌகரியங்கள்',
+    'Travels':'பயணங்கள்',
+    'Pleasures':'இன்பங்கள்',
+    'Death':'மரணம்',
+    'Direct':'நேர்கதி',
+    'Retrograde':'வக்கிரம்',
+    'Malefic':'பாப கிரகம்',
+    'Benefic':'சுப கிரகம்',
+    'Transit prediction':'கோச்சார பலன்',
+    'Transit Prediction':'கோச்சார பலன்',
+    'Sayana':'சயன',
+    'Nrityalipsaa':'ந்ருத்யலிப்ஸா',
+    'Sabhaa':'சபா',
+    'Digestive and heart-related troubles, stout legs, bile/piles themes.':'செரிமானம் மற்றும் இதயம் தொடர்பான பிரச்சினைகள், தடித்த கால்கள், பித்தம் / மூலம் தொடர்பான அம்சங்கள்.',
+    'Wealth through royal connections; gold, diamonds and coral.':'அரசத் தொடர்புகள் மூலம் செல்வம்; தங்கம், வைரம் மற்றும் பவளம்.',
+    'Wealth, good deeds, authority/ministry and spiritual devotion; exaltation strengthens.':'செல்வம், நல்ல செயல்கள், அதிகாரம் / அமைச்சுப் பொறுப்பு மற்றும் ஆன்மிக பக்தி; உச்ச நிலை இதை வலுப்படுத்தும்.',
+    'Royal honour, wealth, dharma/tantra learning and scholarly respect.':'அரச மரியாதை, செல்வம், தர்மம் / தந்திரக் கல்வி மற்றும் அறிஞர்களின் மரியாதை.',
+    'Eminence at court, virtue, victory over enemies, wealth and charity.':'அரசவையில் உயர்வு, நற்பண்பு, எதிரிகளை வெல்லுதல், செல்வம் மற்றும் தர்மச் செயல்கள்.',
+    'Hunger/thirst and childhood disease themes; wealth later.':'பசி / தாகம் மற்றும் குழந்தைப் பருவ நோய்கள் தொடர்பான அம்சங்கள்; பின்னர் செல்வம்.',
+    'financial loss and trouble from wicked people/snakes/thieves.':'பண இழப்பு மற்றும் தீயவர்கள் / பாம்புகள் / திருடர்களால் தொல்லை.',
+    'Talkative, proud, miserly, sensual and skilled in difficult subjects':'அதிகம் பேசுபவர், பெருமை கொண்டவர், கஞ்சத்தனம் உடையவர், புலனின்ப நாட்டம் கொண்டவர், கடினமான பாடங்களில் திறமை உடையவர்',
+    'Bahya':'பாஹ்ய',
+    'Prakaara':'பிரகார',
+    'Durgantara / Madhya':'துர்காந்தர / மத்திய',
+    'Stambha':'ஸ்தம்ப',
+    'Rahu':'ராகு',
+    'Venus':'சுக்கிரன்',
+    'Purva Phalguni':'பூரம்',
+    'Punarvasu':'புனர்பூசம்',
+    'Uttara Phalguni':'உத்திரம்',
+    'Ashlesha':'ஆயில்யம்',
+    'Chitra':'சித்திரை',
+    'Revati':'ரேவதி',
+    'Dhanishtha':'அவிட்டம்',
+    'Magha':'மகம்',
+    'பாவ அட்டவணை':'பாவ கட்டம்'
+  };
+  const keys=Object.keys(map).sort((a,b)=>b.length-a.length);
+  function clean(root){
+    if(!root) return;
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    const nodes=[]; let n;
+    while(n=walker.nextNode()) nodes.push(n);
+    nodes.forEach(node=>{
+      let s=node.nodeValue;
+      keys.forEach(k=>{ if(s.includes(k)) s=s.split(k).join(map[k]); });
+      if(s!==node.nodeValue) node.nodeValue=s;
+    });
+  }
+  function fixBhavaTitle(root){
+    if(!root) return;
+    root.querySelectorAll('.bhava-table-title').forEach(el=>{ el.textContent='📋 பாவ கட்டம்'; });
+    root.querySelectorAll('.bhava-chart-title').forEach(el=>{ el.textContent='📐 பாவ கட்டம்'; });
+    const chart=root.querySelector('#bhavaChart');
+    if(chart) chart.setAttribute('aria-label','பாவ கட்டம்');
+  }
+  function run(){
+    const root=document.getElementById('tamilHoroscopeResult');
+    clean(root);
+    fixBhavaTitle(root);
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    run();
+    const root=document.getElementById('tamilHoroscopeResult');
+    if(root){ run(); }
+  });
+})();
+</script>
+<style id="smv-tamil-bhava-attavani-final">
+/* Only the Tamil Horoscope பாவ கட்டம் heading/label is renamed as requested. */
+#tamilHoroscopeResult .bhava-table-wrap ~ * { }
+</style>
+
+
+<!-- SMV FINAL: COMPLETE TAMIL USER-FACING ENGLISH CLEANUP -->
+<script id="smv-tamil-complete-user-facing-english-final">
+(function(){
+  'use strict';
+  if(window.__SMV_TAMIL_COMPLETE_USER_FACING_ENGLISH_FINAL) return;
+  window.__SMV_TAMIL_COMPLETE_USER_FACING_ENGLISH_FINAL=true;
+
+  /* User-facing non-technical English only. Technical identifiers remain unchanged. */
+  const GLOBAL_MAP={
+    'Tap to view':'உள்ளே பார்க்க',
+    'Full Name':'முழுப் பெயர்','Mobile Number':'கைபேசி எண்',
+    'Expertise / Specialization':'திறமை / சிறப்புப் பிரிவு','Professional Bio':'தொழில்முறை அறிமுகம்',
+    'Bank Name':'வங்கி பெயர்','Account Holder Name':'கணக்கு வைத்திருப்பவர் பெயர்','Bank Account Number':'வங்கி கணக்கு எண்',
+    'City, State, Country':'நகரம், மாநிலம், நாடு',
+    'Write your astrology question here...':'உங்கள் ஜோதிடக் கேள்வியை இங்கே எழுதுங்கள்...',
+    'Write your query here...':'உங்கள் கேள்வியை இங்கே எழுதுங்கள்...',
+    'Blog title':'வலைப்பதிவு தலைப்பு','Short description':'சுருக்கமான விளக்கம்',
+    'Write your full blog here...':'உங்கள் முழுமையான வலைப்பதிவை இங்கே எழுதுங்கள்...',
+    'Content title':'உள்ளடக்கத் தலைப்பு','Install SMV ASTRO App':'SMV ASTRO செயலியை நிறுவவும்',
+    'Welcome Back':'மீண்டும் வரவேற்கிறோம்','Email Login':'மின்னஞ்சல் உள்நுழைவு',
+    'Customer ID':'வாடிக்கையாளர் அடையாள எண்','Astrologer ID':'ஜோதிடர் அடையாள எண்','Email / ID':'மின்னஞ்சல் / அடையாள எண்',
+    'Forgot Password?':'கடவுச்சொல்லை மறந்துவிட்டீர்களா?','Create account':'கணக்கை உருவாக்கவும்',
+    'Searching location':'இடம் தேடப்படுகிறது','Location search failed':'இடத் தேடல் தோல்வியடைந்தது','Unable to search location':'இடத்தைத் தேட முடியவில்லை',
+    'My Questions':'என் கேள்விகள்','My Consultations':'என் ஆலோசனைகள்','Recent Questions':'சமீபத்திய கேள்விகள்',
+    'Question ID':'கேள்வி அடையாள எண்','Payment Successful':'கட்டணம் வெற்றிகரமாக செலுத்தப்பட்டது',
+    'Payment Failed':'கட்டணம் செலுத்துதல் தோல்வியடைந்தது','Payment Method':'கட்டண முறை','Refund Status':'பணத்திரும்பப்பெறுதல் நிலை',
+    'Public Question Inbox':'பொது கேள்விகள் பெட்டி','Unanswered Queue':'பதிலளிக்கப்படாத கேள்விகள்',
+    'Claim & Answer':'கைப்பற்றி பதிலளிக்க','Submit for Admin Approval':'நிர்வாகி அங்கீகாரத்திற்குச் சமர்ப்பிக்க',
+    'Earnings Ledger':'வருவாய் பதிவேடு','Earnings History':'வருவாய் வரலாறு','Withdrawal History':'பணம் பெறுதல் வரலாறு',
+    'Minimum Answer Words':'பதிலின் குறைந்தபட்ச சொற்கள்','Answer Submitted':'பதில் சமர்ப்பிக்கப்பட்டது',
+    'Answer Approved':'பதில் அங்கீகரிக்கப்பட்டது','Answer requires revision':'பதிலைத் திருத்தி மீண்டும் சமர்ப்பிக்க வேண்டும்',
+    'New Question Assigned':'புதிய கேள்வி ஒதுக்கப்பட்டது','Question rejected':'கேள்வி நிராகரிக்கப்பட்டது',
+    'Admin Dashboard':'நிர்வாகி முகப்புப் பலகை','Pending Astrologers':'நிலுவையில் உள்ள ஜோதிடர்கள்',
+    'Question Approval':'கேள்வி அங்கீகாரம்','Answer Approval':'பதில் அங்கீகாரம்','Admin Answers':'நிர்வாகி பதில்கள்',
+    'Admin Reviews':'நிர்வாகி மதிப்புரைகள்','Customer Reviews':'வாடிக்கையாளர் மதிப்புரைகள்',
+    'APPROVE & ALLOCATE':'அங்கீகரித்து ஒதுக்குக','REJECT QUESTION':'கேள்வியை நிராகரிக்க',
+    'MARK PAID':'கட்டணம் செலுத்தப்பட்டதாகக் குறிக்க','MARK PROCESSING':'செயலாக்கத்தில் இருப்பதாகக் குறிக்க',
+    'Payment Method Changes':'கட்டண முறையில் மாற்றங்கள்','Commission Settings':'கமிஷன் அமைப்புகள்','Total Earnings':'மொத்த வருவாய்'
+  };
+
+  const HORO_MAP={
+    'Current / Next Dasha':'தற்போதைய / அடுத்த தசா','Next Dasha':'அடுத்த தசா','Next Bhukti':'அடுத்த புக்தி','Next Antara':'அடுத்த அந்தரம்',
+    'Sthana Bala':'ஸ்தான பலம்','Dig Bala':'திக் பலம்','Kala Bala':'கால பலம்','Cheshta Bala':'சேஷ்டா பலம்',
+    'Naisargika Bala':'நைசர்கிக பலம்','Drik Bala':'த்ரிக் பலம்','Arudha Padas':'ஆரூட பாதங்கள்','Graha Arudhas':'கிரக ஆரூடங்கள்',
+    'Special Lagnas':'சிறப்பு லக்னங்கள்','Remedial Measures':'பரிகார நடவடிக்கைகள்','Good Deed / Service':'நல்ல செயல் / சேவை',
+    'Tajaka Analysis':'தாஜக பகுப்பாய்வு','Tajaka Aspects':'தாஜக பார்வைகள்','Tajaka Yogas':'தாஜக யோகங்கள்','Year Lord':'வருட அதிபதி',
+    'Entry Path':'நுழைவு பாதை','Exit Path':'வெளியேறும் பாதை','Planet Relations':'கிரக உறவுகள்','Other Planet':'மற்ற கிரகம்',
+    'Special Nakshatra Transit':'சிறப்பு நட்சத்திர கோச்சாரம்','Planetary Transit':'கிரக கோச்சாரம்','Transit Analysis':'கோச்சார பகுப்பாய்வு',
+    'Tithi groups':'திதிக் குழுக்கள்','Vedha rule':'வேத விதி','Kakshya Chart':'கக்ஷ்யா அட்டவணை','Avakhada Chakra':'அவகஹடா சக்கரம்',
+    'Kota Chakra':'கோட்டா சக்கரம்','Sudarshana Chakra':'சுதர்சன சக்கரம்','Sarvatobhadra Chakra':'சர்வதோபத்ர சக்கரம்',
+    'Special Dasa System':'சிறப்பு தசா முறை','Ashtottari Dasa':'அஷ்டோத்தரி தசா','Narayana Dasa':'நாராயண தசா','Kalachakra Dasa':'காலசக்கர தசா',
+    'Atmakaraka':'ஆத்மகாரகன்','Amatyakaraka':'அமாத்யகாரகன்','Bhratrukaraka':'பிராத்ருகாரகன்','Matrukaraka':'மாத்ருகாரகன்',
+    'Putrakaraka':'புத்ரகாரகன்','Gnatikaraka':'ஞாதிகாரகன்','Darakaraka':'தாரகாரகன்','Yogas':'யோகங்கள்',
+    'Shiva / Rama':'சிவன் / ராமர்','Wheat':'கோதுமை','Temple service / temple donation':'கோவில் சேவை / கோவில் நன்கொடை',
+    'Ruby':'மாணிக்கம்','Gold':'தங்கம்','White pearl':'வெள்ளை முத்து','Music institute support / help a fair lady':'இசைப் பயிற்சி நிலையத்திற்கு ஆதரவு / நல்ல மனமுடைய பெண்ணுக்கு உதவி','Rice':'அரிசி','Gauri / Lalita / Saraswati / Krishna':'கௌரி / லலிதா / சரஸ்வதி / கிருஷ்ணர்','Red coral':'சிவப்பு பவளம்','Copper':'செம்பு','Physical exercise / support a school gym':'உடற்பயிற்சி / பள்ளி உடற்பயிற்சிக் கூடத்திற்கு ஆதரவு','Toor daal':'துவரம் பருப்பு','Hanuman / Rudra / Kartikeya / Narasimha':'அனுமன் / ருத்ரர் / கார்த்திகேயன் / நரசிம்மர்','Emerald':'மரகதம்','Silver / Platinum':'வெள்ளி / பிளாட்டினம்','Support scholars / seek a scholar’s blessing':'அறிஞர்களுக்கு ஆதரவு / அறிஞரின் ஆசீர்வாதம் பெறுதல்','Moong daal':'பாசிப்பருப்பு','Vishnu / Narayana / Buddha':'விஷ்ணு / நாராயணர் / புத்தர்','Yellow sapphire':'புஷ்பராகம்','Respect/support a learned Brahmin or priest':'கற்றறிந்த பிராமணர் அல்லது புரோகிதரை மதித்தல் / ஆதரித்தல்','Chick peas':'கொண்டைக்கடலை','Hayagreeva / Vishnu / Parameswara / Dattatreya / Guru':'ஹயக்ரீவர் / விஷ்ணு / பரமேஸ்வரர் / தத்தாத்ரேயர் / குரு','Diamond':'வைரம்','Read poetry / help a poet':'கவிதை வாசித்தல் / கவிஞருக்கு உதவுதல்','Whitish grain':'வெண்மை நிற தானியம்','Lakshmi / Parvati':'லட்சுமி / பார்வதி','Blue sapphire':'நீலக்கல்','Iron / Silver':'இரும்பு / வெள்ளி','Physical labour / help manual workers':'உடல் உழைப்பு / உடல் உழைப்பாளர்களுக்கு உதவி','Sesame seeds':'எள்','Hessonite (Gomedh)':'கோமேதகம்','Support research / pilgrimage':'ஆராய்ச்சிக்கு ஆதரவு / புனித யாத்திரை','Black gram daal':'உளுந்து','Durga / Narasimha':'துர்கை / நரசிம்மர்','Cat’s eye':'வைடூரியம்','Meditation':'தியானம்','Ganesha':'விநாயகர்',
+    'Destruction':'அழிவு','Influx of wealth':'செல்வ வரவு','Two hands':'இரு கைகள்','Stomach':'வயிறு',
+    'Forward':'முன்னோக்கு','Backward':'பின்னோக்கு','Highly favorable':'மிகவும் சாதகமானது','Highly Favorable':'மிகவும் சாதகமானது',
+    'Favorable':'சாதகமானது','Unfavorable':'பாதகமானது','Very Good':'மிகவும் நல்லது','Very Bad':'மிகவும் பாதகமானது',
+    'Good':'நல்லது','Bad':'பாதகமானது','victory':'வெற்றி','Victory':'வெற்றி','success':'வெற்றி','Success':'வெற்றி',
+    'good spirits':'நல்ல மனநிலை','Comfort, good spirits':'சௌகரியம், நல்ல மனநிலை','good name':'நல்ல பெயர்',
+    'Fame, power, good name':'புகழ், அதிகாரம், நல்ல பெயர்','Wealth, good health':'செல்வம், நல்ல ஆரோக்கியம்',
+    'Wandering, losses, trouble':'அலைச்சல், இழப்புகள், தொல்லைகள்','Diseases, suffering, losses':'நோய்கள், துன்பம், இழப்புகள்',
+    'authorities':'அதிகாரிகள்','laziness':'சோம்பேறித்தனம்','Pratyak Tara':'பிரத்யக் தாரா','Janma Tara':'ஜென்ம தாரா',
+    'Saadhana Tara':'சாதன தாரா','Vipat Tara':'விபத் தாரா','Mitra Tara':'மித்திர தாரா','Janma Nakshatra':'ஜென்ம நட்சத்திரம்','Loha':'இரும்பு','Taamra':'தாமிரம்','Swarna':'தங்கம்','Rajata':'வெள்ளி','Bahya':'பாஹ்ய','Prakaara':'பிரகார','Durgantara / Madhya':'துர்காந்தர / மத்திய','Durgantara':'துர்காந்தர','Madhya':'மத்திய',
+    'Very little':'மிகக் குறைவு','Medium':'மிதமானது','Full':'முழுமையானது',
+    'Jaagrita':'விழிப்பு நிலை','Swapna':'கனவு நிலை','Sushupta':'ஆழ்ந்த உறக்க நிலை','Svastha':'சுயநிலை / இயல்பு',
+    'Saanta':'அமைதி','Duhkhita':'துயரம்','Deepta':'பிரகாசம் / உயர்ந்த வெளிப்பாடு','Deena':'சோர்வு / தாழ்வு','Vikala':'குழப்பம் / குறைபாடு',
+    'Bhojana':'போஜனம்','Gamana':'கமனம்','Aagamana':'ஆகமனம்','Netrapaani':'நேத்ரபாணி','Kautuka':'கௌதுகம்',
+    'Sayana':'சயன','Nrityalipsaa':'ந்ருத்யலிப்ஸா','Sabhaa':'சபா','Digestive and heart-related troubles, stout legs, bile/piles themes.':'செரிமானம் மற்றும் இதயம் தொடர்பான தொல்லைகள், பருத்த கால்கள், பித்தம் / மூலம் தொடர்பான நிலைகள்.','status, vehicles, wife/daughters and பணியாளர்கள்':'அந்தஸ்து, வாகனங்கள், மனைவி / மகள்கள் மற்றும் பணியாளர்கள்','waning weakens these.':'தேய்பிறையில் இவை பலவீனமடையும்.','Wealth through royal connections; gold, diamonds and coral.':'அரச தொடர்புகள் மூலம் செல்வம்; தங்கம், வைரம் மற்றும் பவளம்.','Wealth, good deeds, authority/ministry and spiritual devotion; exaltation strengthens.':'செல்வம், நல்ல செயல்கள், அதிகாரம் / அமைச்சுப் பதவி மற்றும் ஆன்மிக பக்தி; உச்சம் இதை வலுப்படுத்தும்.','Royal மரியாதை, wealth, dharma/tantra learning and scholarly respect.':'அரச மரியாதை, செல்வம், தர்மம் / தந்திரக் கல்வி மற்றும் அறிஞர் மரியாதை.','Eminence at court, virtue, வெற்றி over enemies, wealth and charity.':'அரசவையில் சிறப்பு நிலை, நற்பண்பு, எதிரிகள்மீது வெற்றி, செல்வம் மற்றும் தர்ம நன்கொடை.','Hunger/thirst and childhood disease themes; wealth later.':'பசி / தாகம் மற்றும் குழந்தைப் பருவ நோய் தொடர்பான நிலைகள்; பின்னர் செல்வம்.','கண் பிரச்சினைகள், financial loss and trouble from wicked people/snakes/thieves.':'கண் பிரச்சினைகள், பண இழப்பு மற்றும் தீயவர்கள் / பாம்புகள் / திருடர்களால் தொல்லைகள்.','Talkative, proud, miserly, sensual and skilled in difficult subjects':'அதிகம் பேசுபவர், பெருமை கொண்டவர், கஞ்சத்தனம், புலனின்ப நாட்டம் மற்றும் கடினமான பாடங்களில் திறமை',
+    'Joint pains':'மூட்டு வலி','wealth loss through opposite sex':'எதிர்பாலினத்தால் செல்வ இழப்பு','weakness':'பலவீனம்',
+    'headaches':'தலைவலி','falsehood':'பொய்மை','Waning Moon':'தேய்பிறை சந்திரன்','waxing Moon':'வளர்பிறை சந்திரன்',
+    'fear-related troubles':'பயம் தொடர்பான தொல்லைகள்','cruelty':'கொடுமை','eye troubles':'கண் பிரச்சினைகள்','Honour':'மரியாதை',
+    'Servants':'பணியாளர்கள்','Honor and fame':'மரியாதை மற்றும் புகழ்','Amassing of wealth':'செல்வச் சேர்க்கை','Misfortune':'துரதிர்ஷ்டம்',
+    'Comforts':'சௌகரியங்கள்','Travels':'பயணங்கள்','Pleasures':'இன்பங்கள்','Death':'மரணம்','Gains, power, wealth':'ஆதாயங்கள், அதிகாரம், செல்வம்',
+    'Loss of money, bad name, changes':'பண இழப்பு, கெட்ட பெயர், மாற்றங்கள்','Happiness, domestic harmony':'மகிழ்ச்சி, குடும்ப நல்லிணக்கம்',
+    'Troubles, bodily afflictions':'தொல்லைகள், உடல் பாதிப்புகள்','Comforts, pleasures, happiness, good spirits':'சௌகரியங்கள், இன்பம், மகிழ்ச்சி, நல்ல மனநிலை',
+    'sight':'பார்வை','delusion':'மாயை / குழப்பம்',
+    'Wandering, pursuit of others’ spouses and theft themes.':'அலைச்சல், பிறரின் துணையை நாடுதல் மற்றும் திருட்டு தொடர்பான நிலைகள்.',
+    'Eye troubles and conflict with wicked people, thieves or rulers.':'கண் பிரச்சினைகள் மற்றும் தீயவர்கள், திருடர்கள் அல்லது ஆட்சியாளர்களுடன் மோதல்.',
+    'Servants, excellent women, wealth and a prosperous home.':'பணியாளர்கள், சிறந்த பெண்கள், செல்வம் மற்றும் வளமான வீடு.',
+    'In Lagna/7th/10th, eye and wealth troubles; elsewhere a large home.':'லக்னம்/7ஆம்/10ஆம் பாவங்களில் கண் மற்றும் செல்வத் தொல்லைகள்; பிற இடங்களில் பெரிய வீடு.',
+    'Honour but limited wisdom/learning; in 5th, strain around spouse/children.':'மரியாதை கிடைக்கும்; ஆனால் ஞானம்/கல்வி வரம்புடன் இருக்கும்; 5ஆம் பாவத்தில் துணைவர்/குழந்தைகள் தொடர்பாக சிரமம்.',
+    'Transit prediction':'கோச்சார பலன்','Transit Prediction':'கோச்சார பலன்','Prediction':'பலன்','Predictions':'பலன்கள்',
+    'Automatic Prediction':'தானியங்கி பலன்','Hits Janma':'ஜென்ம நட்சத்திரத்தைத் தொடுகிறது','Hits Janma/':'ஜென்ம நட்சத்திரத்தைத் தொடுகிறது/',
+    'Direct':'நேர்கதி','Retrograde':'வக்கிரம்','Malefic':'பாப கிரகம்','Benefic':'சுப கிரகம்'
+  };
+
+  function translate(text,map){
+    let s=String(text??'');
+    for(const [from,to] of Object.entries(map).sort((a,b)=>b[0].length-a[0].length)){
+      const esc=from.replace(/[.*+?^${}()|[\\]\\]/g,'\\$&');
+      s=s.replace(new RegExp('(^|[^A-Za-z])'+esc+'(?=$|[^A-Za-z])','gi'),(m,p)=>p+to);
+    }
+    return s;
+  }
+  function cleanRoot(root,map){
+    if(!root)return;
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    const nodes=[];let n;while(n=walker.nextNode())nodes.push(n);
+    nodes.forEach(node=>{
+      if(node.parentElement?.closest('script,style'))return;
+      const old=node.nodeValue,neu=translate(old,map);if(neu!==old)node.nodeValue=neu;
+    });
+    root.querySelectorAll('input[placeholder],textarea[placeholder],button,[aria-label],[title]').forEach(el=>{
+      ['placeholder','aria-label','title'].forEach(a=>{if(el.hasAttribute(a)){const old=el.getAttribute(a),neu=translate(old,map);if(neu!==old)el.setAttribute(a,neu);}});
+    });
+  }
+  function cleanAll(){
+    // Static UI is translated once. Dynamic sections are handled by their own
+    // lightweight observers below; never rescan the entire document on every mutation.
+    cleanRoot(document.body,GLOBAL_MAP);
+    const hr=document.getElementById('tamilHoroscopeResult');
+    if(hr) cleanRoot(hr,HORO_MAP);
+  }
+  function installObserver(root, map, key){
+    if(!root || root[key]) return;
+    let timer=0;
+    const schedule=()=>{
+      clearTimeout(timer);
+      timer=setTimeout(()=>cleanRoot(root,map),250);
+    };
+    const ob=new MutationObserver(schedule);
+    ob.observe(root,{subtree:true,childList:true,characterData:true});
+    root[key]=ob;
+  }
+  function start(){
+    // Stop older duplicate horoscope observers created by previous cleanup passes.
+    const hr=document.getElementById('tamilHoroscopeResult');
+    if(hr){
+      if(hr.__smvTaEnglishObserver){hr.__smvTaEnglishObserver.disconnect();hr.__smvTaEnglishObserver=null;}
+      if(hr.__smvTamilFinalEnglishObserver){hr.__smvTamilFinalEnglishObserver.disconnect();hr.__smvTamilFinalEnglishObserver=null;}
+    }
+    cleanRoot(document.body,GLOBAL_MAP);
+    if(hr) cleanRoot(hr,HORO_MAP);
+    installObserver(hr,HORO_MAP,'__smvTamilCompleteHoroscopeObserver');
+    const dash=document.getElementById('dashboardContent') || document.getElementById('dashboard');
+    installObserver(dash,GLOBAL_MAP,'__smvTamilCompleteDashboardObserver');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+  setTimeout(start,800);
+})();
+</script>
 
 </body>
 <style id="smv-dashboard-auto-typography">
@@ -19893,7 +21272,6 @@ window.__SMV_TAMIL_ONLY=true;
     "UNPUBLISH":"வெளியீட்டை நீக்கவும்",
     "DELETE":"நீக்கவும்",
     "OPEN VIDEO":"காணொளியைத் திறக்கவும்",
-    "OPEN MUSIC":"இசையைத் திறக்கவும்",
     "DOWNLOAD PDF":"PDF-ஐப் பதிவிறக்கவும்"
   };
   const keys=Object.keys(M).sort((a,b)=>b.length-a.length);
@@ -19919,5 +21297,39 @@ window.__SMV_TAMIL_ONLY=true;
   max-width:none!important;
   white-space:nowrap!important;
   text-align:center!important;
+}
+</style>
+
+<style id="smv-tamil-asknow-label-clear-final">
+/* Tamil Ask Now label clarity only — no other layout/features changed. */
+#askNowButton .asknow-label{
+  font-family:"Noto Sans Tamil",Arial,sans-serif!important;
+  font-size:16px!important;
+  font-weight:800!important;
+  letter-spacing:0!important;
+  line-height:1.35!important;
+  -webkit-font-smoothing:antialiased!important;
+  text-rendering:optimizeLegibility!important;
+}
+@media(max-width:767px){
+  #askNowButton .asknow-label{font-size:16px!important;line-height:1.35!important;}
+}
+</style>
+
+<style id="smv-tamil-hero-h1-mobile-center-final">
+/* Tamil Hero heading: mobile center alignment only. Desktop remains untouched. */
+@media (max-width: 767px){
+  #home.hero h1{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    text-wrap:balance!important;
+  }
 }
 </style>
