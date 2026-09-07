@@ -2025,8 +2025,14 @@ app.get("/astrologer/available-questions", async (req, res) => {
     const profileSnap = await db.collection("smv_astrologers").doc(user.uid).get();
     if (!profileSnap.exists || String(profileSnap.data()?.status || "").toLowerCase() !== "approved") return res.status(403).json({error:"Only approved astrologers can view available questions."});
     const snap = await db.collection("smv_questions").get();
-    const questions = snap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(q=>String(q.workflowMode||"admin").toLowerCase()==="auto" && String(q.paymentStatus||"").toLowerCase()==="paid" && q.allocationStatus==="available_to_astrologers" && ["available_to_astrologers","paid"].includes(String(q.status||"").toLowerCase()) && !q.astrologerId && !String(q.answer||"").trim());
-    return res.json({success:true,questions});
+    const commissionSnap = await db.collection("smv_settings").doc("commission").get();
+    const currentCommissionPercent = Math.max(0, Math.min(100, Number(commissionSnap.data()?.astroPercent ?? 20)));
+    const questions = snap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(q=>String(q.workflowMode||"admin").toLowerCase()==="auto" && String(q.paymentStatus||"").toLowerCase()==="paid" && q.allocationStatus==="available_to_astrologers" && ["available_to_astrologers","paid"].includes(String(q.status||"").toLowerCase()) && !q.astrologerId && !String(q.answer||"").trim()).map(q=>{
+      const amount=Number(q.amount||q.paymentAmount||0);
+      const currentAstrologerCommission=Math.round(amount*currentCommissionPercent)/100;
+      return {...q, commissionPercent:currentCommissionPercent, commissionRate:currentCommissionPercent, astrologerCommissionAmount:currentAstrologerCommission, adminCommissionAmount:Math.round((amount-currentAstrologerCommission)*100)/100};
+    });
+    return res.json({success:true,commissionPercent:currentCommissionPercent,questions});
   } catch(e){console.error("Available astrologer questions failed:",e);return res.status(500).json({error:"Unable to load available questions."});}
 });
 
@@ -2042,7 +2048,9 @@ app.post("/astrologer/claim-question", express.json({limit:"10kb"}), async(req,r
       const q=qSnap.data()||{}; if(String(q.workflowMode||"admin")!=="auto")throw new Error("This question uses Admin approval workflow.");
       if(String(q.paymentStatus||"").toLowerCase()!=="paid")throw new Error("This question is not paid.");
       if(q.allocationStatus!=="available_to_astrologers"||q.status!=="available_to_astrologers")throw new Error("This question has already been claimed.");
-      const a=profileSnap.data()||{}, pct=Number(q.commissionPercent??q.commissionRate??20), amount=Number(q.amount||q.paymentAmount||0);
+      const a=profileSnap.data()||{}, amount=Number(q.amount||q.paymentAmount||0);
+      const commissionSnap=await tx.get(db.collection("smv_settings").doc("commission"));
+      const pct=Math.max(0, Math.min(100, Number(commissionSnap.data()?.astroPercent ?? 20)));
       const astroCommission=Math.round(amount*pct)/100, adminCommission=Math.round((amount-astroCommission)*100)/100;
       tx.update(qRef,{astrologerId:user.uid,astrologerName:a.name||"Astrologer",allocationStatus:"claimed_by_astrologer",status:"admin_approved",commissionPercent:pct,commissionRate:pct,astrologerCommissionAmount:astroCommission,adminCommissionAmount:adminCommission,commissionStatus:"allocated_pending_answer",claimedAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()});
       return {pct,astroCommission};
