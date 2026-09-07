@@ -599,9 +599,18 @@ app.post("/submit-answer", async (req, res) => {
       }
     });
 
-    await writeAdminAudit("ASTROLOGER_ANSWER_SUBMITTED", questionId, user.uid, {
-      wordCount, previousStatus: String(q.status || ""), nextStatus: "processing"
-    });
+    const workflowMode = String(q.workflowMode || "admin").toLowerCase() === "auto" ? "auto" : "admin";
+    if (workflowMode === "auto") {
+      const autoPaymentId = q.astrologerPaymentId || (await nextPaymentId()).replace(/^SMV-PAY-/, "SMV-PAT-");
+      if (!q.astrologerPaymentId || String(q.commissionStatus || "") !== "credited") {
+        await db.collection("smv_payments").doc(autoPaymentId).set({paymentId:autoPaymentId,type:"astrologer_earning",customerId:q.customerId||null,astrologerId:user.uid,questionId,bookingId:q.bookingId||null,grossAmount:Number(q.amount||0),commissionPercent:Number(q.commissionPercent||q.commissionRate||0),commissionAmount:commissionAmount,earningAmount:commissionAmount,status:"credited",paymentStatus:"pending_withdrawal",source:"auto_answer_approval",createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()});
+      }
+      await questionRef.update({status:"answered",astrologerAnswerStatus:"approved",commissionStatus:"credited",answerApprovedAt:FieldValue.serverTimestamp(),adminAnswerApprovedAt:FieldValue.serverTimestamp(),answerApprovedBy:"AUTO_MODE",commissionCreditedAt:q.commissionCreditedAt||FieldValue.serverTimestamp(),commissionAmount,astrologerCommissionAmount:commissionAmount,astrologerPaymentId:autoPaymentId,answerApprovalEmailStatus:{state:"pending",updatedAt:FieldValue.serverTimestamp()}});
+      await writeAdminAudit("ANSWER_AUTO_APPROVED",questionId,user.uid,{wordCount,commissionAmount});
+      await db.collection("smv_notifications").add({userId:user.uid,type:"answer_approved",title:"Answer Automatically Approved",message:`Your answer was automatically approved. Commission credited: ₹${commissionAmount.toFixed(2)}`,questionId,commissionAmount,createdAt:FieldValue.serverTimestamp(),read:false});
+    } else {
+      await writeAdminAudit("ASTROLOGER_ANSWER_SUBMITTED", questionId, user.uid, {wordCount, previousStatus: String(q.status || ""), nextStatus: "processing"});
+    }
 
     const customerEmail = String(
       q.customerEmail || await getUserEmail(q.customerId) || ""
@@ -610,11 +619,11 @@ app.post("/submit-answer", async (req, res) => {
     const astrologerEmail = String(await getUserEmail(q.astrologerId) || "").trim();
     const astrologerName = String(q.astrologerName || "Astrologer");
 
-    const subject = "SMV ASTRO — Astrologer answer submitted";
+    const subject = workflowMode === "auto" ? "SMV ASTRO — Astrology answer approved" : "SMV ASTRO — Astrologer answer submitted";
     const text = [
       `Dear ${customerName},`,
       "",
-      `${astrologerName} has submitted an answer to your astrology question. It is now waiting for Admin review.`,
+      workflowMode === "auto" ? `${astrologerName} has submitted an answer to your astrology question. It was automatically approved and is now ready to view.` : `${astrologerName} has submitted an answer to your astrology question. It is now waiting for Admin review.`,
       "",
       `Question: ${q.question || ""}`,
       `Question ID: ${questionId}`,
@@ -679,7 +688,7 @@ app.post("/submit-answer", async (req, res) => {
     return res.json({
       ok: true,
       answerSaved: true,
-      status: "processing"
+      status: workflowMode === "auto" ? "answered" : "processing"
     });
   } catch (e) {
     console.error(
@@ -1816,6 +1825,8 @@ async function markQuestionPaid(questionId, orderId, paymentId, signature, sourc
     const snap = await tx.get(qRef);
     if (!snap.exists) throw new Error("Question not found.");
     const q = snap.data();
+    const modeSnap = await tx.get(db.collection("smv_settings").doc("questionApproval"));
+    const workflowMode = String(modeSnap.data()?.mode || "admin").toLowerCase() === "auto" ? "auto" : "admin";
     if (q.razorpayOrderId !== orderId) throw new Error("Order mismatch.");
     if (q.paymentStatus === "paid" && q.razorpayPaymentId === paymentId) return { already: true, customerId: q.customerId, customerPaymentId: q.customerPaymentId || null };
     const amount = Number(q.amount || 0);
@@ -1832,14 +1843,18 @@ async function markQuestionPaid(questionId, orderId, paymentId, signature, sourc
       razorpayOrderId: orderId, razorpayPaymentId: paymentId, amount, status: "paid", paymentStatus: "paid", source, createdAt: FieldValue.serverTimestamp(), paymentRecordedAt, updatedAt: FieldValue.serverTimestamp()
     });
     tx.update(qRef, {
-      status: "pending_admin_approval", paymentStatus: "paid", allocationStatus: "awaiting_admin", razorpayPaymentId: paymentId, razorpaySignature: signature,
+      status: workflowMode === "auto" ? "available_to_astrologers" : "pending_admin_approval",
+      paymentStatus: "paid", allocationStatus: workflowMode === "auto" ? "available_to_astrologers" : "awaiting_admin",
+      workflowMode, questionApprovalModeAtPayment: workflowMode, razorpayPaymentId: paymentId, razorpaySignature: signature,
       paidAt: q.paidAt || FieldValue.serverTimestamp(), paymentUpdatedAt: FieldValue.serverTimestamp(), paymentConfirmedBy: source, customerPaymentId, paymentRecordedAt,
       astrologerPaymentId: FieldValue.delete(), commissionStatus: "awaiting_admin_allocation"
     });
     return { already: false, customerId: q.customerId, customerPaymentId, paymentRecordedAt };
   });
   if (!result.already) {
-    await db.collection("smv_notifications").add({ userId: result.customerId, type: "payment", title: "Payment successful", message: `Your payment was verified. Your question is now waiting for Admin approval. Payment ID: ${result.customerPaymentId || "N/A"}.`, paymentId: result.customerPaymentId || null, razorpayPaymentId: paymentId || null, questionId, createdAt: FieldValue.serverTimestamp(), read: false });
+    const paidQSnap = await qRef.get();
+    const paidWorkflowMode = String(paidQSnap.data()?.workflowMode || "admin").toLowerCase() === "auto" ? "auto" : "admin";
+    await db.collection("smv_notifications").add({ userId: result.customerId, type: paidWorkflowMode === "auto" ? "question_available" : "payment", title: "Payment successful", message: paidWorkflowMode === "auto" ? `Your payment was verified. Your question is now available to approved astrologers. Payment ID: ${result.customerPaymentId || "N/A"}.` : `Your payment was verified. Your question is now waiting for Admin approval. Payment ID: ${result.customerPaymentId || "N/A"}.`, paymentId: result.customerPaymentId || null, razorpayPaymentId: paymentId || null, questionId, createdAt: FieldValue.serverTimestamp(), read: false });
     const qSnap = await qRef.get();
     const q = qSnap.exists ? (qSnap.data() || {}) : {};
     const customerEmail = String(q.customerEmail || await getUserEmail(result.customerId) || "").trim();
@@ -2003,6 +2018,40 @@ app.post("/admin/approve-answer", express.json({limit:"20kb"}), async (req, res)
   }
 });
 
+
+app.get("/astrologer/available-questions", async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  try {
+    const profileSnap = await db.collection("smv_astrologers").doc(user.uid).get();
+    if (!profileSnap.exists || String(profileSnap.data()?.status || "").toLowerCase() !== "approved") return res.status(403).json({error:"Only approved astrologers can view available questions."});
+    const snap = await db.collection("smv_questions").get();
+    const questions = snap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(q=>String(q.workflowMode||"admin")==="auto" && String(q.paymentStatus||"").toLowerCase()==="paid" && q.allocationStatus==="available_to_astrologers" && q.status==="available_to_astrologers" && !String(q.answer||"").trim());
+    return res.json({success:true,questions});
+  } catch(e){console.error("Available astrologer questions failed:",e);return res.status(500).json({error:"Unable to load available questions."});}
+});
+
+app.post("/astrologer/claim-question", express.json({limit:"10kb"}), async(req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  try{
+    const profileSnap=await db.collection("smv_astrologers").doc(user.uid).get();
+    if(!profileSnap.exists || String(profileSnap.data()?.status||"").toLowerCase()!=="approved") return res.status(403).json({error:"Only approved astrologers can claim questions."});
+    const questionId=String(req.body?.questionId||"").trim(); if(!questionId)return res.status(400).json({error:"Question ID is required."});
+    const qRef=db.collection("smv_questions").doc(questionId);
+    const result=await db.runTransaction(async tx=>{
+      const qSnap=await tx.get(qRef); if(!qSnap.exists)throw new Error("Question not found.");
+      const q=qSnap.data()||{}; if(String(q.workflowMode||"admin")!=="auto")throw new Error("This question uses Admin approval workflow.");
+      if(String(q.paymentStatus||"").toLowerCase()!=="paid")throw new Error("This question is not paid.");
+      if(q.allocationStatus!=="available_to_astrologers"||q.status!=="available_to_astrologers")throw new Error("This question has already been claimed.");
+      const a=profileSnap.data()||{}, pct=Number(q.commissionPercent??q.commissionRate??20), amount=Number(q.amount||q.paymentAmount||0);
+      const astroCommission=Math.round(amount*pct)/100, adminCommission=Math.round((amount-astroCommission)*100)/100;
+      tx.update(qRef,{astrologerId:user.uid,astrologerName:a.name||"Astrologer",allocationStatus:"claimed_by_astrologer",status:"admin_approved",commissionPercent:pct,commissionRate:pct,astrologerCommissionAmount:astroCommission,adminCommissionAmount:adminCommission,commissionStatus:"allocated_pending_answer",claimedAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()});
+      return {pct,astroCommission};
+    });
+    await db.collection("smv_notifications").add({userId:user.uid,type:"question_claimed",title:"Question Claimed",message:"You have claimed a paid astrology question. Please submit your answer.",questionId,createdAt:FieldValue.serverTimestamp(),read:false});
+    await writeAdminAudit("QUESTION_CLAIMED_AUTO_MODE",questionId,user.uid,{commissionPercent:result.pct,astrologerCommissionAmount:result.astroCommission});
+    return res.json({success:true,questionId,status:"admin_approved",allocationStatus:"claimed_by_astrologer"});
+  }catch(e){return res.status(409).json({error:e?.message||"Unable to claim question."});}
+});
 
 app.get("/astrologer/earnings", async (req, res) => {
   const user = await requireUser(req, res);
