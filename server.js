@@ -2025,7 +2025,7 @@ app.get("/astrologer/available-questions", async (req, res) => {
     const profileSnap = await db.collection("smv_astrologers").doc(user.uid).get();
     if (!profileSnap.exists || String(profileSnap.data()?.status || "").toLowerCase() !== "approved") return res.status(403).json({error:"Only approved astrologers can view available questions."});
     const snap = await db.collection("smv_questions").get();
-    const questions = snap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(q=>String(q.workflowMode||"admin")==="auto" && String(q.paymentStatus||"").toLowerCase()==="paid" && q.allocationStatus==="available_to_astrologers" && q.status==="available_to_astrologers" && !String(q.answer||"").trim());
+    const questions = snap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(q=>String(q.workflowMode||"admin").toLowerCase()==="auto" && String(q.paymentStatus||"").toLowerCase()==="paid" && q.allocationStatus==="available_to_astrologers" && ["available_to_astrologers","paid"].includes(String(q.status||"").toLowerCase()) && !q.astrologerId && !String(q.answer||"").trim());
     return res.json({success:true,questions});
   } catch(e){console.error("Available astrologer questions failed:",e);return res.status(500).json({error:"Unable to load available questions."});}
 });
