@@ -596,8 +596,11 @@ app.post("/submit-answer", async (req, res) => {
       return res.status(409).json({ error: "The customer has already viewed this answer. Editing is closed." });
     }
     const editableStatuses = ["admin_approved", "revision_required", "processing", "admin_review"];
-    // Auto-mode edit returns the question to the answer box with its existing allocation.
-    if (workflowMode === "auto" && String(q.status||"")==="admin_approved" && q.astrologerEditMode !== true) {
+    // In auto mode, an initially claimed question is allowed to receive its
+    // first answer while it is still admin_approved. Only block a second
+    // submission when an answer already exists and edit mode was not reopened.
+    if (workflowMode === "auto" && String(q.status||"")==="admin_approved" &&
+        q.astrologerEditMode !== true && !!String(q.answer || "").trim()) {
       return res.status(409).json({ error: "This answer is already submitted." });
     }
     if (!editableStatuses.includes(String(q.status || ""))) {
