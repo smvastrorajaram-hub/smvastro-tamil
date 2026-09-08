@@ -8043,7 +8043,7 @@ ${ad.status === 'rejected' && ad.rejectionReason
          question record, so this remains safe even if this write is denied.
          ============================================================ */
       try{
-        const latestSnap=await withTimeout(getDoc(questionRef),15000);
+        const latestSnap=await withTimeout(getDoc(questionRef),5000);
         const latestQ=latestSnap.exists()?(latestSnap.data()||{}):q;
         const customerId=String(latestQ.customerId||q.customerId||'').trim();
         if(customerId){
@@ -8069,12 +8069,15 @@ ${ad.status === 'rejected' && ad.rejectionReason
 
       alert('பதில் வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது. ஒப்புதலுக்காக காத்திருக்கிறது.');
 
-      // Force a fresh render so the submitted answer leaves the Unanswered
-      // Queue and appears immediately under பதில்கள் — பதிலளிக்கப்பட்ட கேள்விகள்.
-      await loadDashboard('astrologer', true);
-      requestAnimationFrame(() => setTimeout(() => {
-        $('astroAnsweredBox')?.scrollIntoView({ behavior:'smooth', block:'start' });
-      }, 120));
+      // Refresh in the background; do not block the Submit action on full
+      // dashboard hydration.
+      loadDashboard('astrologer', true).then(() => {
+        requestAnimationFrame(() => setTimeout(() => {
+          $('astroAnsweredBox')?.scrollIntoView({ behavior:'smooth', block:'start' });
+        }, 120));
+      }).catch(err => console.warn('Post-submit dashboard refresh skipped:', err));
+      b.disabled = false;
+      b.textContent = 'பதில் சமர்ப்பிக்கவும்';
 
     } catch (e) {
 

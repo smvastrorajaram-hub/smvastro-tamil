@@ -655,6 +655,7 @@ app.post("/submit-answer", async (req, res) => {
       await writeAdminAudit("ASTROLOGER_ANSWER_SUBMITTED", questionId, user.uid, {wordCount, previousStatus: String(q.status || ""), nextStatus: "processing"});
     }
 
+    const finishAnswerEmailDelivery = async () => {
     const customerEmail = String(
       q.customerEmail || await getUserEmail(q.customerId) || ""
     ).trim();
@@ -725,6 +726,18 @@ app.post("/submit-answer", async (req, res) => {
     }
 
     await questionRef.set({ answerEmailStatus: emailStatusPatch }, { merge: true });
+
+    };
+
+    // Auto-approved answers must not wait for Resend/email latency. The business
+    // state is already saved as answered above; email delivery continues in the
+    // background without delaying the astrologer UI.
+    if (workflowMode === "auto") {
+      finishAnswerEmailDelivery().catch(e => console.error("Background answer email failed:", e?.message || e));
+      return res.json({ ok: true, answerSaved: true, status: "answered" });
+    }
+
+    await finishAnswerEmailDelivery();
 
     // Email delivery is intentionally independent from the business workflow.
     // Never expose Resend/email delivery state to Customer or Astrologer UI.
@@ -1157,6 +1170,44 @@ app.post("/customer/submit-review", async (req, res) => {
         e?.message ||
         "Unable to submit review."
     });
+  }
+});
+
+app.get("/admin-data", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  if (!(await isAdminUser(user))) return res.status(403).json({ error: "Admin access denied." });
+
+  const readCollection = async (name) => {
+    try {
+      const snap = await db.collection(name).get();
+      return { ok: true, items: snap.docs.map(d => ({ id: d.id, ...d.data() })) };
+    } catch (e) {
+      console.error(`Admin collection ${name} failed:`, e?.message || e);
+      return { ok: false, items: [], error: e?.message || `Unable to read ${name}.` };
+    }
+  };
+
+  try {
+    const [users, astrologers, questions, payments] = await Promise.all([
+      readCollection("smv_users"),
+      readCollection("smv_astrologers"),
+      readCollection("smv_questions"),
+      readCollection("smv_payments")
+    ]);
+    const customers = users.items.filter(x => String(x.role || "").toLowerCase() === "customer");
+    return res.json({
+      success: true,
+      customers,
+      users: users.items,
+      astrologers: astrologers.items,
+      questions: questions.items,
+      payments: payments.items,
+      errors: { users: users.error || null, astrologers: astrologers.error || null, questions: questions.error || null, payments: payments.error || null }
+    });
+  } catch (e) {
+    console.error("Admin data load failed:", e);
+    return res.status(500).json({ error: e?.message || "Unable to load Admin data." });
   }
 });
 
