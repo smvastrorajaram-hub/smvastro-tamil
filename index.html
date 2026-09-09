@@ -5870,7 +5870,10 @@ let smvNavigationEpoch=0;
 // returning from ASK NOW must reveal that existing dashboard instead of starting
 // another loading cycle. This is UI/navigation state only.
 let dashboardReadyUid=null;
+let smvDashboardHtmlCache=new Map();
 let dashboardReadyRole=null;
+let dashboardAutoRefreshTimer=null;
+let dashboardAutoRefreshRole=null;
 // ASTROLOGER-ONLY bootstrap cache: prevents duplicate profile reads during
 // Astrologer logout -> login -> dashboard initialization.
 let astroDashboardBootstrap={uid:null,userData:null,astroData:null};
@@ -6434,27 +6437,44 @@ async function smvIndependentDashboardRouter(){
   window.__SMV_ASK_NOW_INTENT=false; askNowTransitionLock=false;
   const epoch=++smvNavigationEpoch;
   try{
-    let profile=await withTimeout(getUserProfile(user.uid),15000);
-    let role=String(profile?.role||'customer').toLowerCase();
+    const profile=await withTimeout(getUserProfile(user.uid),8000);
+    const role=String(profile?.role||'customer').toLowerCase();
     const isAdmin=(user.uid===ADMIN_UID)||role==='admin';
     if(epoch!==smvNavigationEpoch)return;
     hideHomeSurface();
     ["dashboard","dashboardContent","ask-flow","register-flow","astro-register-form","astro-flow","appointment","contact"].forEach(hide);
     if(isAdmin){
       show("admin"); hide("dashLink"); hide("adminLink");
-      if(typeof loadAdminPanel==='function') await loadAdminPanel();
-      setHeaderRoleLabel("admin"); smvShowRoleNav(); smvEnterInternalView("admin",true); go("admin");
+      smvShowRoleNav(); smvEnterInternalView("admin",true); go("admin");
+      Promise.resolve(loadAdminPanel()).catch(e=>console.warn("Admin background refresh skipped:",e));
       return;
     }
-    if(role!=="customer" && role!=="astrologer") throw new Error("Your account role could not be verified.");
+    if(role!=="customer" && role!=="astrologer") throw new Error("உங்கள் கணக்கு பங்கு சரிபார்க்கப்படவில்லை.");
     show("dashboard"); show("dashboardContent"); show("dashLink"); hide("adminLink"); hideDashboardPublicSections();
     setHeaderRoleLabel(role); smvShowRoleNav(); smvEnterInternalView("dashboard",true); go("dashboard");
-    await loadDashboard(role);
+    if(!document.getElementById("dashboardContent")?.innerHTML.trim()){ renderDashboardShell(role); }
+    // முகப்புப் பலகை உடனே திறக்கப்படும்; தரவு பின்னணியில் புதுப்பிக்கப்படும்.
+    Promise.resolve(loadDashboard(role)).catch(e=>console.warn("Dashboard background refresh skipped:",e));
+    startDashboardAutoRefresh(role);
   }catch(e){
     console.error("SMV independent dashboard router error:",e);
-    if(typeof smvNotice==='function') smvNotice("Dashboard","Unable to open your dashboard. Please try again.","!");
+    if(typeof smvNotice==='function') smvNotice("Dashboard","முகப்புப் பலகையைத் திறக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.","!");
   }
 }
+function startDashboardAutoRefresh(role){
+  dashboardAutoRefreshRole=role||dashboardAutoRefreshRole;
+  if(dashboardAutoRefreshTimer) return;
+  dashboardAutoRefreshTimer=setInterval(()=>{
+    if(!currentUser || smvInternalView!=="dashboard" || document.getElementById("dashboard")?.classList.contains("hidden")) return;
+    const r=dashboardAutoRefreshRole||"customer";
+    Promise.resolve(loadDashboard(r,true,true)).catch(e=>console.warn("Dashboard auto-refresh skipped:",e));
+  },60000);
+}
+function stopDashboardAutoRefresh(){
+  if(dashboardAutoRefreshTimer){clearInterval(dashboardAutoRefreshTimer);dashboardAutoRefreshTimer=null;}
+  dashboardAutoRefreshRole=null;
+}
+
 window.__smvOpenDashboard=smvIndependentDashboardRouter;
 window.__smvLoadDashboard=()=>loadDashboard();
 
@@ -7141,6 +7161,7 @@ function armIdleTimer(){ clearIdleTimer(); if(!currentUser) return; const tick=(
 window.addEventListener('pageshow',()=>{ if(currentUser){ touchSession(); armIdleTimer(); } });
 window.__smvLogout = logoutToHome;
 async function logoutToHome(reason=''){
+  if(typeof stopDashboardAutoRefresh==='function') stopDashboardAutoRefresh();
   ++dashboardSessionGeneration;
   const roleAtLogout=String(sessionStorage.getItem('smv_login_role')||'').toLowerCase();
   const loggingOutAstrologer=roleAtLogout.includes('astrologer') || String(astroDashboardBootstrap?.uid||'')===String(currentUser?.uid||'');
@@ -7492,12 +7513,14 @@ async function showDashboardPaymentSuccess(){
   $("dashboardPaymentSuccessClose")?.addEventListener("click",()=>{card.remove();try{sessionStorage.removeItem("smv_last_payment_success");}catch(_e){}});
 }
 
-async function loadDashboard(expectedRole=null,force=false){
+async function loadDashboard(expectedRole=null,force=false,silent=false){
  const box=$('dashboardContent');
  if(!currentUser){ if(box) box.innerHTML='<div class="card">Please login to continue.</div>'; return; }
  const loadUid=currentUser.uid;
  const loadGeneration=dashboardSessionGeneration;
  const requestedRole=String(expectedRole||'').toLowerCase();
+ const cacheKey=String(requestedRole||"dashboard").toLowerCase();
+ if(box && !box.innerHTML.trim() && smvDashboardHtmlCache.has(cacheKey)){ box.innerHTML=smvDashboardHtmlCache.get(cacheKey); show("dashboard"); touchSession(); armIdleTimer(); }
  // IMPORTANT: Returning from ASK NOW must not rehydrate an already-rendered
  // dashboard. The old behaviour started another full Firestore load every time
  // the கேள்வி Form Back button was pressed, which could create a repeated
@@ -7526,6 +7549,7 @@ async function loadDashboard(expectedRole=null,force=false){
  dashboardLoadPromise=(async()=>{
  try{
   // Auth router owns the visible role shell; hydration never replaces it with Loading.
+  // Keep the currently visible dashboard on screen during every background refresh.
   if(active() && dashboardShellUid!==loadUid) dashboardShellUid=loadUid;
   // ASTROLOGER ONLY: reuse the profile already fetched by login/auth. This removes
   // the duplicate smv_users read that made a second Astrologer login feel stuck.
@@ -7559,6 +7583,11 @@ async function loadDashboard(expectedRole=null,force=false){
    // during async loading makes Customer/Astrologer dashboards appear to
    // interact or flash before the final dashboard is rendered.
    $('dashboardTitle').textContent='Dashboard';
+   /* SMV_FAST_CUSTOMER_SHELL: keep Dashboard visible immediately; never show a loading page. */
+   if(role==='customer' && box && active() && !box.innerHTML.trim()){
+     box.innerHTML='<div class="grid"><div class="card"><span class="badge">CUSTOMER</span><h3>Welcome</h3><p>Your Dashboard is open. Latest questions and consultation details are refreshing in the background.</p></div><div class="card"><h3>My Questions</h3><p class="small">Your latest information will refresh automatically.</p></div></div>';
+     show('dashboard'); touchSession(); armIdleTimer();
+   }
    if(role==='astrologer'){
    let ad=preloadedAstro||{};
 
@@ -8426,6 +8455,7 @@ ${ad.status === 'rejected' && ad.rejectionReason
   // Mark the dashboard ready before loading optional notifications. A slow
   // notifications query must never keep the main dashboard in a loading state.
   show('dashboard');
+  if(box && role){ smvDashboardHtmlCache.set(role,box.innerHTML); }
   dashboardReadyUid=loadUid;
   dashboardReadyRole=role;
   touchSession();
