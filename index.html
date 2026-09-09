@@ -7985,7 +7985,7 @@ ${ad.status === 'rejected' && ad.rejectionReason
     }
 
     b.disabled = true;
-    b.textContent = 'சமர்ப்பிக்கிறது...';
+    b.textContent = 'தமிழாக்கம் + சமர்ப்பிக்கிறது...';
 
     try {
 
@@ -9008,7 +9008,7 @@ async function __smvHydrateAdminPanel(){
    questionApprovalBox.querySelectorAll('[data-board-admin-answer]').forEach(b=>b.onclick=async()=>{
      const id=b.dataset.boardAdminAnswer; const answer=($('boardAdminAnswer_'+id)?.value||'').trim();
      if(!answer){smvNotice('நிர்வாகியின் பதில்','Enter the நிர்வாகியின் பதில் before submitting.','!');return;}
-     b.disabled=true; b.textContent='பதில் சமர்ப்பிக்கிறது...';
+     b.disabled=true; b.textContent='தமிழாக்கம் + பதில் சமர்ப்பிக்கிறது...';
      try{
        const r=await renderApi('/admin/takeover-answer',{method:'POST',body:JSON.stringify({questionId:id,answer})});
        if(!r?.success) throw new Error(r?.error||'Unable to save நிர்வாகியின் பதில்.');
@@ -14336,14 +14336,31 @@ document.addEventListener('DOMContentLoaded', function(){
 (function(){
   var section=document.getElementById('smvInstallAppSection');
   if(!section) return;
+  var INSTALLED_KEY='smv_astro_app_installed_v1';
+  function isStandalone(){
+    return !!((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone===true);
+  }
+  function isInstalled(){
+    try{ return localStorage.getItem(INSTALLED_KEY)==='1'; }catch(_e){ return false; }
+  }
+  function markInstalled(){
+    try{ localStorage.setItem(INSTALLED_KEY,'1'); }catch(_e){}
+  }
   function isDashboardVisible(){
     var ids=['dashboard','admin'];
     return ids.some(function(id){var el=document.getElementById(id);return el && !el.classList.contains('hidden') && getComputedStyle(el).display!=='none';});
   }
-  function sync(){ section.style.display=isDashboardVisible()?'none':''; }
+  function sync(){
+    if(isStandalone()) markInstalled();
+    section.style.display=(isInstalled() || isStandalone() || isDashboardVisible())?'none':'';
+  }
   sync();
   var obs=new MutationObserver(sync);
   ['dashboard','admin'].forEach(function(id){var el=document.getElementById(id);if(el) obs.observe(el,{attributes:true,attributeFilter:['class','style']});});
+  try{
+    var mq=window.matchMedia && window.matchMedia('(display-mode: standalone)');
+    if(mq){ var onModeChange=function(){sync();}; if(mq.addEventListener) mq.addEventListener('change',onModeChange); else if(mq.addListener) mq.addListener(onModeChange); }
+  }catch(_e){}
   setInterval(sync,1000);
 })();
 </script>
@@ -20893,10 +20910,26 @@ a:hover{color:#b22222;}
   var help = document.getElementById('smvInstallAppHelp');
   if(!installSection || !installBtn) return;
 
+  var INSTALLED_KEY='smv_astro_app_installed_v1';
+  function isStandalone(){
+    return !!((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone===true);
+  }
+  function isInstalled(){
+    try{ return localStorage.getItem(INSTALLED_KEY)==='1'; }catch(_e){ return false; }
+  }
+  function markInstalled(){
+    try{ localStorage.setItem(INSTALLED_KEY,'1'); }catch(_e){}
+    installSection.style.display='none';
+  }
+
   var deferredPrompt = null;
   var standalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
   var iosStandalone = window.navigator.standalone === true;
   if(standalone || iosStandalone){
+    markInstalled();
+    return;
+  }
+  if(isInstalled()){
     installSection.style.display='none';
     return;
   }
@@ -20914,7 +20947,7 @@ a:hover{color:#b22222;}
 
   window.addEventListener('appinstalled', function(){
     deferredPrompt = null;
-    installSection.style.display='none';
+    markInstalled();
   });
 
   installBtn.addEventListener('click', async function(){
@@ -20924,6 +20957,7 @@ a:hover{color:#b22222;}
         var choice = await deferredPrompt.userChoice;
         deferredPrompt = null;
         if(choice && choice.outcome === 'accepted'){
+          markInstalled();
           help.textContent='SMV ASTRO is being added to your Home Screen.';
         } else {
           help.textContent='Install cancelled. You can use INSTALL APP again later.';
@@ -20944,6 +20978,7 @@ a:hover{color:#b22222;}
   });
 
   // Before the browser exposes beforeinstallprompt, keep the option visible with a useful instruction.
+  if(isInstalled() || isStandalone()){ markInstalled(); return; }
   installBtn.disabled = false;
   if(isIOS()) help.textContent='Add SMV ASTRO from Safari: Share → Add to Home Screen.';
   else help.textContent='உலாவி மெனுவிலிருந்து நிறுவவும் அல்லது உலாவி நிறுவல் அறிவிப்பை வழங்கும்போது “செயலியை நிறுவவும்” என்பதைத் தொடவும்.';
