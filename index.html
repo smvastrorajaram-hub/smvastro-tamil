@@ -7256,7 +7256,7 @@ async function renderNotifications(targetId){
           String(n.message||'').toLowerCase().includes('waiting for admin approval');
 
         const answerSubmitted = !!String(q.answer||'').trim() &&
-          ['processing','answer_draft','admin_review','revision_required','answered'].includes(String(q.status||''));
+          ['processing','answer_draft','admin_review','answered'].includes(String(q.status||''));
         const answerRejected = String(q.status||'')==='revision_required' || String(q.astrologerAnswerStatus||'')==='revision_required';
         const answerApproved = String(q.status||'')==='answered' || !!q.answerApprovedAt || !!q.adminAnswerApprovedAt;
         const astroName=q.astrologerName||'the selected astrologer';
@@ -7818,12 +7818,12 @@ ${ad.status === 'rejected' && ad.rejectionReason
    <div class="card" id="astroQuestionQueue" style="margin-top:16px">
      <h3>தனிப்பட்ட கேள்விகள் — உங்களுக்கு ஒதுக்கப்பட்டவை</h3>
      <p class="small">நிர்வாகி அங்கீகரித்து உங்களுக்கு ஒதுக்கிய தனிப்பட்ட கேள்விகள் மட்டும் இங்கே இருக்கும். பொது கேள்வியின் இறுதி பதில் இங்கே இருக்காது.</p>
-     ${qs.docs.filter(d=>{const q=d.data()||{};const st=String(q.status||'');const al=String(q.allocationStatus||'');const hasAnswer=!!String(q.answer||'').trim();const auto=String(q.workflowMode||'').toLowerCase()==='auto';return q.astrologerId===currentUser.uid&&!auto&&((['paid','admin_approved'].includes(st)&&['assigned_to_astrologer','claimed_by_astrologer','reallocated'].includes(al)&&(!hasAnswer||q.astrologerEditMode===true))||['revision_required','processing','admin_review','answer_draft'].includes(st));}).map(d=>{const q=d.data()||{};const minWords=Number(q.answerMinWords||150);const birthName=q.birthName||q.birthDetails?.name||'';const birthDate=q.birthDate||q.birthDetails?.birthDate||'';const birthTime=q.birthTime||q.birthDetails?.birthTime||'';const birthPlace=q.birthPlace||q.birthDetails?.birthPlace||'';const birthGender=q.birthGender||q.birthDetails?.birthGender||'';const questionPrice=Number(q.astrologerCommissionAmount||0);const waiting=['processing','admin_review'].includes(String(q.status||''));const revision=q.status==='revision_required';const badge=waiting?'நிர்வாகி ஒப்புதலுக்காக காத்திருக்கிறது':(revision?'திருத்தம் அவசியம்':'அங்கீகரிக்கப்பட்டது — பதிலளிக்கலாம்');const buttonLabel=waiting?'திருத்தி மீண்டும் சமர்ப்பிக்கவும்':(revision?'நிர்வாகி அங்கீகாரத்திற்காக மீண்டும் சமர்ப்பிக்கவும்':'நிர்வாகி அங்கீகாரத்திற்குச் சமர்ப்பிக்கவும்');return `<div class="card astro-question-item ${waiting?'pending-approval':''}" style="margin:10px 0" data-question-card="${escapeHtml(d.id)}"><div class="badge">${badge}</div>${waiting?'<div class="small pending-note" style="margin-top:6px">நிர்வாகி ஒப்புதல் கிடைக்கும் வரை உங்கள் பதிலை இங்கே திருத்தலாம்.</div>':''}<h3 style="margin-top:8px">${escapeHtml(q.question||'கேள்வி')}</h3><div class="small"><b>பிறப்பு விவரங்கள்:</b> ${escapeHtml(birthName)} · ${escapeHtml(birthDate)} · ${escapeHtml(birthTime)} · ${escapeHtml(birthPlace)} · ${escapeHtml(birthGender)}</div><div class="small"><b>கேள்வி எண்:</b> ${escapeHtml(d.id)} · <b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(q.updatedAt||q.adminகேள்விApprovedAt||q.claimedAt||q.createdAt))} · <b>உங்கள் கமிஷன்:</b> ₹${questionPrice.toFixed(2)} · <b>Minimum:</b> ${minWords} words</div><textarea id="ans_${d.id}" data-answer-protected="true" placeholder="${revision?'திருத்தி எழுதவும்':'குறைந்தது'} ${minWords} சொற்களை எழுதவும்...">${escapeHtml(q.answer||'')}</textarea><div class="small" id="count_${d.id}">${q.answer?Number(String(q.answer).trim().split(/\s+/).filter(Boolean).length):0} / ${minWords} சொற்கள்</div><button class="btn" data-answer="${d.id}">${buttonLabel}</button></div>`;}).join('') || '<div class="empty">உங்களுக்கு பதிலளிக்க தற்போது தனிப்பட்ட கேள்விகள் இல்லை.</div>'}
+     ${qs.docs.filter(d=>{const q=d.data()||{};const st=String(q.status||'');const al=String(q.allocationStatus||'');const hasAnswer=!!String(q.answer||'').trim();const auto=String(q.workflowMode||'').toLowerCase()==='auto';return q.astrologerId===currentUser.uid&&!auto&&((['paid','admin_approved'].includes(st)&&['assigned_to_astrologer','claimed_by_astrologer','reallocated'].includes(al)&&(!hasAnswer||q.astrologerEditMode===true))||st==='revision_required'||(['processing','admin_review','answer_draft'].includes(st) && !hasAnswer));}).map(d=>{const q=d.data()||{};const minWords=Number(q.answerMinWords||150);const birthName=q.birthName||q.birthDetails?.name||'';const birthDate=q.birthDate||q.birthDetails?.birthDate||'';const birthTime=q.birthTime||q.birthDetails?.birthTime||'';const birthPlace=q.birthPlace||q.birthDetails?.birthPlace||'';const birthGender=q.birthGender||q.birthDetails?.birthGender||'';const questionPrice=Number(q.astrologerCommissionAmount||0);const waiting=['processing','admin_review'].includes(String(q.status||''));const revision=q.status==='revision_required';const badge=waiting?'நிர்வாகி ஒப்புதலுக்காக காத்திருக்கிறது':(revision?'திருத்தம் அவசியம்':'அங்கீகரிக்கப்பட்டது — பதிலளிக்கலாம்');const buttonLabel=waiting?'திருத்தி மீண்டும் சமர்ப்பிக்கவும்':(revision?'நிர்வாகி அங்கீகாரத்திற்காக மீண்டும் சமர்ப்பிக்கவும்':'நிர்வாகி அங்கீகாரத்திற்குச் சமர்ப்பிக்கவும்');return `<div class="card astro-question-item ${waiting?'pending-approval':''}" style="margin:10px 0" data-question-card="${escapeHtml(d.id)}"><div class="badge">${badge}</div>${revision&&q.adminRejectionReason?`<div class="small" style="margin-top:6px;color:#a61f1f;font-weight:800"><b>நிராகரிப்பு காரணம்:</b> ${escapeHtml(q.adminRejectionReason)}</div>`:''}${waiting?'<div class="small pending-note" style="margin-top:6px">நிர்வாகி ஒப்புதல் கிடைக்கும் வரை உங்கள் பதிலை இங்கே திருத்தலாம்.</div>':''}<h3 style="margin-top:8px">${escapeHtml(q.question||'கேள்வி')}</h3><div class="small"><b>பிறப்பு விவரங்கள்:</b> ${escapeHtml(birthName)} · ${escapeHtml(birthDate)} · ${escapeHtml(birthTime)} · ${escapeHtml(birthPlace)} · ${escapeHtml(birthGender)}</div><div class="small"><b>கேள்வி எண்:</b> ${escapeHtml(d.id)} · <b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(q.updatedAt||q.adminகேள்விApprovedAt||q.claimedAt||q.createdAt))} · <b>உங்கள் கமிஷன்:</b> ₹${questionPrice.toFixed(2)} · <b>Minimum:</b> ${minWords} words</div><textarea id="ans_${d.id}" data-answer-protected="true" placeholder="${revision?'திருத்தி எழுதவும்':'குறைந்தது'} ${minWords} சொற்களை எழுதவும்...">${escapeHtml(q.answer||'')}</textarea><div class="small" id="count_${d.id}">${q.answer?Number(String(q.answer).trim().split(/\s+/).filter(Boolean).length):0} / ${minWords} சொற்கள்</div><button class="btn" data-answer="${d.id}">${buttonLabel}</button></div>`;}).join('') || '<div class="empty">உங்களுக்கு பதிலளிக்க தற்போது தனிப்பட்ட கேள்விகள் இல்லை.</div>'}
    </div>
 <div class="card" id="astroAnsweredBox" style="margin-top:16px">
   <h3>பதில்கள் — பதிலளிக்கப்பட்ட கேள்விகள்</h3>
   <p class="small">வாடிக்கையாளர் பதிலைப் பார்க்கும் வரை இந்த பதிலைத் திருத்தலாம். Private கேள்விகள் வழக்கம்போல் Admin approval மூலம் செல்லும்.</p>
-  ${qs.docs.filter(d=>{const q=d.data()||{};return q.astrologerId===currentUser.uid&&!!String(q.answer||'').trim()&&['processing','answer_draft','admin_review','revision_required','answered'].includes(String(q.status||''));}).length ? qs.docs.filter(d=>{const q=d.data()||{};return q.astrologerId===currentUser.uid&&!!String(q.answer||'').trim()&&['processing','answer_draft','admin_review','revision_required','answered'].includes(String(q.status||''));}).slice().sort((a,b)=>smvகேள்விSortTime(b.data()||{})-smvகேள்விSortTime(a.data()||{})).map(d=>{const q=d.data()||{};const auto=String(q.workflowMode||'').toLowerCase()==='auto';const approved=q.status==='answered';const editable=auto&&approved&&q.answerViewedByCustomer!==true;const rejected=q.status==='revision_required';const status=approved?'பதிலளிக்கப்பட்டது':(rejected?'திருத்தம் அவசியம்':'நிர்வாகி ஒப்புதலுக்காக காத்திருக்கிறது');const editButton=editable?`<button class="btn gray" data-edit-auto-answer="${escapeHtml(d.id)}">பதிலைத் திருத்தவும்</button>`:(rejected?`<button class="btn" data-edit-answer="${escapeHtml(d.id)}">திருத்தி மீண்டும் சமர்ப்பிக்கவும்</button>`:'');return `<div class="card astro-answer-item" style="margin:10px 0"><div class="badge">${status}</div>${editable?'<div class="small pending-note">வாடிக்கையாளர் பதிலைப் பார்க்கும் வரை நீங்கள் திருத்தலாம்.</div>':''}<h3 style="margin-top:8px">${escapeHtml(q.question||'கேள்வி')}</h3><div class="small"><b>கேள்வி எண்:</b> ${escapeHtml(d.id)} · <b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(q.answerApprovedAt||q.updatedAt||q.answerSubmittedAt||q.createdAt))}</div><div style="margin-top:10px;white-space:pre-wrap;line-height:1.65">${escapeHtml(q.answer||'')}</div>${editButton}</div>`;}).join('') : '<div class="empty">இதுவரை பதிலளிக்கப்பட்ட கேள்விகள் இல்லை.</div>'}
+  ${qs.docs.filter(d=>{const q=d.data()||{};return q.astrologerId===currentUser.uid&&!!String(q.answer||'').trim()&&['processing','answer_draft','admin_review','answered'].includes(String(q.status||''));}).length ? qs.docs.filter(d=>{const q=d.data()||{};return q.astrologerId===currentUser.uid&&!!String(q.answer||'').trim()&&['processing','answer_draft','admin_review','answered'].includes(String(q.status||''));}).slice().sort((a,b)=>smvகேள்விSortTime(b.data()||{})-smvகேள்விSortTime(a.data()||{})).map(d=>{const q=d.data()||{};const auto=String(q.workflowMode||'').toLowerCase()==='auto';const approved=q.status==='answered';const editable=auto&&approved&&q.answerViewedByCustomer!==true;const rejected=q.status==='revision_required';const waitingEdit=['processing','admin_review','revision_required'].includes(String(q.status||''));const status=approved?'பதிலளிக்கப்பட்டது':(rejected?'திருத்தம் அவசியம்':'நிர்வாகி ஒப்புதலுக்காக காத்திருக்கிறது');const editButton=editable?`<button class="btn gray" data-edit-auto-answer="${escapeHtml(d.id)}">பதிலைத் திருத்தவும்</button>`:(waitingEdit?`<button class="btn" data-edit-answer="${escapeHtml(d.id)}">திருத்தி மீண்டும் சமர்ப்பிக்கவும்</button>`:'');return `<div class="card astro-answer-item" style="margin:10px 0"><div class="badge">${status}</div>${editable?'<div class="small pending-note">வாடிக்கையாளர் பதிலைப் பார்க்கும் வரை நீங்கள் திருத்தலாம்.</div>':''}<h3 style="margin-top:8px">${escapeHtml(q.question||'கேள்வி')}</h3><div class="small"><b>கேள்வி எண்:</b> ${escapeHtml(d.id)} · <b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(q.answerApprovedAt||q.updatedAt||q.answerSubmittedAt||q.createdAt))}</div><div style="margin-top:10px;white-space:pre-wrap;line-height:1.65">${escapeHtml(q.answer||'')}</div>${editButton}</div>`;}).join('') : '<div class="empty">இதுவரை பதிலளிக்கப்பட்ட கேள்விகள் இல்லை.</div>'}
 </div>
 <div class="card" style="margin-top:16px"><h3>வருமான வரலாறு</h3>${ep.ledger?.length?ep.ledger.slice().sort((a,b)=>smvSortMillis(b.date||b.createdAt||b.updatedAt)-smvSortMillis(a.date||a.createdAt||a.updatedAt)).slice(0,50).map(x=>`<div class="smv-history-row" style="padding:10px 0;border-bottom:1px solid #eee"><div class="smv-history-amount"><b>₹${Number(x.commission||0).toFixed(2)}</b> · <span class="success">Earning Credited</span></div><div class="smv-history-content">${escapeHtml(x.question||'ஆலோசனை')}</div><div class="smv-history-detail"><b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(x.date))}</div><div class="smv-history-detail"><b>கேள்வி எண்:</b> ${escapeHtml(x.id||'')}</div></div>`).join(''):'<div class="empty">இதுவரை வரவு வைக்கப்பட்ட வருமானம் இல்லை.</div>'}<div class="withdrawal-history-section" style="margin-top:14px;padding-top:10px;border-top:1px solid #eee"><div class="withdrawal-history-title">தொகைத் திரும்பப் பெறுதல் வரலாறு</div>${withdrawalSnap?.docs?.length?withdrawalSnap.docs.slice().sort((a,b)=>Number(b.data().createdAt?.seconds||0)-Number(a.data().createdAt?.seconds||0)).slice(0,20).map(d=>{const w=d.data()||{};const st=String(w.status||'pending').toLowerCase();const cls=st==='paid'?'success':st==='rejected'?'error':st==='processing'?'small':'small';const label=st==='paid'?'செலுத்தப்பட்டது':st==='processing'?'செயலாக்கத்தில் உள்ளது':st==='rejected'?'நிராகரிக்கப்பட்டது':'நிலுவையில் உள்ளது';return `<div class="smv-history-row smv-withdrawal-row" style="padding:10px 0;border-bottom:1px solid #eee"><div class="smv-history-amount"><b>₹${Number(w.amount||0).toFixed(2)}</b> · <span class="${cls}">${label}</span></div><div class="smv-history-detail"><b>Withdrawal ID:</b> ${escapeHtml(w.withdrawalId||'—')}</div>${st==='paid' && /^SMV-PMT-/.test(String(w.adminPaymentId||'')) ? '<div class="small"><b>Admin Payment ID:</b> '+escapeHtml(w.adminPaymentId)+'</div>' : ''}<div class="small"><b>Requested:</b> ${escapeHtml(smvDateTime(w.createdAt||w.requestedAt))}${st==='paid' && w.paidAt ? '<br><b>Paid தேதி & நேரம்:</b> '+escapeHtml(smvDateTime(w.paidAt)) : ''}</div></div>`}).join(''):'<div class="small">இதுவரை தொகைத் திரும்பப் பெறும் கோரிக்கைகள் இல்லை.</div>'}</div></div>
 <div class="card" style="margin-top:16px"><h3>கட்டண முறை</h3><p class="small">Your bank/UPI details are private. Full details are not displayed again.</p><button class="btn gray" id="changePayoutBtn2">கட்டண முறையை மாற்றவும்</button></div>`;
@@ -7934,25 +7934,25 @@ ${ad.status === 'rejected' && ad.rejectionReason
    }, true);
 
    // Re-open a submitted/rejected answer in the கேள்வி Box for editing.
-   document.querySelectorAll('[data-edit-answer]').forEach(b=>{
-     b.onclick=async()=>{
-       const questionId=b.dataset.editAnswer;
-       if(!currentUser){ alert('Please login again.'); return; }
-       b.disabled=true; b.textContent='OPENING EDIT...';
-       try{
-         const result=await renderApi('/astrologer/edit-answer',{method:'POST',body:JSON.stringify({questionId})});
-         if(!result?.success) throw new Error(result?.error||'Unable to open answer for editing.');
-         await loadDashboard('astrologer',true);
-         requestAnimationFrame(()=>setTimeout(()=>{
-           const answerBox=$('ans_'+questionId);
-           if(answerBox){ answerBox.style.minHeight='400px'; answerBox.style.height='400px'; answerBox.style.maxHeight='none'; answerBox.style.resize='vertical'; answerBox.focus(); answerBox.scrollIntoView({behavior:'smooth',block:'center'}); }
-           else $('astroகேள்விQueue')?.scrollIntoView({behavior:'smooth',block:'start'});
-         },120));
-       }catch(e){
-         console.error('Answer edit error:',e); alert(e.message||String(e)); b.disabled=false; b.textContent='திருத்தி மீண்டும் சமர்ப்பிக்கவும்';
-       }
-     };
-   });
+   async function smvOpenPrivateAnswerEdit(b){
+     const questionId=String(b?.dataset?.editAnswer||'').trim();
+     if(!questionId)return;
+     if(!currentUser){ alert('Please login again.'); return; }
+     b.disabled=true; b.textContent='திருத்தத்தைத் திறக்கிறது...';
+     try{
+       const result=await renderApi('/astrologer/edit-answer',{method:'POST',body:JSON.stringify({questionId})});
+       if(!result?.success) throw new Error(result?.error||'Unable to open answer for editing.');
+       await loadDashboard('astrologer',true);
+       requestAnimationFrame(()=>setTimeout(()=>{
+         const answerBox=$('ans_'+questionId);
+         if(answerBox){ answerBox.style.minHeight='400px'; answerBox.style.height='400px'; answerBox.style.maxHeight='none'; answerBox.style.resize='vertical'; answerBox.focus(); answerBox.scrollIntoView({behavior:'smooth',block:'center'}); }
+         else $('astroகேள்விQueue')?.scrollIntoView({behavior:'smooth',block:'start'});
+       },120));
+     }catch(e){
+       console.error('Answer edit error:',e); alert(e.message||String(e)); b.disabled=false; b.textContent='திருத்தி மீண்டும் சமர்ப்பிக்கவும்';
+     }
+   }
+   document.querySelectorAll('[data-edit-answer]').forEach(b=>b.onclick=()=>smvOpenPrivateAnswerEdit(b));
 
    document.querySelectorAll('[data-edit-auto-answer]').forEach(b=>b.onclick=async()=>{
      const id=String(b.dataset.editAutoAnswer||'').trim();
@@ -7970,6 +7970,25 @@ ${ad.status === 'rejected' && ad.rejectionReason
        });
      }catch(e){alert(e.message||String(e));b.disabled=false;}
    });
+   function smvMoveSubmittedPrivateAnswerToAnswered(b,q,answer){
+     if(String(q?.workflowMode||'').toLowerCase()==='auto') return;
+     const sourceCard=b?.closest('.astro-question-item') || b?.closest('.card');
+     const answeredBox=$('astroAnsweredBox');
+     if(!sourceCard || !answeredBox) return;
+     const empty=answeredBox.querySelector('.empty');
+     if(empty) empty.remove();
+     const id=String(b.dataset.answer||'').trim();
+     const card=document.createElement('div');
+     card.className='card astro-answer-item';
+     card.style.margin='10px 0';
+     card.innerHTML=`<div class="badge">நிர்வாகி ஒப்புதலுக்காக காத்திருக்கிறது</div><h3 style="margin-top:8px">${escapeHtml(q.question||'கேள்வி')}</h3><div class="small"><b>கேள்வி எண்:</b> ${escapeHtml(id)} · <b>தேதி & நேரம்:</b> ${escapeHtml(smvDateTime(q.answerSubmittedAt||q.updatedAt||new Date()))}</div><div style="margin-top:10px;white-space:pre-wrap;line-height:1.65">${escapeHtml(answer)}</div><button class="btn" data-edit-answer="${escapeHtml(id)}">திருத்தி மீண்டும் சமர்ப்பிக்கவும்</button>`;
+     answeredBox.appendChild(card);
+     const edit=card.querySelector('[data-edit-answer]');
+     if(edit) edit.onclick=()=>smvOpenPrivateAnswerEdit(edit);
+     sourceCard.remove();
+     card.scrollIntoView({behavior:'smooth',block:'start'});
+   }
+
    document.querySelectorAll('[data-answer]').forEach(b => {
 
   const questionId = b.dataset.answer;
@@ -7985,7 +8004,7 @@ ${ad.status === 'rejected' && ad.rejectionReason
     }
 
     b.disabled = true;
-    b.textContent = 'தமிழாக்கம் + சமர்ப்பிக்கிறது...';
+    b.textContent = 'சமர்ப்பிக்கிறது...';
 
     try {
 
@@ -8103,13 +8122,14 @@ ${ad.status === 'rejected' && ad.rejectionReason
 
       alert('பதில் வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது. ஒப்புதலுக்காக காத்திருக்கிறது.');
 
-      // Refresh in the background; do not block the Submit action on full
-      // dashboard hydration.
-      loadDashboard('astrologer', true).then(() => {
-        requestAnimationFrame(() => setTimeout(() => {
-          $('astroAnsweredBox')?.scrollIntoView({ behavior:'smooth', block:'start' });
-        }, 120));
-      }).catch(err => console.warn('Post-submit dashboard refresh skipped:', err));
+      // Move a private-workflow submitted answer immediately from Private Questions
+      // to Answered Questions. The server has already saved status=processing.
+      smvMoveSubmittedPrivateAnswerToAnswered(b,q,answer);
+
+      // Refresh silently in the background so the canonical database state is
+      // reflected without blocking the Submit action.
+      loadDashboard('astrologer', true, true).catch(err => console.warn('Post-submit dashboard refresh skipped:', err));
+
       b.disabled = false;
       b.textContent = 'பதில் சமர்ப்பிக்கவும்';
 
@@ -9008,7 +9028,7 @@ async function __smvHydrateAdminPanel(){
    questionApprovalBox.querySelectorAll('[data-board-admin-answer]').forEach(b=>b.onclick=async()=>{
      const id=b.dataset.boardAdminAnswer; const answer=($('boardAdminAnswer_'+id)?.value||'').trim();
      if(!answer){smvNotice('நிர்வாகியின் பதில்','Enter the நிர்வாகியின் பதில் before submitting.','!');return;}
-     b.disabled=true; b.textContent='தமிழாக்கம் + பதில் சமர்ப்பிக்கிறது...';
+     b.disabled=true; b.textContent='பதில் சமர்ப்பிக்கிறது...';
      try{
        const r=await renderApi('/admin/takeover-answer',{method:'POST',body:JSON.stringify({questionId:id,answer})});
        if(!r?.success) throw new Error(r?.error||'Unable to save நிர்வாகியின் பதில்.');

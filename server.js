@@ -537,6 +537,31 @@ app.post("/astrologer/edit-answer", async (req, res) => {
  * then attempted from the server (never from the browser), and the result of
  * each recipient is persisted in the question document.
  */
+app.post("/admin/reject-answer", express.json({limit:"10kb"}), async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    const reason=String(req.body?.reason||"").trim();
+    if(!questionId||!reason) return res.status(400).json({error:"Question ID and rejection reason are required."});
+    const ref=db.collection("smv_questions").doc(questionId);
+    const snap=await ref.get(); if(!snap.exists) return res.status(404).json({error:"Question not found."});
+    const q=snap.data()||{};
+    if(!q.astrologerId) return res.status(409).json({error:"Astrologer is not assigned."});
+    if(["answered","question_rejected","admin_rejected"].includes(String(q.status||""))) return res.status(409).json({error:"This question is already closed."});
+    if(!String(q.answer||"").trim()) return res.status(400).json({error:"No astrologer answer is available to reject."});
+    await ref.update({
+      status:"revision_required", allocationStatus:"claimed_by_astrologer",
+      astrologerAnswerStatus:"revision_required", astrologerEditMode:true,
+      adminRejectionReason:reason, adminRejectedAt:FieldValue.serverTimestamp(), adminRejectedBy:user.uid,
+      commissionStatus:"allocated_pending_answer", updatedAt:FieldValue.serverTimestamp()
+    });
+    await db.collection("smv_notifications").add({userId:q.astrologerId,type:"answer_rejected",title:"Answer revision required",message:`Please revise and resubmit your answer. Reason: ${reason}`,questionId,createdAt:FieldValue.serverTimestamp(),read:false});
+    await writeAdminAudit("ANSWER_REJECTED",questionId,user.uid,{reason,astrologerId:q.astrologerId});
+    return res.json({success:true,questionId,astrologerId:q.astrologerId,status:"revision_required"});
+  }catch(e){console.error("Admin reject answer error:",e);return res.status(500).json({error:e?.message||"Unable to reject answer."});}
+});
+
 app.post("/astrologer/edit-auto-answer", express.json({limit:"10kb"}), async (req,res)=>{
   const user=await requireUser(req,res); if(!user)return;
   try{
