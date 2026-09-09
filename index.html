@@ -9104,7 +9104,7 @@ const pendingAnswers =
     if(String(q.workflowMode||'admin').toLowerCase()==='auto') return false;
     const status = String(q.status || '').toLowerCase();
     const answerSubmitted = !!String(q.answer || '').trim();
-    return !!q.adminகேள்விApprovedAt &&
+    return !!(q.adminQuestionApprovedAt || q.adminகேள்விApprovedAt) &&
       !!q.astrologerId &&
       answerSubmitted &&
       ['processing','answer_draft','admin_review','revision_required'].includes(status) &&
