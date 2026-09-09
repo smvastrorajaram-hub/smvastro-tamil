@@ -6127,8 +6127,13 @@ async function openகேள்விService(options={}){
     if(!questionProfile){
       questionProfile=await getUserProfile(verifiedUser.uid);
     }
-    const questionRole=String(questionProfile?.role||"customer").toLowerCase();
-    if(questionRole!=="customer"){
+
+    // ASK NOW என்பது CUSTOMER-க்கு மட்டும். Profile lookup தோல்வியடைந்தால்
+    // Admin/Astrologer account-ஐ customer என்று தவறாக கருதக்கூடாது.
+    const questionRole=String(questionProfile?.role||"").toLowerCase();
+    const isAdminAccount=verifiedUser.uid===ADMIN_UID || questionRole==="admin";
+    const isAstrologerAccount=questionRole==="astrologer";
+    if(isAdminAccount || isAstrologerAccount || questionRole!=="customer"){
       askNowTransitionLock=false;
       smvNotice("Customer Login Required","Please login with a Customer account to ask an astrology question.","!");
       return;
@@ -7980,7 +7985,7 @@ ${ad.status === 'rejected' && ad.rejectionReason
     }
 
     b.disabled = true;
-    b.textContent = 'தமிழாக்கம் + சமர்ப்பிக்கிறது...';
+    b.textContent = 'சமர்ப்பிக்கிறது...';
 
     try {
 
@@ -9003,7 +9008,7 @@ async function __smvHydrateAdminPanel(){
    questionApprovalBox.querySelectorAll('[data-board-admin-answer]').forEach(b=>b.onclick=async()=>{
      const id=b.dataset.boardAdminAnswer; const answer=($('boardAdminAnswer_'+id)?.value||'').trim();
      if(!answer){smvNotice('நிர்வாகியின் பதில்','Enter the நிர்வாகியின் பதில் before submitting.','!');return;}
-     b.disabled=true; b.textContent='தமிழாக்கம் + பதில் சமர்ப்பிக்கிறது...';
+     b.disabled=true; b.textContent='பதில் சமர்ப்பிக்கிறது...';
      try{
        const r=await renderApi('/admin/takeover-answer',{method:'POST',body:JSON.stringify({questionId:id,answer})});
        if(!r?.success) throw new Error(r?.error||'Unable to save நிர்வாகியின் பதில்.');

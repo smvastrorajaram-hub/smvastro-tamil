@@ -613,11 +613,6 @@ app.post("/submit-answer", async (req, res) => {
       return res.status(400).json({ error: `Please write at least ${minWords} words.` });
     }
 
-    // Translate the submitted answer to Tamil on the trusted Render server.
-    // The original validation above remains unchanged; only the stored answer
-    // is converted to the Tamil site language.
-    const translatedAnswer = await translateAnswerToTamil(answer);
-
     const commissionPercent = Number(q.commissionPercent || q.commissionRate || 20);
     const commissionAmount =
       Math.round(Number(q.amount || 0) * commissionPercent) / 100;
@@ -625,8 +620,10 @@ app.post("/submit-answer", async (req, res) => {
     // Save the answer before attempting email. This makes the submission
     // independent of browser notification calls and email-provider latency.
     await questionRef.update({
-      answer: translatedAnswer,
-      answerWordCount: translatedAnswer.split(/\s+/).filter(Boolean).length,
+      // Tamil website: preserve the astrologer's original answer exactly as entered.
+      // No automatic English -> Tamil translation is performed here.
+      answer,
+      answerWordCount: wordCount,
       answerSubmittedAt: FieldValue.serverTimestamp(),
       astrologerAnswerStatus: "submitted",
       // Once resubmitted, remove edit mode so the same question is no longer
