@@ -45,9 +45,6 @@ const GEMINI_MODEL = String(process.env.GEMINI_MODEL || "gemini-3.7-flash").trim
 const GEMINI_TRANSLATION_FALLBACK_MODELS = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-2.5-flash", "gemini-3.1-pro-preview"].filter((v,i,a)=>v && a.indexOf(v)===i);
 // OpenAI is used ONLY for English → Tamil blog translation. Other Gemini-powered
 // horoscope features remain unchanged. The API key never reaches the browser.
-const OPENAI_API_KEY = String(process.env.OPENAI_API_KEY || "").trim();
-const OPENAI_TRANSLATION_MODEL = String(process.env.OPENAI_TRANSLATION_MODEL || "gpt-5.6-luna").trim();
-const OPENAI_TRANSLATION_FALLBACK_MODELS = [OPENAI_TRANSLATION_MODEL, "gpt-5.6-luna", "gpt-5.6-terra"].filter((v,i,a)=>v && a.indexOf(v)===i);
 const AI_RATE_LIMIT_MAX = Number(process.env.AI_RATE_LIMIT_MAX || 10);
 const AI_RATE_LIMIT_WINDOW_MS = Number(process.env.AI_RATE_LIMIT_WINDOW_MS || 10 * 60 * 1000);
 const aiRateBuckets = new Map();
@@ -355,6 +352,7 @@ app.get("/test-razorpay", async (req, res) => {
   try {
     if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) return res.status(500).json({ ok: false, error: "Razorpay credentials are missing in Render." });
     const mode = RAZORPAY_KEY_ID.startsWith("rzp_test_") ? "test" : (RAZORPAY_KEY_ID.startsWith("rzp_live_") ? "live" : "unknown");
+    if(mode!=='live')return res.status(503).json({ok:false,mode,error:'This deployed backend is using '+mode+' credentials. Live credentials are required.'});
     await razorpay.orders.all({ count: 1 });
     return res.json({ ok: true, mode, keyPrefix: RAZORPAY_KEY_ID.slice(0, 9), message: `Razorpay ${mode} credentials accepted by Render.` });
   } catch (e) {
@@ -569,10 +567,8 @@ app.post("/submit-answer", async (req, res) => {
       return res.status(400).json({ error: `Please write at least ${minWords} words.` });
     }
 
-    // Translate the submitted answer to Tamil on the trusted Render server.
-    // The original validation above remains unchanged; only the stored answer
-    // is converted to the Tamil site language.
-    const translatedAnswer = await translateAnswerToTamil(answer);
+    // Keep the author's submitted answer; no external translation request.
+    const submittedAnswer = answer;
 
     const commissionPercent = Number(q.commissionPercent || q.commissionRate || 20);
     const commissionAmount =
@@ -581,8 +577,8 @@ app.post("/submit-answer", async (req, res) => {
     // Save the answer before attempting email. This makes the submission
     // independent of browser notification calls and email-provider latency.
     await questionRef.update({
-      answer: translatedAnswer,
-      answerWordCount: translatedAnswer.split(/\s+/).filter(Boolean).length,
+      answer: submittedAnswer,
+      answerWordCount: submittedAnswer.split(/\s+/).filter(Boolean).length,
       answerSubmittedAt: FieldValue.serverTimestamp(),
       astrologerAnswerStatus: "submitted",
       // Once resubmitted, remove edit mode so the same question is no longer
@@ -1163,56 +1159,26 @@ app.post("/admin/approve-question", express.json({limit:"10kb"}), async (req,res
 
 // Astrologer claim: use the trusted Admin SDK so the browser does not need
 // direct Firestore write permission for the claim/status transition.
-app.post("/astrologer/claim-question", express.json({limit:"10kb"}), async (req,res)=>{
-  const user=await requireUser(req,res); if(!user)return;
-  try{
-    const questionId=String(req.body?.questionId||"").trim();
-    if(!questionId) return res.status(400).json({error:"Question ID is required."});
-
-    const qRef=db.collection("smv_questions").doc(questionId);
-    const astroRef=db.collection("smv_astrologers").doc(user.uid);
-    const [qSnap,astroSnap]=await Promise.all([qRef.get(),astroRef.get()]);
-    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
-    if(!astroSnap.exists) return res.status(403).json({error:"Astrologer profile not found."});
-
-    const q=qSnap.data()||{};
-    const astro=astroSnap.data()||{};
-    if(String(astro.status||"").toLowerCase()!=="approved"){
-      return res.status(403).json({error:"Your astrologer profile is not approved by Admin."});
-    }
-    if(String(q.astrologerId||"")!==String(user.uid)){
-      return res.status(403).json({error:"This question is not allocated to your account."});
-    }
-    if(!q.adminQuestionApprovedAt){
-      return res.status(409).json({error:"This question is still waiting for Admin approval."});
-    }
-    const status=String(q.status||"");
-    const allocation=String(q.allocationStatus||"");
-    if(["answered","question_rejected","admin_rejected"].includes(status)){
-      return res.status(409).json({error:"This question is already closed."});
-    }
-    if(!["paid","admin_approved"].includes(status) ||
-       !["assigned_to_astrologer","available_to_astrologers","reallocated","claimed_by_astrologer"].includes(allocation)){
-      return res.status(409).json({error:"This question is no longer available to claim."});
-    }
-
-    if(allocation!=="claimed_by_astrologer"){
-      await qRef.update({
-        status:"admin_approved",
-        allocationStatus:"claimed_by_astrologer",
-        claimedAt:FieldValue.serverTimestamp(),
-        claimedBy:user.uid,
-        updatedAt:FieldValue.serverTimestamp()
-      });
-    }
-
-    return res.json({success:true,questionId,astrologerId:user.uid,status:"admin_approved",allocationStatus:"claimed_by_astrologer"});
-  }catch(e){
-    console.error("Astrologer claim question error:",e);
-    return res.status(500).json({error:e?.message||"Unable to claim this question."});
-  }
+app.post('/astrologer/claim-question', express.json({limit:'10kb'}), async(req,res)=>{
+ const user=await requireUser(req,res);if(!user)return;
+ const questionId=String(req.body?.questionId||'').trim();
+ if(!questionId)return res.status(400).json({error:'Question ID is required.'});
+ try{
+  await db.runTransaction(async tx=>{
+   const qRef=db.collection('smv_questions').doc(questionId),aRef=db.collection('smv_astrologers').doc(user.uid);
+   const [qs,as]=await Promise.all([tx.get(qRef),tx.get(aRef)]);
+   const fail=(status,message)=>{throw Object.assign(new Error(message),{httpStatus:status});};
+   if(!qs.exists)fail(404,'Question not found.');
+   if(!as.exists||as.data()?.status!=='approved')fail(403,'Your astrologer profile is not approved.');
+   const q=qs.data()||{};
+   if(q.astrologerId!==user.uid)fail(403,'This question is not allocated to your account.');
+   if(!q.adminQuestionApprovedAt)fail(409,'This question is waiting for Admin approval.');
+   if(!['paid','admin_approved'].includes(q.status)||!['assigned_to_astrologer','available_to_astrologers','reallocated','claimed_by_astrologer'].includes(q.allocationStatus))fail(409,'This question is no longer available to claim.');
+   if(q.allocationStatus!=='claimed_by_astrologer')tx.update(qRef,{status:'admin_approved',allocationStatus:'claimed_by_astrologer',claimedAt:FieldValue.serverTimestamp(),claimedBy:user.uid,updatedAt:FieldValue.serverTimestamp()});
+  });
+  return res.json({success:true,questionId,astrologerId:user.uid,status:'admin_approved',allocationStatus:'claimed_by_astrologer'});
+ }catch(e){return res.status(e.httpStatus||500).json({error:e.message||'Unable to claim the question.'});}
 });
-
 
 app.post("/admin/reject-question", express.json({limit:"10kb"}), async (req,res)=>{
   const user=await requireUser(req,res); if(!user)return;
@@ -1511,13 +1477,13 @@ app.post("/admin/takeover-answer", express.json({limit:"30kb"}), async (req,res)
     const wordCount=answer.split(/\s+/).filter(Boolean).length;
     const minWords=Math.max(1,Number(q.answerMinWords||1));
     if(wordCount<minWords) return res.status(400).json({error:`Admin answer must contain at least ${minWords} words.`});
-    // Translate the Admin answer to Tamil before saving it for the Tamil website.
-    const translatedAnswer=await translateAnswerToTamil(answer);
-    const translatedWordCount=translatedAnswer.split(/\s+/).filter(Boolean).length;
+    // Keep the Admin answer in the language in which it was submitted.
+    const submittedAnswer=answer;
+    const submittedWordCount=submittedAnswer.split(/\s+/).filter(Boolean).length;
     await ref.update({
       question: q.question || "",
-      answer:translatedAnswer,
-      answerWordCount:translatedWordCount,
+      answer:submittedAnswer,
+      answerWordCount:submittedWordCount,
       answerAuthorType:"admin",
       adminAnswered:true,
       adminAnswerBy:user.uid,
@@ -1634,6 +1600,10 @@ app.get("/admin-data", async (req, res) => {
 });
 
 app.post("/create-order", express.json(), async (req, res) => {
+  if(!/^rzp_live_[A-Za-z0-9]+$/.test(RAZORPAY_KEY_ID)){
+    return res.status(503).json({error:'Live payments are required, but this deployed backend is not configured with a Live Razorpay key.',code:'LIVE_KEY_REQUIRED',mode:RAZORPAY_KEY_ID.startsWith('rzp_test_')?'test':'invalid'});
+  }
+
   const user = await requireUser(req, res);
   if (!user) return;
   try {
@@ -1799,7 +1769,7 @@ app.post("/create-order", express.json(), async (req, res) => {
 
     const answerSettings = await db.collection("smv_settings").doc("answer").get();
     const minimumWords = Math.max(1, Math.min(10000, Math.floor(Number(answerSettings.data()?.minimumWords || 150))));
-    await qRef.set({ razorpayOrderId: order.id, paymentCurrency: "INR", paymentStatus: "order_created", answerMinWords: minimumWords, paymentUpdatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await qRef.set({ paymentMode:"live", razorpayOrderId: order.id, paymentCurrency: "INR", paymentStatus: "order_created", answerMinWords: minimumWords, paymentUpdatedAt: FieldValue.serverTimestamp() }, { merge: true });
     await db.collection("razorpay_orders").doc(order.id).set({
       razorpayOrderId: order.id, questionId, amount: order.amount, currency: order.currency,
       firebaseUid: user.uid, customerEmail: user.email || null, astrologerId: String(q.astrologerId || ""),
@@ -2056,13 +2026,15 @@ app.get("/astrologer/earnings", async (req, res) => {
 });
 
 app.get("/customer/consultations", async (req, res) => {
+  res.set("Cache-Control","private, no-store, max-age=0");
+  res.set("Pragma","no-cache");
   const user = await requireUser(req, res);
   if (!user) return;
   try {
     // Read through the trusted backend so Customer Dashboard is not blocked by
     // client-side Firestore rules/indexes. Always return the canonical document
     // ID as questionId, even for older questions created before this fix.
-    const snap = await db.collection("smv_questions").get();
+    const snap = await db.collection("smv_questions").where("customerId","==",user.uid).get();
     const toIso = (v) => {
       try {
         if (!v) return null;
@@ -2098,7 +2070,7 @@ app.get("/customer/consultations", async (req, res) => {
         };
       })
       .sort((a,b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
-    return res.json({ success: true, questions });
+    return res.json({ success: true, customerId:user.uid, fetchedAt:new Date().toISOString(), questions });
   } catch (e) {
     console.error("Customer consultations load failed:", e);
     return res.status(500).json({ error: "Unable to load your consultations right now." });
@@ -2857,221 +2829,8 @@ app.post("/api/horoscope/calculate", async (req,res)=>{
   }
 });
 
-// Shared OpenAI Tamil answer translator used by both Astrologer and Admin answer submission.
-// The translation is performed server-side so OPENAI_API_KEY never reaches the browser.
-async function translateAnswerToTamil(answerText) {
-  const source = String(answerText || "").trim();
-  if (!source) return "";
-  if (!OPENAI_API_KEY) {
-    throw new Error("OpenAI தமிழ் மொழிபெயர்ப்பு சேவை அமைக்கப்படவில்லை. Render Environment Variables-ல் OPENAI_API_KEY-ஐ அமைக்கவும்.");
-  }
-
-  const prompt = `
-Translate the following astrology consultation answer into natural, polished Tamil for the SMV ASTRO Tamil website.
-Rules:
-- Preserve the exact meaning, advice, cautions, dates, numbers, names, zodiac signs, nakshatras, planet names, and other factual details.
-- Translate all human-readable English into clear Tamil.
-- If the answer is already Tamil, keep its meaning and wording as intact as possible; only clean obvious mixed-language fragments when appropriate.
-- Do not add predictions, advice, explanations, headings, disclaimers, or facts that are not in the source.
-- Do not remove any important sentence.
-- Use established Tamil astrology terminology such as ஜோதிடம், ஜாதகம், ராசி, நட்சத்திரம், கிரகம், பாவம், தசா, கோச்சாரம், பரிகாரம் where appropriate.
-- Return ONLY the translated answer text. Do not return JSON, markdown fences, or commentary.
-
-ANSWER:
-${source}
-`;
-
-  let lastDetail = "";
-  for (const model of OPENAI_TRANSLATION_FALLBACK_MODELS) {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 60000);
-      try {
-        const response = await fetch("https://api.openai.com/v1/responses", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${OPENAI_API_KEY}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            model,
-            instructions: "நீங்கள் SMV ASTRO தமிழ் ஜோதிட ஆலோசனைக்கான தொழில்முறை மொழிபெயர்ப்பாளர். வழங்கப்பட்ட பதிலின் பொருளை மாற்றாமல் இயல்பான, தெளிவான தமிழில் மொழிபெயர்க்கவும். பதில் உரையை மட்டும் திருப்பி அனுப்பவும்.",
-            input: prompt,
-            max_output_tokens: 6000
-          }),
-          signal: controller.signal
-        });
-        const result = await response.json().catch(() => ({}));
-        if (response.ok) {
-          const translated = String(result?.output_text || result?.output?.flatMap(x => x?.content || []).map(x => x?.text || "").join("\n") || "").trim();
-          if (!translated) {
-            lastDetail = "OpenAI எந்த தமிழாக்க பதிலும் வழங்கவில்லை.";
-          } else {
-            const sourceHasTamil = /[\u0B80-\u0BFF]/.test(source);
-            const tamilChars = (translated.match(/[\u0B80-\u0BFF]/g) || []).length;
-            if (!sourceHasTamil && tamilChars < 3) {
-              lastDetail = "OpenAI தமிழாக்கம் சரியாக உருவாகவில்லை.";
-            } else {
-              return translated.replace(/^```(?:text)?\s*/i, "").replace(/\s*```$/i, "").trim();
-            }
-          }
-        } else {
-          lastDetail = result?.error?.message || `OpenAI API HTTP ${response.status}`;
-          if (![429, 500, 502, 503, 504].includes(response.status) || attempt === 1) break;
-          await new Promise(r => setTimeout(r, 1500 * (2 ** attempt)));
-        }
-      } catch (err) {
-        lastDetail = err?.name === "AbortError" ? "OpenAI கோரிக்கைக்கு நேரம் முடிந்தது." : (err?.message || "OpenAI request failed");
-        if (attempt === 1) break;
-        await new Promise(r => setTimeout(r, 1500 * (2 ** attempt)));
-      } finally {
-        clearTimeout(timer);
-      }
-    }
-  }
-
-  throw new Error(`OpenAI தமிழ் மொழிபெயர்ப்பு சேவை தற்காலிகமாக கிடைக்கவில்லை. (${lastDetail})`);
-}
-
-// Tamil translation endpoint for the Tamil website/blog manager.
-// OpenAI is called ONLY from Render so OPENAI_API_KEY never reaches the browser.
-// Gemini remains available for the separate horoscope AI-future endpoint below.
-app.post("/api/translate-tamil", express.json({ limit: "250kb" }), async (req, res) => {
-  try {
-    if (!OPENAI_API_KEY) {
-      return res.status(503).json({ ok:false, error:"OpenAI தமிழ் மொழிபெயர்ப்பு சேவை அமைக்கப்படவில்லை. Render Environment Variables-ல் OPENAI_API_KEY-ஐ அமைக்கவும்." });
-    }
-
-    const title = String(req.body?.title || "").trim();
-    const summary = String(req.body?.summary || "").trim();
-    const body = String(req.body?.body || "").trim();
-    if (!title && !summary && !body) {
-      return res.status(400).json({ ok:false, error:"மொழிபெயர்க்க வேண்டிய வலைப்பதிவு உள்ளடக்கம் இல்லை." });
-    }
-
-    const prompt = `
-Translate the following SMV ASTRO blog into natural, polished Tamil for a Tamil-only astrology website.
-Rules:
-- Translate ALL human-readable English text into Tamil.
-- Do NOT leave English sentences, headings, bullet text, or explanations.
-- Keep proper names, URLs, email addresses, numbers, dates, currency symbols, HTML tags, and technical identifiers unchanged when necessary.
-- Do not add information that is not present.
-- Preserve paragraph breaks and list structure.
-- Do not use transliterated English when a natural Tamil word exists.
-- For astrology terminology use established Tamil terms such as ஜோதிடம், ஜாதகம், ராசி, நட்சத்திரம், கிரகம், பாவம், தசா, கோச்சாரம், பரிகாரம்.
-- Return ONLY valid JSON with exactly these keys: title, summary, body.
-
-TITLE:
-${JSON.stringify(title)}
-
-SUMMARY:
-${JSON.stringify(summary)}
-
-BODY:
-${JSON.stringify(body)}
-`;
-
-    let lastDetail = "";
-    let lastStatus = 502;
-    let usedModel = OPENAI_TRANSLATION_MODEL;
-
-    for (const model of OPENAI_TRANSLATION_FALLBACK_MODELS) {
-      usedModel = model;
-      for (let attempt = 0; attempt < 2; attempt++) {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 60000);
-        try {
-          const response = await fetch("https://api.openai.com/v1/responses", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${OPENAI_API_KEY}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              model,
-              instructions: "நீங்கள் SMV ASTRO தமிழ் வலைத்தளத்திற்கான தொழில்முறை மொழிபெயர்ப்பாளர். வழங்கப்பட்ட உள்ளடக்கத்தை மட்டும் இயல்பான, தெளிவான தமிழில் மொழிபெயர்க்கவும். மனிதர் படிக்கும் ஆங்கில வாக்கியங்களை விட வேண்டாம். சரியான JSON மட்டும் திருப்பி அனுப்பவும்.",
-              input: prompt,
-              max_output_tokens: 6000
-            }),
-            signal: controller.signal
-          });
-
-          const result = await response.json().catch(() => ({}));
-          lastStatus = response.status;
-          if (response.ok) {
-            const raw = String(result?.output_text || result?.output?.flatMap(x => x?.content || []).map(x => x?.text || "").join("\n") || "").trim();
-            if (!raw) {
-              lastDetail = "OpenAI எந்த மொழிபெயர்ப்பையும் வழங்கவில்லை.";
-              break;
-            }
-
-            let translated;
-            try {
-              translated = JSON.parse(raw);
-            } catch (_) {
-              const cleaned = raw.replace(/^```json\\s*/i, "").replace(/^```\\s*/i, "").replace(/\\s*```$/, "").trim();
-              try { translated = JSON.parse(cleaned); }
-              catch (parseErr) {
-                lastDetail = "OpenAI JSON மொழிபெயர்ப்பு பதில் சரியான வடிவில் இல்லை.";
-                break;
-              }
-            }
-
-            if (!translated || typeof translated !== "object") {
-              lastDetail = "OpenAI translation response is invalid.";
-              break;
-            }
-
-            const outTitle = String(translated.title || "").trim();
-            const outSummary = String(translated.summary || "").trim();
-            const outBody = String(translated.body || "").trim();
-            if (!outTitle || !outBody) {
-              lastDetail = "OpenAI தமிழ் மொழிபெயர்ப்பு முழுமையாக கிடைக்கவில்லை.";
-              break;
-            }
-
-            const tamilChars = (outTitle + " " + outSummary + " " + outBody).match(/[\u0B80-\u0BFF]/g) || [];
-            const sourceHasTamil = /[\u0B80-\u0BFF]/.test(title + summary + body);
-            if (!sourceHasTamil && tamilChars.length < 3) {
-              lastDetail = "OpenAI தமிழாக்கம் சரியாக உருவாகவில்லை. மீண்டும் முயற்சிக்கவும்.";
-              break;
-            }
-
-            return res.json({
-              ok: true,
-              provider: "openai",
-              model: usedModel,
-              title: outTitle,
-              summary: outSummary,
-              body: outBody
-            });
-          }
-
-          lastDetail = result?.error?.message || `OpenAI API HTTP ${response.status}`;
-          if (![429, 500, 502, 503, 504].includes(response.status) || attempt === 1) break;
-          await new Promise(r => setTimeout(r, 1500 * (2 ** attempt)));
-        } catch (err) {
-          lastDetail = err?.name === "AbortError" ? "OpenAI கோரிக்கைக்கு நேரம் முடிந்தது." : (err?.message || "OpenAI request failed");
-          if (attempt === 1) break;
-          await new Promise(r => setTimeout(r, 1500));
-        } finally {
-          clearTimeout(timer);
-        }
-      }
-    }
-
-    return res.status(lastStatus >= 400 ? 502 : 502).json({
-      ok:false,
-      error:`OpenAI தமிழ் மொழிபெயர்ப்பு சேவை தற்காலிகமாக கிடைக்கவில்லை. (${lastDetail})`
-    });
-  } catch (e) {
-    console.error("Tamil blog translation error:", e?.stack || e);
-    return res.status(500).json({
-      ok:false,
-      error:e?.message || "தமிழ் மொழிபெயர்ப்பு தோல்வியடைந்தது."
-    });
-  }
-});
+// Translation service removed. Authors' answers and blogs are saved as submitted.
+app.post('/api/translate-tamil', (req,res)=>res.status(410).json({ok:false,error:'Automatic translation has been removed. Publish the original text.'}));
 
 app.post("/api/horoscope/ai-future", express.json({ limit: "60kb" }), async (req, res) => {
   try {

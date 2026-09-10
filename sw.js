@@ -1,5 +1,5 @@
-const CACHE_NAME='smv-astro-ta-20260910';
-const APP_SHELL=['./index.html','./legacy.css?v=20260910','./interface.css?v=20260910','./interface.js?v=20260910','./app.mjs?v=20260910','./public-content.mjs?v=20260910','./locale-ui.js?v=20260910','./admin-workflows.mjs?v=20260910','./manifest.webmanifest','./assets/icon-192.png','./assets/icon-512.png'];
+const CACHE_NAME='smv-astro-ta-20260910b';
+const APP_SHELL=['./index.html','./legacy.css?v=20260910b','./interface.css?v=20260910b','./interface.js?v=20260910b','./app.mjs?v=20260910b','./public-content.mjs?v=20260910b','./locale-ui.js?v=20260910b','./admin-workflows.mjs?v=20260910b','./manifest.webmanifest','./assets/icon-192.png','./assets/icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(APP_SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('smv-astro-')&&k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{

@@ -1,5 +1,5 @@
 
-import { renderAdminWorkflows } from "./admin-workflows.mjs?v=20260910";
+import { renderAdminWorkflows } from "./admin-workflows.mjs?v=20260910b";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, deleteUser, setPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 import { getFirestore, collection, query, where, getDocs, getDocsFromServer, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
@@ -61,6 +61,9 @@ async function renderApi(path, options={}, userOverride=null){
  })();
  if(method==='GET')smvReadRequests.set(key,task);
  try{return await task;}finally{if(smvReadRequests.get(key)===task)smvReadRequests.delete(key);}
+}
+function smvAssertLiveCheckout(key){
+ if(!/^rzp_live_[A-Za-z0-9]+$/.test(String(key||'')))throw new Error('Payment blocked: this backend returned a Test or invalid Razorpay key. Live payment is required. Backend: '+RAZORPAY_BACKEND_URL);
 }
 async function renderPublicApi(path, options={}){
   const headers={"Content-Type":"application/json",...(options.headers||{})};
@@ -1168,7 +1171,8 @@ async function retryCustomerPayment(questionId, triggerButton){
       },
       modal:{ondismiss:function(){if(btn){btn.disabled=false;btn.textContent='கட்டணத்தை மீண்டும் முயற்சிக்கவும்';}}}
     };
-    const rzp=new Razorpay(options);
+    smvAssertLiveCheckout(options.key);
+  const rzp=new Razorpay(options);
     rzp.on('payment.failed',function(resp){
       console.warn('Retry payment failed:',resp);
       alert('Payment failed: '+(resp?.error?.description||'Please try again.'));
@@ -1273,6 +1277,7 @@ $("submitQuestionBtn")?.addEventListener("click",async()=>{
      btn.disabled=false;btn.textContent="கட்டணத்தை மீண்டும் முயற்சிக்கவும்";
    }}
   };
+  smvAssertLiveCheckout(options.key);
   const rzp=new Razorpay(options);
   rzp.on("payment.failed",function(resp){
     try{ sessionStorage.removeItem("smv_last_payment_success"); }catch(_e){}
@@ -1705,7 +1710,12 @@ function smvWatchQuestions(role){
    if(button)button.textContent="\u0baa\u0bc1\u0ba4\u0bbf\u0baf \u0ba4\u0b95\u0bb5\u0bb2\u0bcd \u0b89\u0bb3\u0bcd\u0bb3\u0ba4\u0bc1 \u2014 \u0baa\u0bc1\u0ba4\u0bc1\u0baa\u0bcd\u0baa\u0bbf";
  },e=>console.warn('Live dashboard updates unavailable:',e));
 }
-window.__smvRefreshDashboard=()=>loadDashboard(null,true);
+window.__smvRefreshDashboard=()=>{
+ if(!currentUser)throw new Error('Please login again.');
+ smvInternalView='dashboard'; dashboardReadyAt=0;
+ hidePrimarySections('dashboard');show('dashboard');show('dashboardContent');
+ return loadDashboard(dashboardReadyRole||null,true);
+};
 window.addEventListener('smv:logged-out',()=>{smvQuestionWatch?.();smvQuestionWatch=null;smvWatchUid=null;dashboardReadyAt=0;});
 async function loadDashboard(expectedRole=null,force=false){
  const box=$('dashboardContent');
@@ -2126,7 +2136,7 @@ ${ad.status === 'rejected' && ad.rejectionReason
     }
 
     b.disabled = true;
-    b.textContent = 'தமிழாக்கம் + சமர்ப்பிக்கிறது...';
+    b.textContent = 'சமர்ப்பிக்கப்படுகிறது...';
 
     try {
 
@@ -2502,51 +2512,12 @@ ${ad.status === 'rejected' && ad.rejectionReason
    // That made the entire dashboard appear slow. Read the profile + all customer
    // questions in parallel and render immediately. Render reconciliation/refund
    // work is optional and runs only after the main data is available.
-   let consultationItems=[];
-   try{
-     // IMPORTANT: force a SERVER read. The default getDocs() may return an
-     // older local/cache snapshot after a newly paid question was created.
-     // Customer Dashboard must always see the latest question immediately.
-     const customerQuestions=await withTimeout(
-       getDocsFromServer(query(collection(db,'smv_questions'),where('customerId','==',currentUser.uid))),
-       10000
-     );
-     consultationItems=customerQuestions.docs.map(d=>({id:d.id,questionId:d.id,...(d.data()||{})}));
-
-     // If the direct client query is empty, verify through the trusted backend
-     // instead of assuming that the customer has no questions. This also covers
-     // older question documents whose customer identifier was written in a
-     // legacy field.
-     if(!consultationItems.length){
-       try{
-         const cr=await withTimeout(renderApi('/customer/consultations',{method:'GET'}),8000);
-         if(cr?.success && Array.isArray(cr.questions) && cr.questions.length){
-           consultationItems=cr.questions;
-         }
-       }catch(backendErr){
-         console.warn('Customer backend verification skipped:',backendErr);
-       }
-     }
-   }catch(firestoreErr){
-     console.warn('Customer Firestore consultation load failed; using Render fallback:',firestoreErr);
-     try{
-       const cr=await withTimeout(renderApi('/customer/consultations',{method:'GET'}),8000);
-       if(!cr?.success) throw new Error(cr?.error||'Unable to load consultations.');
-       consultationItems=Array.isArray(cr.questions)?cr.questions:[];
-     }catch(backendErr){
-       console.warn('Customer consultation fallback failed:',backendErr);
-       consultationItems=[];
-     }
-   }
-   // Refund reconciliation is supplementary. Do NOT block first paint on it.
-   // A later background refresh handles pending Razorpay refunds.
-   // Dashboard history: newest questions/consultations first.
-   consultationItems.sort((a,b)=>smvQuestionSortTime(b)-smvQuestionSortTime(a));
-   const hasPendingRefund=consultationItems.some(item=>{
-     const st=String(item?.refundStatus||'').toLowerCase();
-     return ['question_rejected','admin_rejected'].includes(String(item?.status||'')) &&
-       item?.refundId && (!item?.refundRrn || ['pending','created','initiated','processing'].includes(st));
-   });
+   const cr=await renderApi('/customer/consultations?_fresh='+Date.now()+'-'+loadId,{method:'GET'});
+   if(!cr?.success||!Array.isArray(cr.questions))throw new Error(cr?.error||'Unable to load current questions.');
+   if(cr.customerId && cr.customerId!==loadUid)throw new Error('The response belongs to a different login session.');
+   if(!active())return;
+   const consultationItems=cr.questions.slice().sort((a,b)=>Date.parse(b.createdAt||'')-Date.parse(a.createdAt||''));
+   const hasPendingRefund=false;
    const paid=consultationItems.filter(q=>q.status!=='awaiting_payment').length;
    const qCount=consultationItems.length;
    if(!active()) return;
@@ -2581,7 +2552,8 @@ ${ad.status === 'rejected' && ad.rejectionReason
    $('dashboardRetry')?.addEventListener('click',()=>loadDashboard(expectedRole));
  }
  })();
- try{return await dashboardLoadPromise;}finally{if(dashboardLoadUid===loadUid){dashboardLoadPromise=null;dashboardLoadUid=null;}}
+ const ownedRequest=dashboardLoadPromise;
+ try{return await ownedRequest;}finally{if(dashboardLoadPromise===ownedRequest){dashboardLoadPromise=null;dashboardLoadUid=null;}}
 }
 function openPayoutChange(){
  openModal(`<h2>Change Payment Method</h2><p class="small">For security, your previous bank/UPI details are not displayed. Enter the new details. The new method will remain pending until Admin approval.</p>
@@ -2774,25 +2746,18 @@ async function smvUploadBlogText(body,id){
   if(!response.ok||!result.secure_url)throw new Error(result.error?.message||"Cloudinary blog text upload failed. Check the unsigned upload preset and raw-file delivery settings.");
   return {url:result.secure_url,publicId:result.public_id,size:file.size};
 }
-async function smvTranslateBlogToTamil(title,summary,body){
-  const response=await fetch((window.SMV_BACKEND_URL||"https://smvastro-tamil.onrender.com")+"/api/translate-tamil",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title,summary,body})});
-  const result=await response.json().catch(()=>({}));
-  if(!response.ok||!result.ok)throw new Error(result.error||"தமிழ் மொழிபெயர்ப்பு தோல்வியடைந்தது.");
-  return {title:String(result.title||title),summary:String(result.summary||summary),body:String(result.body||body)};
-}
 async function saveBlog(){
   const sourceTitle=$("blogTitle")?.value.trim(),sourceSummary=$("blogSummary")?.value.trim(),sourceBody=$("blogBody")?.value.trim(),editId=$("blogEditId")?.value.trim();
   if(!sourceTitle||!sourceBody){smvNotice("வலைப்பதிவு","தலைப்பையும் உள்ளடக்கத்தையும் உள்ளிடவும்.","!");return;}
-  const b=$("saveBlogBtn");b.disabled=true;b.textContent="தமிழில் மாற்றி வெளியிடப்படுகிறது...";
+  const b=$("saveBlogBtn");b.disabled=true;b.textContent="வெளியிடப்படுகிறது...";
   try{
-    // IMPORTANT: Tamil public version is generated by Render -> Gemini before Cloudinary storage.
-    const translated=await smvTranslateBlogToTamil(sourceTitle,sourceSummary,sourceBody);
+    const submitted={title:sourceTitle,summary:sourceSummary,body:sourceBody};
     let id=editId,old=null;if(editId){const oldSnap=await getDoc(doc(db,SMV_CONTENT_COLLECTION,editId));if(!oldSnap.exists())throw new Error("வலைப்பதிவு கிடைக்கவில்லை.");old=oldSnap.data()||{};}else id=doc(collection(db,SMV_CONTENT_COLLECTION)).id;
     let coverUrl=old?.coverUrl||"",coverPath=old?.coverPath||"";const file=$("blogCoverFile")?.files?.[0];if(file){const up=await smvUploadFile(file,"image",id);coverUrl=up.url;coverPath=up.path;}
-    const textUp=await smvUploadBlogText(translated.body,id);
-    const data={kind:"blog",title:translated.title,summary:translated.summary,sourceTitle,sourceSummary,sourceBody,language:"ta",translationProvider:"gemini-render",translationModel:"server",bodyUrl:textUp.url,bodyPublicId:textUp.publicId,bodySize:textUp.size,coverUrl,coverPath,published:true,updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
+    const textUp=await smvUploadBlogText(submitted.body,id);
+    const data={kind:"blog",title:submitted.title,summary:submitted.summary,sourceTitle,sourceSummary,sourceBody,language:"ta",bodyUrl:textUp.url,bodyPublicId:textUp.publicId,bodySize:textUp.size,coverUrl,coverPath,published:true,updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
     if(editId)await updateDoc(doc(db,SMV_CONTENT_COLLECTION,editId),data);else await setDoc(doc(db,SMV_CONTENT_COLLECTION,id),{...data,createdAt:serverTimestamp(),publishedAt:serverTimestamp(),authorUid:currentUser.uid});
-    smvClearBlogForm();await loadAdminContent();await loadPublicContent();$("blogManagerMsg").innerHTML='<span class="success">வலைப்பதிவு தமிழில் மாற்றப்பட்டு வெளியிடப்பட்டது.</span>';
+    smvClearBlogForm();await loadAdminContent();await loadPublicContent();$("blogManagerMsg").innerHTML='<span class="success">வலைப்பதிவு வெளியிடப்பட்டது.</span>';
   }catch(e){$("blogManagerMsg").innerHTML='<span class="error">'+escapeHtml(e.message||String(e))+'</span>';}finally{b.disabled=false;b.textContent="வலைப்பதிவை வெளியிடவும்";}
 }
 async function uploadMedia(){

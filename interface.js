@@ -13,16 +13,21 @@
   function addRefresh(rootId,id,action){
     const root=document.getElementById(rootId);if(!root||document.getElementById(id))return;
     const b=document.createElement('button');b.id=id;b.className='btn smv-refresh';b.type='button';b.textContent=t('Refresh','புதுப்பி');
-    b.onclick=async()=>{b.disabled=true;try{await window[action]?.();}finally{b.disabled=false;b.textContent=t('Refresh','புதுப்பி');}};
+    b.onclick=async()=>{
+ b.disabled=true;b.textContent=t('Refreshing…','புதுப்பிக்கப்படுகிறது…');
+ try{if(typeof window[action]!=='function')throw new Error(t('The page is still loading. Try again shortly.','பக்கம் ஏற்றப்படுகிறது. சிறிது நேரத்தில் மீண்டும் முயற்சிக்கவும்.'));await window[action]();}
+ catch(e){alert(e.message||String(e));}
+ finally{b.disabled=false;b.textContent=t('Refresh','புதுப்பி');}
+};
     root.insertBefore(b,root.firstChild);
   }
   addRefresh('dashboard','smvRefreshDashboard','__smvRefreshDashboard');
   addRefresh('admin','smvRefreshAdmin','__smvRefreshAdmin');
   const admin=document.getElementById('admin');
   if(admin){
-    const nav=document.createElement('nav');nav.className='smv-admin-nav';nav.setAttribute('aria-label',t('Admin sections','நிர்வாகப் பகுதிகள்'));
+    const nav=document.createElement('div');nav.className='smv-admin-nav';nav.setAttribute('role','navigation');nav.setAttribute('aria-label',t('Admin sections','நிர்வாகப் பகுதிகள்'));
     for(const [id,en,tamil] of [['adminPendingQuestions','Questions & allocation','கேள்விகள் / ஒதுக்கீடு'],['adminAnswers','Answer approval','பதில் அங்கீகாரம்'],['adminRefunds','Refunds','பணத்திருப்பம்']]){
-      const b=document.createElement('button');b.type='button';b.textContent=t(en,tamil);b.onclick=()=>document.getElementById(id)?.parentElement.scrollIntoView({behavior:'smooth',block:'start'});nav.append(b);
+      const b=document.createElement('button');b.type='button';b.className='smv-admin-jump';b.textContent=t(en,tamil);b.onclick=()=>document.getElementById(id)?.parentElement.scrollIntoView({behavior:'smooth',block:'start'});nav.append(b);
     }
     admin.insertBefore(nav,admin.firstChild);
   }
