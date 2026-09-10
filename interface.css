@@ -1,0 +1,27 @@
+/* Readable, consistent final interface. Calculation layouts are preserved. */
+[hidden],#smvInstallAppSection[hidden]{display:none!important}
+html[lang="en"] #tamil-horoscope,html[lang="ta"] #english-horoscope{display:none!important}
+@media(display-mode:standalone){#smvInstallAppSection{display:none!important}}
+@media(display-mode:fullscreen){#smvInstallAppSection{display:none!important}}
+html body{background:#fff!important;color:#242424!important;line-height:1.6}
+html body :is(#admin,#dashboard){font-size:16px!important;letter-spacing:normal!important}
+html body :is(#admin,#dashboard) .card{background:#fff!important;border:1px solid #e4e4e4!important;border-radius:10px!important;box-shadow:none!important;padding:18px!important;margin-bottom:16px!important}
+html body :is(#admin,#dashboard) :is(p,div,label,td,textarea,input,select){letter-spacing:normal!important;line-height:1.6!important}
+html body :is(#admin,#dashboard) :is(h2,h3){color:#a31920!important;letter-spacing:normal!important;font-weight:700!important;line-height:1.5!important;text-transform:none!important}
+html body :is(#admin,#dashboard) .small{font-size:14px!important;line-height:1.6!important}
+html body :is(#admin,#dashboard) :is(button,input,select,textarea){font-size:16px!important;min-height:44px!important;border-radius:6px!important;text-transform:none!important;letter-spacing:normal!important}
+html body :is(#admin,#dashboard) button{background:#a31920!important;color:#fff!important;border:1px solid #a31920!important;box-shadow:none!important;font-weight:600!important;white-space:normal!important}
+html body :is(#admin,#dashboard) button:disabled{opacity:.6!important;cursor:wait}
+html body :is(#admin,#dashboard) input,html body :is(#admin,#dashboard) select,html body :is(#admin,#dashboard) textarea{background:#fff!important;color:#242424!important;border:1px solid #aaa!important;padding:10px!important;width:100%;box-sizing:border-box}
+html body :is(#admin,#dashboard) label{display:block;font-size:14px!important}
+.smv-workflow-card{scroll-margin-top:100px;overflow-wrap:anywhere}
+.smv-workflow-card .action-row{display:flex!important;flex-wrap:wrap!important;gap:10px!important;align-items:end!important;margin:12px 0!important}
+.smv-workflow-card .action-row>label{flex:1 1 180px}
+.smv-workflow-card details{margin:12px 0}
+.smv-workflow-card summary{cursor:pointer;font-weight:600;min-height:44px;padding:8px 0}
+.smv-workflow-card [data-workflow="reject-question"],.smv-workflow-card [data-workflow="reject-answer"]{border-style:dashed!important}
+.smv-admin-nav{display:flex!important;gap:8px!important;flex-wrap:wrap!important;justify-content:flex-start!important;padding:12px 0!important;margin-bottom:10px!important;background:#fff!important}
+.smv-refresh{margin:8px 0 16px!important}
+#adminPendingQuestions,#adminAnswers,#adminRefunds{scroll-margin-top:100px}
+html body .smv-install-app-card{background:#fff!important;box-shadow:none!important;border:1px solid #ddd!important}
+@media(max-width:650px){html body :is(#admin,#dashboard) .card{padding:14px!important}.smv-workflow-card .action-row>button{flex:1 1 180px}html body :is(#admin,#dashboard){margin-top:20px!important}}
