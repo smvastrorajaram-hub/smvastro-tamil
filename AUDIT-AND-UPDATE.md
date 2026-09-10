@@ -1,51 +1,34 @@
-# SMV ASTRO — Refresh / Live checkout / Claim / Submission திருத்தம்
+# SMV ASTRO — Refund / RRN / Mobile buttons
 
-பதிப்பு: 2026-09-10b
+பதிப்பு: 2026-09-11. முந்தைய Refresh, Live checkout, Claim மற்றும் OpenAI-removal திருத்தங்களையும் உள்ளடக்கிய முழு package.
 
-முந்தைய ZIP திருத்தங்களையும் உள்ளடக்கிய முழு website package இது. இந்த வழிகாட்டி முந்தைய ஆய்வுக் குறிப்பை மாற்றுகிறது.
+## இந்தப் பதிப்பில்
 
-## மாற்றங்கள்
+- பதில் சமர்ப்பிக்கப்பட்ட கேள்வி மற்றும் முடிக்கப்பட்ட கேள்வி இரண்டிற்கும் admin rejection/refund செயல்படும். முடிக்கப்பட்ட கேள்விக்கான action Recent Questions பகுதியில் உள்ளது.
+- Refund ID இல்லாத failed/pending பதிவில் Retry refund உள்ளது. முன்னர் refund உருவாகியிருந்தால் அதை Razorpay-ல் தேடி இணைக்கும். மீண்டும் POST செய்யும்போது அதே payload மற்றும் `X-Refund-Idempotency` key பயன்படுத்தப்படும். ஒரே நேரத்தில் இயங்கும் request-க்கும் lock உள்ளது.
+- Refund ID ஏற்கெனவே இருந்தால் புதிய refund உருவாக்காமல் அதன் நிலையை மட்டும் பெறும். ஏற்கெனவே partial refund அல்லது வேறொரு refund இருந்தால் தானாக மேலும் பணம் அனுப்பாது; தெளிவான admin review message வரும்.
+- Real `pay_...` ID, order ID, INR amount மற்றும் captured payment ஆகியவை சரிபார்க்கப்படும். SMV-PAY customer reference என்பது Razorpay payment ID அல்ல.
+- Admin refund card-ல் உண்மையான payment/refund API error காட்டப்படும். Screenshot-ல் refund ID இல்லாததால் refund உருவாகவில்லை என்பது தெரிகிறது; அதன் துல்லியமான live API காரணத்தை screenshot மட்டும் கொண்டு உறுதிசெய்ய முடியாது. பழைய Test payment-ஐ Live credentials மூலம் refund செய்ய இயலாது; அந்த account/mode mismatch-ஐ code உருவாக்கி சரிசெய்யாது.
+- Customer refund details-ல் RRN எப்போதும் ஒரு வரியாகத் தெரியும். கிடைக்காதபோது வங்கி வழங்கியதும் காட்டப்படும் என வரும். ARN/UTR கிடைத்தால் தனித்தனி பெயர்களில் காட்டப்படும்; RRN என்று மாற்றிக் காட்டப்படாது.
+- Admin refund details/updates-ல் requested date/time, refund creation date/time, processed-confirmation date/time, last attempt மற்றும் last status check உள்ளன. Notification record-களிலும் refund timestamps சேர்க்கப்பட்டுள்ளன. Processing time API-ல் இல்லையெனில் முதலில் processed நிலை உறுதிசெய்யப்பட்ட நேரம் பயன்படுத்தப்படும்; அதை ஒவ்வொரு refresh-லும் மாற்றாது.
+- ஏற்கெனவே வரவு வைக்கப்பட்ட astrologer commission/earnings அழிக்கப்படாது. அப்படிப்பட்ட refund-க்கு commission review குறிப்பு காட்டப்படும். இந்தப் பதிப்பு ஏற்கெனவே paid-out commission-ஐ தானாக claw back செய்யாது.
+- மொபைல் column layout-ல் 180px flex-basis பொத்தான் உயரமாக மாறிய பிழை நீக்கப்பட்டது. பொத்தான்களின் உயரம் content-க்கு ஏற்ப, குறைந்தபட்சம் 44px. Labels/commission inputs-க்கும் அதே flex பிழை சரிசெய்யப்பட்டது.
 
-1. Customer Refresh: Dashboard route-ஐ உறுதிசெய்து, ஒவ்வொரு refresh-க்கும் தனித்த புதிய authenticated server request செய்யப்படுகிறது. பழைய loading request முடிவடைந்தாலும் புதிய request-ன் state-ஐ அழிக்காது. Customer questions backend-ல் அந்த customerId-க்கு மட்டும் query செய்யப்படுகின்றன. Response `no-store` மற்றும் fetchedAt/customerId தகவல்களுடன் வருகிறது. பழைய cache/Firestore fallback மூலம் புதிய server தகவலை மாற்றும் பாதை அகற்றப்பட்டுள்ளது. Server failure ஏற்பட்டால் error காட்டப்படும்; வெற்றிகரமாக refresh ஆனதாகக் கருதக்கூடாது.
+## Deploy
 
-2. Live checkout: இந்த production பதிப்பில் `rzp_live_` key மட்டும் அனுமதிக்கப்படுகிறது. Backend Test/invalid key வைத்திருந்தால் புதிய order உருவாக்கப்படாது. பழைய backend Test key அனுப்பினாலும் frontend checkout திறக்காது. தமிழ் Retry Payment உட்பட எல்லா checkout constructors-க்கும் guard உள்ளது. Admin Razorpay connection check-மும் Live mode-ஐச் சரிபார்க்கிறது. Test-mode payments இந்தப் பதிப்பில் திட்டமிட்டு தடுக்கப்படுகின்றன.
+1. Render backend-ல் **server.js மற்றும் refund-service.js இரண்டையும்** சேர்த்து deploy செய்ய வேண்டும். புதிய refund-service.js இல்லாமல் server தொடங்காது. Package-ன் மற்ற backend dependencies மாற்றப்படவில்லை.
+2. Frontend-ல் முழு website folder-ஐப் புதுப்பிக்கவும்; index.html மட்டும் போதாது. app.mjs, admin-workflows.mjs, interface.css மற்றும் sw.js உட்பட புதிய assets தேவை.
+3. இந்தப் பதிப்பின் asset/service-worker version 20260911. Upload பின் browser/app-ஐ மூடித் திறக்கவும்.
+4. தோல்வியடைந்த கேள்வியின் Admin Refunds பகுதியில் காட்டப்படும் error-ஐப் பார்க்கவும்; Retry refund அழுத்தவும். ID இருந்தால் Refresh refund status பயன்படுத்தவும்.
+5. RRN வங்கியிடமிருந்து கிடைத்தால் மட்டுமே உண்மையான எண் காட்டப்படும். வெறும் refund processed நிலைக்காக dummy RRN உருவாக்கப்படாது.
 
-3. Claim & Answer: English-ல் நேரடி Firestore transaction நீக்கப்பட்டு `/astrologer/claim-question` பயன்படுத்தப்படுகிறது. இரு backends-லும் approved astrologer, அந்த user-க்கு allocation, admin approval, question status ஆகியவை ஒரே server transaction-ல் சரிபார்க்கப்படுகின்றன. மூடப்பட்ட/மற்றவருக்கு ஒதுக்கப்பட்ட கேள்வியை claim செய்ய முடியாது. Firestore rules-ஐத் தளர்த்தவில்லை.
+## சோதனைகள்
 
-4. Admin மூன்று shortcuts: header nav-க்கு விதிக்கப்பட்ட fixed button அளவுகளிலிருந்து பிரிக்கப்பட்டன. பெரிய திரையில் மூன்று columns; 600px-க்குக் கீழ் ஒவ்வொரு பொத்தானும் தனி வரியில். Height தானாக விரிவடையும். Questions/Answers/Refunds பகுதிகளுக்கு scroll செய்யும் shortcut செயல்பாடு தொடர்கிறது.
+Mocked Razorpay/Firestore சோதனைகள்: submitted/finished answers; existing credited commission preservation; successful refund; repeated retry; lost HTTP response after refund creation; same idempotency key/body; prior refund reconciliation; Test/Live lookup failure; concurrent request lock; partial-refund rejection; missing payment ID; customer ownership; RRN vs ARN; stable processing timestamps.
 
-5. OpenAI: தமிழ் Astrologer answer, Admin answer, Blog publishing-லிருந்து வெளிப்புற AI translation calls அகற்றப்பட்டுள்ளன. உள்ளிடும் மொழியிலேயே உள்ளடக்கம் சேமிக்கப்படும். `OPENAI_API_KEY` அல்லது OpenAI translation models இப்பதிப்புக்குத் தேவையில்லை. பழைய translate API 410 response கொடுக்கும். சாதாரண website labels-க்கான local Tamil dictionary தொடர்கிறது; அது OpenAI சேவை அல்ல. ஏற்கெனவே மொழிபெயர்த்து சேமிக்கப்பட்ட பழைய பதிவுகள் மாற்றப்படவில்லை.
+இருமொழி admin workflow rendering/API dispatch சோதனைகள் மற்றும் JavaScript syntax/static asset checks கடந்தன. Live credentials மாற்றப்படவில்லை; உண்மையான refund/payment இயக்கப்படவில்லை. Live refund வெற்றி Razorpay payment state/account/mode/balance போன்றவற்றைப் பொறுத்தது. பயனரின் screenshot refund வெற்றியடைந்துவிட்டதாக இந்த deliverable கூறவில்லை.
 
-6. Service worker மற்றும் asset URL version `20260910b` ஆக மாற்றப்பட்டுள்ளது.
+## API ஆதாரம்
 
-## முக்கியமான payment விளக்கம்
-
-அனுப்பிய screenshot-ல் “demo bank page” மற்றும் `/gateway/mock` காட்டப்படுகிறது. இந்தச் screenshot உண்மையான live payment வெற்றிக்கான ஆதாரம் அல்ல. எந்த key அந்த payment-க்கு உண்மையில் பயன்படுத்தப்பட்டது என்பதை screenshot மட்டும் கொண்டு அறிய முடியாது.
-
-Source code-ல் checkout key என்பது `/create-order` response-ல் இருந்து வருகிறது; bank page-ல் key மாற்றும் code இல்லை. Live Render environment-ஐ authenticated admin access இல்லாமல் நேரடியாக உறுதிசெய்ய முடியவில்லை. ஆகவே இந்தப் பதிப்பு Live configuration mismatch-ஐத் தடுக்கும் code fix; உங்கள் Render secrets மாற்றப்பட்டுவிட்டன என்றோ live transaction வெற்றியடைந்தது என்றோ பொருள் இல்லை.
-
-Frontend பயன்படுத்தும் தற்போதைய backend முகவரிகள்:
-
-- தமிழ்: https://smvastro-tamil.onrender.com
-- ஆங்கிலம்: https://smv-astro-1fco.onrender.com
-
-Live key அமைத்த Render service இதே service-ஆ என்று ஒப்பிடவும். வேறு Render service-ல் Live key அமைப்பது இந்த frontend-ஐ மாற்றாது. Secret key-ஐ chat-ல் அனுப்ப வேண்டியதில்லை.
-
-## புதுப்பிக்கும் வரிசை
-
-1. ஒவ்வொரு ZIP-ன் website folder-இல் உள்ள `server.js`-ஐ அதற்குரிய Render service-ல் deploy செய்யவும்.
-2. அதே ZIP-ன் முழு frontend கோப்புகளையும் GitHub website-ல் புதுப்பிக்கவும். `index.html` மட்டும் போதாது. புதிய app.mjs, interface.js, interface.css, sw.js உட்பட எல்லா frontend கோப்புகளையும் பயன்படுத்தவும்.
-3. Website/app-ஐ மூடித் திறந்து புதிய பதிப்பை ஏற்றவும்.
-4. Admin-ல் Razorpay connection check நடத்தவும். **Live credentials accepted** வந்ததா உறுதிசெய்யவும். Test/invalid key error வந்தால் காட்டப்பட்ட backend service-ன் RAZORPAY_KEY_ID மற்றும் அதற்குரிய RAZORPAY_KEY_SECRET-ஐ Live pair-ஆகச் சரிசெய்து redeploy செய்ய வேண்டும்.
-5. Customer account-ல் புதிய கேள்வி பதிவுக்குப் பிறகு logout இல்லாமல் Refresh செய்து புதிய ID காணப்படுகிறதா பார்க்கவும்.
-6. English astrologer-ல் ஒதுக்கப்பட்ட கேள்வியை Claim & Answer செய்து submission சோதிக்கவும்.
-7. தமிழ் answer/blog-ல் உள்ளிட்ட உள்ளடக்கமே சேமிக்கப்படுகிறதா பார்க்கவும்.
-
-## செய்த சோதனைகள் மற்றும் வரம்புகள்
-
-- இரண்டு பதிப்புகளிலும் JavaScript syntax மற்றும் local assets/duplicate IDs சோதனைகள் கடந்தன.
-- முந்தைய dashboard request புதிய request-ஐ அழிக்காமல் இருப்பதும், manual refresh route அமைவதும் controlled asynchronous regression tests-ல் சோதிக்கப்பட்டன.
-- Test/invalid key frontend-ல் தடுக்கப்படுவதும், server order creation-க்கு முன் மறுக்கப்படுவதும் சோதிக்கப்பட்டன. Live sample key mode gate-ஐக் கடந்து authentication-க்கு செல்வது மட்டுமே சோதிக்கப்பட்டது; உண்மையான key/secret authentication சோதிக்கப்படவில்லை.
-- Claim route-ல் owner mismatch, unapproved astrologer, closed question, missing ID, successful claim, repeated claim ஆகியவை mocked database transaction-ல் சோதிக்கப்பட்டன.
-- OpenAI request URL, translation helper calls, OpenAI environment dependency ஆகியவை active server/app code-ல் இல்லை.
-- Live authenticated browser/payment/refund test செய்யப்படவில்லை. Render environment variables மாற்றப்படவில்லை. உண்மையான பணப் பரிவர்த்தனை எதுவும் செய்யப்படவில்லை.
+- Normal refund மற்றும் bank reference fields: https://razorpay.com/docs/api/refunds/create-normal/
+- ஒரே request-ஐ மீண்டும் அனுப்பும் idempotency header/body விதிகள்: https://razorpay.com/docs/api/refunds/normal-refunds-idempotent

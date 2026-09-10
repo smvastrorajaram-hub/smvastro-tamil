@@ -1,3 +1,4 @@
+const {createRefundService,bankReferences}=require('./refund-service');
 const express = require("express");
 let SwissVedic = null;
 try { SwissVedic = require('./swiss_vedic'); } catch (e) { console.error('Swiss Ephemeris module unavailable:', e.message); }
@@ -1180,115 +1181,17 @@ app.post('/astrologer/claim-question', express.json({limit:'10kb'}), async(req,r
  }catch(e){return res.status(e.httpStatus||500).json({error:e.message||'Unable to claim the question.'});}
 });
 
-app.post("/admin/reject-question", express.json({limit:"10kb"}), async (req,res)=>{
-  const user=await requireUser(req,res); if(!user)return;
-  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
-  try{
-    const questionId=String(req.body?.questionId||"").trim();
-    const reason=String(req.body?.reason||"").trim();
-    if(!questionId||!reason) return res.status(400).json({error:"Question ID and rejection reason are required."});
-    const qRef=db.collection("smv_questions").doc(questionId);
-    const qSnap=await qRef.get();
-    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
-    const q=qSnap.data()||{};
-    const currentStatus=String(q.status||"");
-    const answerSubmitted=!!String(q.answer||"").trim();
-    const hasAstrologerAnswer=answerSubmitted &&
-      ["processing","answer_draft","admin_review","revision_required","answered"].includes(currentStatus);
-    const hasPaidQuestion=!!q.customerPaymentId || !!q.razorpayPaymentId || !!q.paymentRecordedAt || !!q.paidAt || q.paymentStatus==="paid";
-    const allocatedQuestion=!!q.adminQuestionApprovedAt && !!q.astrologerId &&
-      ["assigned_to_astrologer","reallocated","available_to_astrologers","claimed_by_astrologer"].includes(String(q.allocationStatus||""));
-    const canRejectBeforeFinalAnswer =
-      !["question_rejected","admin_rejected"].includes(currentStatus) &&
-      (allocatedQuestion || hasAstrologerAnswer || (hasPaidQuestion && !q.adminQuestionApprovedAt));
-    if(!canRejectBeforeFinalAnswer){
-      return res.status(409).json({error:"This question can no longer be rejected and refunded."});
-    }
-    const amount=Number(q.amount||q.paymentAmount||0);
-    const paid=!!q.customerPaymentId || !!q.razorpayPaymentId || !!q.paymentRecordedAt || !!q.paidAt || q.paymentStatus==="paid";
-
-    // Close the question first so answer approval cannot race with the rejection/refund decision.
-    const lockPatch={
-      status:"question_rejected", allocationStatus:"rejected_by_admin",
-      adminQuestionRejectedAt:FieldValue.serverTimestamp(), adminQuestionRejectedBy:user.uid,
-      adminQuestionRejectionReason:reason, refundEligible:paid && amount>0,
-      refundAmount:paid && amount>0 ? amount : 0,
-      refundReason:reason, refundStatus:paid && amount>0 ? "pending" : "not_applicable",
-      refundRequestedAt:paid && amount>0 ? FieldValue.serverTimestamp() : FieldValue.delete(),
-      astrologerAnswerStatus:"question_rejected", commissionStatus:"refund_pending",
-      astrologerCommissionAmount:0, commissionAmount:0, astrologerPaymentId:FieldValue.delete(),
-      answerApprovedAt:FieldValue.delete(), adminAnswerApprovedAt:FieldValue.delete(),
-      answerApprovedBy:FieldValue.delete(), commissionCreditedAt:FieldValue.delete(),
-      updatedAt:FieldValue.serverTimestamp()
-    };
-    await qRef.update(lockPatch);
-    const patch={...lockPatch};
-    let refund=null;
-    if(paid && amount>0 && q.razorpayPaymentId){
-      if(q.refundId){
-        refund={id:q.refundId,status:q.refundStatus||"pending",amount:Number(q.refundAmount||amount)};
-      }else{
-        try{
-          refund=await razorpay.payments.refund(String(q.razorpayPaymentId), { amount:Math.round(amount*100), notes:{questionId,reason:"Admin rejected question before consultation"} });
-          patch.refundId=refund.id||FieldValue.delete();
-          patch.refundStatus=String(refund.status||"pending").toLowerCase();
-          patch.refundAmount=refund.amount!=null?Number(refund.amount)/100:amount;
-          patch.refundCreatedAt=FieldValue.serverTimestamp();
-          patch.refundPaymentId=refund.payment_id||q.razorpayPaymentId;
-          patch.refundRrn=refund?.acquirer_data?.rrn||refund?.acquirer_data?.bank_reference_number||refund?.acquirer_data?.reference_number||FieldValue.delete();
-        }catch(refundError){
-          // Keep the exact Razorpay failure details in a safe, non-secret form.
-          // Never store the API secret or full request headers in Firestore.
-          const razorpayError = {
-            statusCode: Number(refundError?.statusCode || refundError?.status || 0) || null,
-            code: String(refundError?.error?.code || refundError?.code || "").trim() || null,
-            description: String(refundError?.error?.description || refundError?.description || refundError?.message || "Unable to create Razorpay refund.").trim(),
-            reason: String(refundError?.error?.reason || refundError?.reason || "").trim() || null,
-            source: String(refundError?.error?.source || refundError?.source || "").trim() || null,
-            step: String(refundError?.error?.step || refundError?.step || "").trim() || null
-          };
-          console.error("[REFUND_TRACE] Razorpay refund creation failed", {
-            questionId, razorpayPaymentId: String(q.razorpayPaymentId || ""),
-            amount: Math.round(amount * 100), razorpayError
-          });
-          patch.refundStatus="failed";
-          patch.refundError=razorpayError.description;
-          patch.refundErrorCode=razorpayError.code || FieldValue.delete();
-          patch.refundErrorStatusCode=razorpayError.statusCode || FieldValue.delete();
-          patch.refundErrorReason=razorpayError.reason || FieldValue.delete();
-          patch.refundErrorSource=razorpayError.source || FieldValue.delete();
-          patch.refundErrorStep=razorpayError.step || FieldValue.delete();
-          patch.refundLastAttemptAt=FieldValue.serverTimestamp();
-        }
-      }
-    }
-    await qRef.update(patch);
-    // Keep the rejection/refund result independent of audit logging.
-    // The answerSubmitted flag is explicitly defined above and is also copied
-    // into this local payload so an older deployed bundle cannot hit an
-    // undeclared-variable error at this point.
-    const rejectionAudit={reason,previousStatus:currentStatus,answerSubmitted:!!answerSubmitted,refundId:refund?.id||null,refundStatus:patch.refundStatus||null,refundAmount:patch.refundAmount||0};
-    await db.collection("smv_notifications").add({userId:q.customerId,type:"question_rejected",title:"Question Rejected — Refund",message:`Your paid question was rejected by Admin. Reason: ${reason}${patch.refundStatus!=="not_applicable"?` Refund status: ${patch.refundStatus}.`:""}`,questionId,refundStatus:patch.refundStatus||null,refundId:refund?.id||null,createdAt:FieldValue.serverTimestamp(),read:false});
-    if(q.astrologerId){
-      await db.collection("smv_notifications").add({userId:String(q.astrologerId),type:"question_rejected",title:"Question Rejected by Admin",message:`This question has been rejected by Admin and is no longer available. The customer payment is being refunded. Reason: ${reason}`,questionId,refundStatus:patch.refundStatus||null,refundId:refund?.id||null,createdAt:FieldValue.serverTimestamp(),read:false});
-    }
-    await writeAdminAudit("QUESTION_REJECTED",questionId,user.uid,rejectionAudit);
-    try{
-      const approvedAstros=await db.collection("smv_astrologers").where("status","==","approved").get();
-      const batch=db.batch();
-      approvedAstros.docs.forEach(a=>{
-        if(a.id===String(q.astrologerId||"")) return;
-        batch.set(db.collection("smv_notifications").doc(),{
-          userId:a.id,type:"question_rejected_broadcast",title:"Question Closed by Admin",
-          message:"A paid customer question has been permanently rejected and refunded by Admin. It is no longer available for answering.",
-          questionId,createdAt:FieldValue.serverTimestamp(),read:false
-        });
-      });
-      if(!approvedAstros.empty) await batch.commit();
-    }catch(notificationError){ console.warn("Reject-question broadcast notification failed:",notificationError?.message||notificationError); }
-    return res.json({success:true,questionId,refundId:refund?.id||q.refundId||null,refundStatus:patch.refundStatus||"not_applicable",refundAmount:Number(patch.refundAmount||amount||0),refundCreated:!!refund});
-  }catch(e){console.error("Admin reject question error:",e);return res.status(500).json({error:e?.message||"Unable to reject question and process refund."});}
-});
+const refundService=()=>createRefundService({db,razorpay,FieldValue,keyId:RAZORPAY_KEY_ID,keySecret:RAZORPAY_KEY_SECRET});
+for(const [path,retry] of [['/admin/reject-question',false],['/admin/retry-refund',true]]){
+ app.post(path,express.json({limit:'10kb'}),async(req,res)=>{
+  const user=await requireUser(req,res);if(!user)return;
+  if(!(await isAdminUser(user)))return res.status(403).json({error:'Admin access denied.'});
+  const id=String(req.body?.questionId||'').trim();
+  if(!/^[A-Za-z0-9_-]+$/.test(id))return res.status(400).json({error:'A valid Question ID is required.'});
+  try{const result=await refundService().reject(id,String(req.body?.reason||'').trim(),user,{retry});return res.status(result.success?200:502).json(result);}
+  catch(e){return res.status(e.httpStatus||500).json({error:e.message||'Refund request failed.'});}
+ });
+}
 
 // Admin-only diagnostic endpoint. It does NOT create a refund.
 // It verifies that the rejected question contains the real Razorpay payment ID
@@ -1351,59 +1254,16 @@ app.get("/admin/refund-trace/:questionId", async (req,res)=>{
 
 // Customer/Admin can explicitly reconcile a Razorpay refund. This is a safe
 // fallback when the Razorpay webhook is delayed or not configured yet.
-app.post("/customer/sync-refund", express.json({limit:"10kb"}), async (req,res)=>{
-  const user=await requireUser(req,res); if(!user)return;
-  try{
-    const questionId=String(req.body?.questionId||"").trim();
-    if(!questionId) return res.status(400).json({error:"Question ID is required."});
-    const qRef=db.collection("smv_questions").doc(questionId);
-    const qSnap=await qRef.get();
-    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
-    const q=qSnap.data()||{};
-    const isAdmin=await isAdminUser(user);
-    if(!isAdmin && String(q.customerId||"")!==String(user.uid||"")) return res.status(403).json({error:"Access denied."});
-    if(!["question_rejected","admin_rejected"].includes(String(q.status||""))) return res.status(409).json({error:"This question does not have a refund."});
-    if(!q.refundId) return res.json({success:true,refundStatus:String(q.refundStatus||"pending"),refundId:null,refundAmount:Number(q.refundAmount||q.amount||0),synced:false});
-
-    const refund=await razorpay.refunds.fetch(String(q.refundId));
-    const status=String(refund?.status||q.refundStatus||"pending").toLowerCase();
-    const amount=refund?.amount!=null?Number(refund.amount)/100:Number(q.refundAmount||q.amount||0);
-    const resolvedRrn=refund?.acquirer_data?.rrn||refund?.acquirer_data?.bank_reference_number||refund?.acquirer_data?.reference_number||refund?.rrn||q.refundRrn||null;
-    const patch={refundId:refund?.id||q.refundId,refundPaymentId:refund?.payment_id||q.refundPaymentId||q.razorpayPaymentId,refundAmount:amount,refundStatus:status,refundRrn:resolvedRrn||FieldValue.delete(),updatedAt:FieldValue.serverTimestamp()};
-    if(status==="processed"||status==="completed") patch.refundProcessedAt=FieldValue.serverTimestamp();
-    if(status==="failed") patch.refundFailedAt=FieldValue.serverTimestamp();
-    await qRef.set(patch,{merge:true});
-    return res.json({success:true,refundStatus:status,refundId:patch.refundId,refundAmount:amount,refundRrn:resolvedRrn,refundProcessed:status==="processed"||status==="completed"});
-  }catch(e){
-    console.error("Refund status sync failed:",e);
-    return res.status(502).json({error:e?.error?.description||e?.description||e?.message||"Unable to sync refund status from Razorpay."});
-  }
-});
-
-app.post("/admin/sync-refund", express.json({limit:"10kb"}), async (req,res)=>{
-  const user=await requireUser(req,res); if(!user)return;
-  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
-  try{
-    const questionId=String(req.body?.questionId||"").trim();
-    if(!questionId) return res.status(400).json({error:"Question ID is required."});
-    const qRef=db.collection("smv_questions").doc(questionId); const qSnap=await qRef.get();
-    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
-    const q=qSnap.data()||{};
-    if(!q.refundId) return res.status(409).json({error:"No Razorpay refund ID is stored for this question. If the refund failed to create, review the refund error and payment ID."});
-    const refund=await razorpay.refunds.fetch(String(q.refundId));
-    const status=String(refund?.status||q.refundStatus||"pending").toLowerCase();
-    const amount=refund?.amount!=null?Number(refund.amount)/100:Number(q.refundAmount||q.amount||0);
-    const patch={refundId:refund?.id||q.refundId,refundPaymentId:refund?.payment_id||q.refundPaymentId||q.razorpayPaymentId,refundAmount:amount,refundStatus:status,updatedAt:FieldValue.serverTimestamp()};
-    if(status==="processed"||status==="completed") patch.refundProcessedAt=FieldValue.serverTimestamp();
-    if(status==="failed") patch.refundFailedAt=FieldValue.serverTimestamp();
-    await qRef.set(patch,{merge:true});
-    await writeAdminAudit("REFUND_STATUS_SYNCED",questionId,user.uid,{refundId:patch.refundId,refundStatus:status,refundAmount:amount});
-    return res.json({success:true,refundStatus:status,refundId:patch.refundId,refundAmount:amount});
-  }catch(e){
-    console.error("Admin refund status sync failed:",e);
-    return res.status(502).json({error:e?.error?.description||e?.description||e?.message||"Unable to sync refund status from Razorpay."});
-  }
-});
+for(const [path,customer] of [['/customer/sync-refund',true],['/admin/sync-refund',false]]){
+ app.post(path,express.json({limit:'10kb'}),async(req,res)=>{
+  const user=await requireUser(req,res);if(!user)return;
+  if(!customer&&!(await isAdminUser(user)))return res.status(403).json({error:'Admin access denied.'});
+  const id=String(req.body?.questionId||'').trim();
+  if(!/^[A-Za-z0-9_-]+$/.test(id))return res.status(400).json({error:'A valid Question ID is required.'});
+  try{return res.json(await refundService().sync(id,user,{customer}));}
+  catch(e){return res.status(e.httpStatus||502).json({error:e.message||'Refund sync failed.'});}
+ });
+}
 
 app.post("/admin/reallocate-question", express.json({limit:"10kb"}), async (req,res)=>{
   const user=await requireUser(req,res); if(!user)return;
@@ -2995,12 +2855,12 @@ app.post("/razorpay/webhook", express.raw({ type: "application/json" }), async (
               refundId: refundEntity.id || FieldValue.delete(),
               refundPaymentId,
               refundAmount: amount != null ? amount : Number(match.data()?.refundAmount || 0),
-              refundRrn: refundEntity?.acquirer_data?.rrn || refundEntity?.acquirer_data?.bank_reference_number || refundEntity?.acquirer_data?.reference_number || match.data()?.refundRrn || FieldValue.delete(),
+              ...bankReferences(refundEntity,match.data()||{}),
               refundStatus: status || (eventType === "refund.processed" ? "processed" : eventType.replace("refund.", "")),
               updatedAt: FieldValue.serverTimestamp()
             };
-            if (eventType === "refund.processed" || status === "processed") patch.refundProcessedAt = FieldValue.serverTimestamp();
-            if (eventType === "refund.failed" || status === "failed") patch.refundFailedAt = FieldValue.serverTimestamp();
+            if (eventType === "refund.processed" || status === "processed") patch.refundProcessedAt = match.data()?.refundProcessedAt || FieldValue.serverTimestamp();
+            if (eventType === "refund.failed" || status === "failed") patch.refundFailedAt = match.data()?.refundFailedAt || FieldValue.serverTimestamp();
             await qRef.set(patch, {merge:true});
           }
         } catch (reconcileError) {
