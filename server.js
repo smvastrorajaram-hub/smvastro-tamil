@@ -483,16 +483,13 @@ app.post("/astrologer/edit-answer", async (req, res) => {
     }
 
     const q = snap.data() || {};
-    const allocatedAstrologerId = String(q.astrologerId || "").trim();
-    const allocationStatus = String(q.allocationStatus || "").toLowerCase();
-    if (allocatedAstrologerId !== String(user.uid).trim() ||
-        !["assigned_to_astrologer", "claimed_by_astrologer", "reallocated"].includes(allocationStatus)) {
-      return res.status(403).json({ error: "This question is not allocated to you." });
+    if (String(q.astrologerId || "") !== String(user.uid)) {
+      return res.status(403).json({ error: "This question is not assigned to you." });
     }
 
-    // Approved/final answers can never be reopened by the astrologer.
-    if (String(q.status || "") === "answered" ||
-        String(q.astrologerAnswerStatus || "") === "approved") {
+    const approvalMode = await getQuestionApprovalMode();
+    const autoEditableAnswered = approvalMode === "automatic" && String(q.status||"")==="answered" && !q.customerViewedAnswer && String(q.astrologerAnswerStatus||"")==="approved";
+    if ((String(q.status || "") === "answered" || String(q.astrologerAnswerStatus || "") === "approved") && !autoEditableAnswered) {
       return res.status(409).json({ error: "This answer has already been approved and is final." });
     }
 
@@ -509,9 +506,9 @@ app.post("/astrologer/edit-answer", async (req, res) => {
       // Keep the same question and same astrologer allocation.
       allocationStatus: "claimed_by_astrologer",
       astrologerEditMode: true,
-      // admin_approved here means the QUESTION was approved/allocated, not
-      // that the ANSWER was approved. /submit-answer moves it back to processing.
-      status: "admin_approved",
+      // Automatic mode keeps a customer-ready answer in answered state while
+      // temporarily reopening the editor; submit-answer will save it again.
+      status: autoEditableAnswered ? "answered" : "admin_approved",
       astrologerAnswerStatus: "draft",
       editReopenedAt: FieldValue.serverTimestamp(),
       editReopenedBy: user.uid,
@@ -537,62 +534,6 @@ app.post("/astrologer/edit-answer", async (req, res) => {
  * then attempted from the server (never from the browser), and the result of
  * each recipient is persisted in the question document.
  */
-app.post("/admin/reject-answer", express.json({limit:"10kb"}), async (req,res)=>{
-  const user=await requireUser(req,res); if(!user)return;
-  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
-  try{
-    const questionId=String(req.body?.questionId||"").trim();
-    const reason=String(req.body?.reason||"").trim();
-    if(!questionId||!reason) return res.status(400).json({error:"Question ID and rejection reason are required."});
-    const ref=db.collection("smv_questions").doc(questionId);
-    const snap=await ref.get(); if(!snap.exists) return res.status(404).json({error:"Question not found."});
-    const q=snap.data()||{};
-    if(!q.astrologerId) return res.status(409).json({error:"Astrologer is not assigned."});
-    if(["answered","question_rejected","admin_rejected"].includes(String(q.status||""))) return res.status(409).json({error:"This question is already closed."});
-    if(!String(q.answer||"").trim()) return res.status(400).json({error:"No astrologer answer is available to reject."});
-    await ref.update({
-      status:"revision_required", allocationStatus:"claimed_by_astrologer",
-      astrologerAnswerStatus:"revision_required", astrologerEditMode:true,
-      adminRejectionReason:reason, adminRejectedAt:FieldValue.serverTimestamp(), adminRejectedBy:user.uid,
-      commissionStatus:"allocated_pending_answer", updatedAt:FieldValue.serverTimestamp()
-    });
-    await db.collection("smv_notifications").add({userId:q.astrologerId,type:"answer_rejected",title:"Answer revision required",message:`Please revise and resubmit your answer. Reason: ${reason}`,questionId,createdAt:FieldValue.serverTimestamp(),read:false});
-    await writeAdminAudit("ANSWER_REJECTED",questionId,user.uid,{reason,astrologerId:q.astrologerId});
-    return res.json({success:true,questionId,astrologerId:q.astrologerId,status:"revision_required"});
-  }catch(e){console.error("Admin reject answer error:",e);return res.status(500).json({error:e?.message||"Unable to reject answer."});}
-});
-
-app.post("/astrologer/edit-auto-answer", express.json({limit:"10kb"}), async (req,res)=>{
-  const user=await requireUser(req,res); if(!user)return;
-  try{
-    const questionId=String(req.body?.questionId||"").trim();
-    if(!questionId)return res.status(400).json({error:"Question ID is required."});
-    const ref=db.collection("smv_questions").doc(questionId);
-    const snap=await ref.get(); if(!snap.exists)return res.status(404).json({error:"Question not found."});
-    const q=snap.data()||{};
-    if(String(q.astrologerId||"")!==String(user.uid))return res.status(403).json({error:"This question is not allocated to you."});
-    if(String(q.workflowMode||"admin").toLowerCase()!=="auto")return res.status(409).json({error:"This question uses Admin approval workflow."});
-    if(String(q.status||"")!=="answered")return res.status(409).json({error:"This answer is not ready for editing."});
-    if(q.answerViewedByCustomer===true)return res.status(409).json({error:"The customer has already viewed this answer. Editing is closed."});
-    await ref.update({status:"admin_approved",allocationStatus:"claimed_by_astrologer",astrologerAnswerStatus:"submitted",astrologerEditMode:true,updatedAt:FieldValue.serverTimestamp()});
-    return res.json({success:true,questionId,status:"admin_approved"});
-  }catch(e){console.error("Auto answer edit error:",e);return res.status(500).json({error:e?.message||"Unable to edit answer."});}
-});
-
-app.post("/customer/mark-answer-viewed", express.json({limit:"10kb"}), async (req,res)=>{
-  const user=await requireUser(req,res); if(!user)return;
-  try{
-    const questionId=String(req.body?.questionId||"").trim(); if(!questionId)return res.status(400).json({error:"Question ID is required."});
-    const ref=db.collection("smv_questions").doc(questionId); const snap=await ref.get();
-    if(!snap.exists)return res.status(404).json({error:"Question not found."});
-    const q=snap.data()||{};
-    if(String(q.customerId||"")!==String(user.uid))return res.status(403).json({error:"Access denied."});
-    if(String(q.status||"")!=="answered")return res.status(409).json({error:"Answer is not ready yet."});
-    await ref.update({answerViewedByCustomer:true,answerViewedAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()});
-    return res.json({success:true,questionId});
-  }catch(e){console.error("Answer viewed mark error:",e);return res.status(500).json({error:e?.message||"Unable to mark answer as viewed."});}
-});
-
 app.post("/submit-answer", async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
@@ -614,21 +555,13 @@ app.post("/submit-answer", async (req, res) => {
       return res.status(403).json({ error: "This question is not assigned to you." });
     }
 
-    // Auto-approved answers may be edited only until the customer has viewed
-    // the answer. Private/Admin workflow keeps its existing approval behavior.
-    const workflowMode = String(q.workflowMode || "admin").toLowerCase() === "auto" ? "auto" : "admin";
-    if (workflowMode === "auto" && q.answerViewedByCustomer === true) {
-      return res.status(409).json({ error: "The customer has already viewed this answer. Editing is closed." });
-    }
+    // Astrologer may edit and resubmit the answer while it is still waiting
+    // for Admin approval. Once Admin approves it (status = answered), editing
+    // is no longer allowed.
+    const approvalMode = await getQuestionApprovalMode();
     const editableStatuses = ["admin_approved", "revision_required", "processing", "admin_review"];
-    // In auto mode, an initially claimed question is allowed to receive its
-    // first answer while it is still admin_approved. Only block a second
-    // submission when an answer already exists and edit mode was not reopened.
-    if (workflowMode === "auto" && String(q.status||"")==="admin_approved" &&
-        q.astrologerEditMode !== true && !!String(q.answer || "").trim()) {
-      return res.status(409).json({ error: "This answer is already submitted." });
-    }
-    if (!editableStatuses.includes(String(q.status || ""))) {
+    const autoEditableAnswered = approvalMode === "automatic" && String(q.status||"")==="answered" && !q.customerViewedAnswer && String(q.astrologerAnswerStatus||"")==="approved";
+    if (!editableStatuses.includes(String(q.status || "")) && !autoEditableAnswered) {
       return res.status(409).json({ error: "This answer can no longer be edited." });
     }
 
@@ -638,20 +571,37 @@ app.post("/submit-answer", async (req, res) => {
       return res.status(400).json({ error: `Please write at least ${minWords} words.` });
     }
 
-    // Tamil answer section: keep the astrologer's submitted answer exactly as entered.
-    // OpenAI translation is intentionally NOT used for Astrologer/Admin answers.
-    // The separate Blog translation endpoint below remains unchanged.
-    const finalAnswer = answer;
+    // Translate the submitted answer to Tamil on the trusted Render server.
+    // The original validation above remains unchanged; only the stored answer
+    // is converted to the Tamil site language.
+    const translatedAnswer = await translateAnswerToTamil(answer);
 
     const commissionPercent = Number(q.commissionPercent || q.commissionRate || 20);
     const commissionAmount =
       Math.round(Number(q.amount || 0) * commissionPercent) / 100;
 
+    if (approvalMode === "automatic") {
+      if (String(q.status||"")==="answered" && !q.customerViewedAnswer) {
+        await questionRef.update({answer,answerWordCount:wordCount,answerSubmittedAt:FieldValue.serverTimestamp(),answerApprovedAt:FieldValue.serverTimestamp(),adminAnswerApprovedAt:FieldValue.serverTimestamp(),astrologerAnswerStatus:"approved",astrologerEditMode:true,updatedAt:FieldValue.serverTimestamp()});
+        return res.json({ok:true,questionId,automaticApproval:true,already:true,edited:true});
+      }
+      const astrologerPaymentId = await nextPaymentId();
+      const canonicalAstroPaymentId = astrologerPaymentId.replace(/^SMV-PAY-/, "SMV-PAT-");
+      await db.collection("smv_payments").doc(canonicalAstroPaymentId).set({
+        paymentId:canonicalAstroPaymentId,type:"astrologer_earning",customerId:q.customerId||null,astrologerId:q.astrologerId,questionId,
+        grossAmount:Number(q.amount||0),commissionPercent,commissionAmount,earningAmount:commissionAmount,status:"credited",paymentStatus:"pending_withdrawal",source:"automatic_answer_approval",createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()
+      });
+      await questionRef.update({answer,answerWordCount:wordCount,answerSubmittedAt:FieldValue.serverTimestamp(),answerApprovedAt:FieldValue.serverTimestamp(),adminAnswerApprovedAt:FieldValue.serverTimestamp(),astrologerAnswerStatus:"approved",astrologerEditMode:!q.customerViewedAnswer,customerViewedAnswer:false,status:"answered",commissionStatus:"credited",commissionAmount:commissionAmount,astrologerCommissionAmount:commissionAmount,astrologerPaymentId:canonicalAstroPaymentId,commissionCreditedAt:FieldValue.serverTimestamp(),answerAuthorType:"astrologer",updatedAt:FieldValue.serverTimestamp()});
+      await db.collection("smv_notifications").add({userId:q.customerId,type:"answer_approved",title:"Your astrology answer is ready",message:"Your astrology answer has been automatically approved and is ready to view.",questionId,createdAt:FieldValue.serverTimestamp(),read:false});
+      await db.collection("smv_notifications").add({userId:q.astrologerId,type:"answer_approved",title:"Answer Submitted",message:"Your answer was automatically approved. Commission credited: ₹"+commissionAmount.toFixed(2),questionId,commissionAmount,createdAt:FieldValue.serverTimestamp(),read:false});
+      return res.json({ok:true,questionId,automaticApproval:true,customerReady:true,editUntilCustomerView:true});
+    }
+
     // Save the answer before attempting email. This makes the submission
     // independent of browser notification calls and email-provider latency.
     await questionRef.update({
-      answer: finalAnswer,
-      answerWordCount: finalAnswer.split(/\s+/).filter(Boolean).length,
+      answer: translatedAnswer,
+      answerWordCount: translatedAnswer.split(/\s+/).filter(Boolean).length,
       answerSubmittedAt: FieldValue.serverTimestamp(),
       astrologerAnswerStatus: "submitted",
       // Once resubmitted, remove edit mode so the same question is no longer
@@ -668,19 +618,10 @@ app.post("/submit-answer", async (req, res) => {
       }
     });
 
-    if (workflowMode === "auto") {
-      const autoPaymentId = q.astrologerPaymentId || (await nextPaymentId()).replace(/^SMV-PAY-/, "SMV-PAT-");
-      if (!q.astrologerPaymentId || String(q.commissionStatus || "") !== "credited") {
-        await db.collection("smv_payments").doc(autoPaymentId).set({paymentId:autoPaymentId,type:"astrologer_earning",customerId:q.customerId||null,astrologerId:user.uid,questionId,bookingId:q.bookingId||null,grossAmount:Number(q.amount||0),commissionPercent:Number(q.commissionPercent||q.commissionRate||0),commissionAmount:commissionAmount,earningAmount:commissionAmount,status:"credited",paymentStatus:"pending_withdrawal",source:"auto_answer_approval",createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()});
-      }
-      await questionRef.update({status:"answered",astrologerAnswerStatus:"approved",commissionStatus:"credited",answerApprovedAt:FieldValue.serverTimestamp(),adminAnswerApprovedAt:FieldValue.serverTimestamp(),answerApprovedBy:"AUTO_MODE",commissionCreditedAt:q.commissionCreditedAt||FieldValue.serverTimestamp(),commissionAmount,astrologerCommissionAmount:commissionAmount,astrologerPaymentId:autoPaymentId,answerApprovalEmailStatus:{state:"pending",updatedAt:FieldValue.serverTimestamp()}});
-      await writeAdminAudit("ANSWER_AUTO_APPROVED",questionId,user.uid,{wordCount,commissionAmount});
-      await db.collection("smv_notifications").add({userId:user.uid,type:"answer_approved",title:"Answer Automatically Approved",message:`Your answer was automatically approved. Commission credited: ₹${commissionAmount.toFixed(2)}`,questionId,commissionAmount,createdAt:FieldValue.serverTimestamp(),read:false});
-    } else {
-      await writeAdminAudit("ASTROLOGER_ANSWER_SUBMITTED", questionId, user.uid, {wordCount, previousStatus: String(q.status || ""), nextStatus: "processing"});
-    }
+    await writeAdminAudit("ASTROLOGER_ANSWER_SUBMITTED", questionId, user.uid, {
+      wordCount, previousStatus: String(q.status || ""), nextStatus: "processing"
+    });
 
-    const finishAnswerEmailDelivery = async () => {
     const customerEmail = String(
       q.customerEmail || await getUserEmail(q.customerId) || ""
     ).trim();
@@ -688,11 +629,11 @@ app.post("/submit-answer", async (req, res) => {
     const astrologerEmail = String(await getUserEmail(q.astrologerId) || "").trim();
     const astrologerName = String(q.astrologerName || "Astrologer");
 
-    const subject = workflowMode === "auto" ? "SMV ASTRO — Astrology answer approved" : "SMV ASTRO — Astrologer answer submitted";
+    const subject = "SMV ASTRO — Astrologer answer submitted";
     const text = [
       `Dear ${customerName},`,
       "",
-      workflowMode === "auto" ? `${astrologerName} has submitted an answer to your astrology question. It was automatically approved and is now ready to view.` : `${astrologerName} has submitted an answer to your astrology question. It is now waiting for Admin review.`,
+      `${astrologerName} has submitted an answer to your astrology question. It is now waiting for Admin review.`,
       "",
       `Question: ${q.question || ""}`,
       `Question ID: ${questionId}`,
@@ -752,24 +693,12 @@ app.post("/submit-answer", async (req, res) => {
 
     await questionRef.set({ answerEmailStatus: emailStatusPatch }, { merge: true });
 
-    };
-
-    // Auto-approved answers must not wait for Resend/email latency. The business
-    // state is already saved as answered above; email delivery continues in the
-    // background without delaying the astrologer UI.
-    if (workflowMode === "auto") {
-      finishAnswerEmailDelivery().catch(e => console.error("Background answer email failed:", e?.message || e));
-      return res.json({ ok: true, answerSaved: true, status: "answered" });
-    }
-
-    await finishAnswerEmailDelivery();
-
     // Email delivery is intentionally independent from the business workflow.
     // Never expose Resend/email delivery state to Customer or Astrologer UI.
     return res.json({
       ok: true,
       answerSaved: true,
-      status: workflowMode === "auto" ? "answered" : "processing"
+      status: "processing"
     });
   } catch (e) {
     console.error(
@@ -1198,44 +1127,6 @@ app.post("/customer/submit-review", async (req, res) => {
   }
 });
 
-app.get("/admin-data", async (req, res) => {
-  const user = await requireUser(req, res);
-  if (!user) return;
-  if (!(await isAdminUser(user))) return res.status(403).json({ error: "Admin access denied." });
-
-  const readCollection = async (name) => {
-    try {
-      const snap = await db.collection(name).get();
-      return { ok: true, items: snap.docs.map(d => ({ id: d.id, ...d.data() })) };
-    } catch (e) {
-      console.error(`Admin collection ${name} failed:`, e?.message || e);
-      return { ok: false, items: [], error: e?.message || `Unable to read ${name}.` };
-    }
-  };
-
-  try {
-    const [users, astrologers, questions, payments] = await Promise.all([
-      readCollection("smv_users"),
-      readCollection("smv_astrologers"),
-      readCollection("smv_questions"),
-      readCollection("smv_payments")
-    ]);
-    const customers = users.items.filter(x => String(x.role || "").toLowerCase() === "customer");
-    return res.json({
-      success: true,
-      customers,
-      users: users.items,
-      astrologers: astrologers.items,
-      questions: questions.items,
-      payments: payments.items,
-      errors: { users: users.error || null, astrologers: astrologers.error || null, questions: questions.error || null, payments: payments.error || null }
-    });
-  } catch (e) {
-    console.error("Admin data load failed:", e);
-    return res.status(500).json({ error: e?.message || "Unable to load Admin data." });
-  }
-});
-
 app.get("/admin/appointments", async(req,res)=>{
   const user=await requireUser(req,res); if(!user)return; if(!(await isAdminUser(user)))return res.status(403).json({error:"Admin access required."});
   try{
@@ -1277,7 +1168,7 @@ app.post("/admin/approve-question", express.json({limit:"10kb"}), async (req,res
     const astroCommission=Math.round(amount*pct)/100;
     const adminCommission=Math.round((amount-astroCommission)*100)/100;
     await qRef.update({
-      status:"paid", allocationStatus:"assigned_to_astrologer", astrologerId, astrologerName:a.name||"Astrologer",
+      status:"admin_approved", allocationStatus:"assigned_to_astrologer", astrologerId, astrologerName:a.name||"Astrologer",
       commissionPercent:pct, commissionRate:pct, astrologerCommissionAmount:astroCommission,
       adminCommissionAmount:adminCommission, adminQuestionApprovedAt:FieldValue.serverTimestamp(),
       adminQuestionApprovedBy:user.uid, commissionStatus:"allocated_pending_answer", updatedAt:FieldValue.serverTimestamp()
@@ -1291,79 +1182,948 @@ app.post("/admin/approve-question", express.json({limit:"10kb"}), async (req,res
 
 // Astrologer claim: use the trusted Admin SDK so the browser does not need
 // direct Firestore write permission for the claim/status transition.
-app.get("/astrologer/my-questions", async (req, res) => {
-  const user = await requireUser(req, res); if (!user) return;
-  try {
-    const profileSnap = await db.collection("smv_astrologers").doc(user.uid).get();
-    if (!profileSnap.exists || String(profileSnap.data()?.status || "").toLowerCase() !== "approved") return res.status(403).json({error:"Only approved astrologers can view their questions."});
-    const snap = await db.collection("smv_questions").where("astrologerId", "==", String(user.uid)).get();
-    const questions = snap.docs.map(d => ({id:d.id, ...(d.data() || {})}));
-    const ms = v => { try { if (!v) return 0; if (typeof v.toMillis === "function") return Number(v.toMillis()) || 0; if (typeof v.toDate === "function") return v.toDate().getTime() || 0; if (typeof v === "string") return new Date(v).getTime() || 0; if (typeof v === "object" && v.seconds != null) return Number(v.seconds)*1000 + Math.floor(Number(v.nanoseconds||0)/1e6); return Number(v)||0; } catch (_) { return 0; } };
-    questions.sort((a,b) => Math.max(ms(b.updatedAt),ms(b.claimedAt),ms(b.answerSubmittedAt),ms(b.adminQuestionApprovedAt),ms(b.createdAt)) - Math.max(ms(a.updatedAt),ms(a.claimedAt),ms(a.answerSubmittedAt),ms(a.adminQuestionApprovedAt),ms(a.createdAt)));
-    return res.json({success:true,questions});
-  } catch(e) { console.error("Astrologer own questions load failed:", e); return res.status(500).json({error:"Unable to load your questions right now."}); }
-});
+app.post("/astrologer/claim-question", express.json({limit:"10kb"}), async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    if(!questionId) return res.status(400).json({error:"Question ID is required."});
 
-app.get("/astrologer/available-questions", async (req, res) => {
-  const user = await requireUser(req, res); if (!user) return;
-  try {
-    const profileSnap = await db.collection("smv_astrologers").doc(user.uid).get();
-    if (!profileSnap.exists || String(profileSnap.data()?.status || "").toLowerCase() !== "approved") return res.status(403).json({error:"Only approved astrologers can view available questions."});
-    // Public inbox includes current Auto-mode questions plus legacy public paid
-    // questions created before workflowMode was introduced. Admin-mode questions
-    // remain private and are not exposed here.
-    const snap = await db.collection("smv_questions").get();
-    const commissionSnap = await db.collection("smv_settings").doc("commission").get();
-    const currentCommissionPercent = Math.max(0, Math.min(100, Number(commissionSnap.data()?.astroPercent ?? 20)));
-    const questions = snap.docs.map(d => ({id:d.id, ...(d.data() || {})})).filter(q => {
-      const mode = String(q.workflowMode || "").toLowerCase();
-      return (mode === "auto" || !mode) && String(q.paymentStatus || "").toLowerCase() === "paid" &&
-        q.allocationStatus === "available_to_astrologers" &&
-        ["available_to_astrologers", "paid"].includes(String(q.status || "").toLowerCase()) &&
-        !q.astrologerId && !String(q.answer || "").trim();
-    }).map(q => {
-      const amount = Number(q.amount || q.paymentAmount || 0);
-      const currentAstrologerCommission = Math.round(amount * currentCommissionPercent) / 100;
-      return {...q, commissionPercent:currentCommissionPercent, commissionRate:currentCommissionPercent,
-        astrologerCommissionAmount:currentAstrologerCommission,
-        adminCommissionAmount:Math.round((amount-currentAstrologerCommission)*100)/100};
-    });
-    return res.json({success:true, commissionPercent:currentCommissionPercent, questions});
-  } catch(e) {
-    console.error("Available astrologer questions failed:", e);
-    return res.status(500).json({error:"Unable to load available questions."});
+    const qRef=db.collection("smv_questions").doc(questionId);
+    const astroRef=db.collection("smv_astrologers").doc(user.uid);
+    const [qSnap,astroSnap]=await Promise.all([qRef.get(),astroRef.get()]);
+    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
+    if(!astroSnap.exists) return res.status(403).json({error:"Astrologer profile not found."});
+
+    const q=qSnap.data()||{};
+    const astro=astroSnap.data()||{};
+    if(String(astro.status||"").toLowerCase()!=="approved"){
+      return res.status(403).json({error:"Your astrologer profile is not approved by Admin."});
+    }
+    if(String(q.astrologerId||"")!==String(user.uid)){
+      return res.status(403).json({error:"This question is not allocated to your account."});
+    }
+    if(!q.adminQuestionApprovedAt){
+      return res.status(409).json({error:"This question is still waiting for Admin approval."});
+    }
+    const status=String(q.status||"");
+    const allocation=String(q.allocationStatus||"");
+    if(["answered","question_rejected","admin_rejected"].includes(status)){
+      return res.status(409).json({error:"This question is already closed."});
+    }
+    if(!["paid","admin_approved"].includes(status) ||
+       !["assigned_to_astrologer","available_to_astrologers","reallocated","claimed_by_astrologer"].includes(allocation)){
+      return res.status(409).json({error:"This question is no longer available to claim."});
+    }
+
+    if(allocation!=="claimed_by_astrologer"){
+      await qRef.update({
+        status:"admin_approved",
+        allocationStatus:"claimed_by_astrologer",
+        claimedAt:FieldValue.serverTimestamp(),
+        claimedBy:user.uid,
+        updatedAt:FieldValue.serverTimestamp()
+      });
+    }
+
+    return res.json({success:true,questionId,astrologerId:user.uid,status:"admin_approved",allocationStatus:"claimed_by_astrologer"});
+  }catch(e){
+    console.error("Astrologer claim question error:",e);
+    return res.status(500).json({error:e?.message||"Unable to claim this question."});
   }
 });
 
-app.post("/astrologer/claim-question", express.json({limit:"10kb"}), async(req,res)=>{
+
+app.post("/admin/reject-question", express.json({limit:"10kb"}), async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    const reason=String(req.body?.reason||"").trim();
+    if(!questionId||!reason) return res.status(400).json({error:"Question ID and rejection reason are required."});
+    const qRef=db.collection("smv_questions").doc(questionId);
+    const qSnap=await qRef.get();
+    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
+    const q=qSnap.data()||{};
+    const currentStatus=String(q.status||"");
+    const answerSubmitted=!!String(q.answer||"").trim();
+    const hasAstrologerAnswer=answerSubmitted &&
+      ["processing","answer_draft","admin_review","revision_required","answered"].includes(currentStatus);
+    const hasPaidQuestion=!!q.customerPaymentId || !!q.razorpayPaymentId || !!q.paymentRecordedAt || !!q.paidAt || q.paymentStatus==="paid";
+    const allocatedQuestion=!!q.adminQuestionApprovedAt && !!q.astrologerId &&
+      ["assigned_to_astrologer","reallocated","available_to_astrologers","claimed_by_astrologer"].includes(String(q.allocationStatus||""));
+    const canRejectBeforeFinalAnswer =
+      !["question_rejected","admin_rejected"].includes(currentStatus) &&
+      (allocatedQuestion || hasAstrologerAnswer || (hasPaidQuestion && !q.adminQuestionApprovedAt));
+    if(!canRejectBeforeFinalAnswer){
+      return res.status(409).json({error:"This question can no longer be rejected and refunded."});
+    }
+    const amount=Number(q.amount||q.paymentAmount||0);
+    const paid=!!q.customerPaymentId || !!q.razorpayPaymentId || !!q.paymentRecordedAt || !!q.paidAt || q.paymentStatus==="paid";
+
+    // Close the question first so answer approval cannot race with the rejection/refund decision.
+    const lockPatch={
+      status:"question_rejected", allocationStatus:"rejected_by_admin",
+      adminQuestionRejectedAt:FieldValue.serverTimestamp(), adminQuestionRejectedBy:user.uid,
+      adminQuestionRejectionReason:reason, refundEligible:paid && amount>0,
+      refundAmount:paid && amount>0 ? amount : 0,
+      refundReason:reason, refundStatus:paid && amount>0 ? "pending" : "not_applicable",
+      refundRequestedAt:paid && amount>0 ? FieldValue.serverTimestamp() : FieldValue.delete(),
+      astrologerAnswerStatus:"question_rejected", commissionStatus:"refund_pending",
+      astrologerCommissionAmount:0, commissionAmount:0, astrologerPaymentId:FieldValue.delete(),
+      answerApprovedAt:FieldValue.delete(), adminAnswerApprovedAt:FieldValue.delete(),
+      answerApprovedBy:FieldValue.delete(), commissionCreditedAt:FieldValue.delete(),
+      updatedAt:FieldValue.serverTimestamp()
+    };
+    await qRef.update(lockPatch);
+    const patch={...lockPatch};
+    let refund=null;
+    if(paid && amount>0 && q.razorpayPaymentId){
+      if(q.refundId){
+        refund={id:q.refundId,status:q.refundStatus||"pending",amount:Number(q.refundAmount||amount)};
+      }else{
+        try{
+          refund=await razorpay.payments.refund(String(q.razorpayPaymentId), { amount:Math.round(amount*100), notes:{questionId,reason:"Admin rejected question before consultation"} });
+          patch.refundId=refund.id||FieldValue.delete();
+          patch.refundStatus=String(refund.status||"pending").toLowerCase();
+          patch.refundAmount=refund.amount!=null?Number(refund.amount)/100:amount;
+          patch.refundCreatedAt=FieldValue.serverTimestamp();
+          patch.refundPaymentId=refund.payment_id||q.razorpayPaymentId;
+          patch.refundRrn=refund?.acquirer_data?.rrn||refund?.acquirer_data?.bank_reference_number||refund?.acquirer_data?.reference_number||FieldValue.delete();
+        }catch(refundError){
+          // Keep the exact Razorpay failure details in a safe, non-secret form.
+          // Never store the API secret or full request headers in Firestore.
+          const razorpayError = {
+            statusCode: Number(refundError?.statusCode || refundError?.status || 0) || null,
+            code: String(refundError?.error?.code || refundError?.code || "").trim() || null,
+            description: String(refundError?.error?.description || refundError?.description || refundError?.message || "Unable to create Razorpay refund.").trim(),
+            reason: String(refundError?.error?.reason || refundError?.reason || "").trim() || null,
+            source: String(refundError?.error?.source || refundError?.source || "").trim() || null,
+            step: String(refundError?.error?.step || refundError?.step || "").trim() || null
+          };
+          console.error("[REFUND_TRACE] Razorpay refund creation failed", {
+            questionId, razorpayPaymentId: String(q.razorpayPaymentId || ""),
+            amount: Math.round(amount * 100), razorpayError
+          });
+          patch.refundStatus="failed";
+          patch.refundError=razorpayError.description;
+          patch.refundErrorCode=razorpayError.code || FieldValue.delete();
+          patch.refundErrorStatusCode=razorpayError.statusCode || FieldValue.delete();
+          patch.refundErrorReason=razorpayError.reason || FieldValue.delete();
+          patch.refundErrorSource=razorpayError.source || FieldValue.delete();
+          patch.refundErrorStep=razorpayError.step || FieldValue.delete();
+          patch.refundLastAttemptAt=FieldValue.serverTimestamp();
+        }
+      }
+    }
+    await qRef.update(patch);
+    // Keep the rejection/refund result independent of audit logging.
+    // The answerSubmitted flag is explicitly defined above and is also copied
+    // into this local payload so an older deployed bundle cannot hit an
+    // undeclared-variable error at this point.
+    const rejectionAudit={reason,previousStatus:currentStatus,answerSubmitted:!!answerSubmitted,refundId:refund?.id||null,refundStatus:patch.refundStatus||null,refundAmount:patch.refundAmount||0};
+    await db.collection("smv_notifications").add({userId:q.customerId,type:"question_rejected",title:"Question Rejected — Refund",message:`Your paid question was rejected by Admin. Reason: ${reason}${patch.refundStatus!=="not_applicable"?` Refund status: ${patch.refundStatus}.`:""}`,questionId,refundStatus:patch.refundStatus||null,refundId:refund?.id||null,createdAt:FieldValue.serverTimestamp(),read:false});
+    if(q.astrologerId){
+      await db.collection("smv_notifications").add({userId:String(q.astrologerId),type:"question_rejected",title:"Question Rejected by Admin",message:`This question has been rejected by Admin and is no longer available. The customer payment is being refunded. Reason: ${reason}`,questionId,refundStatus:patch.refundStatus||null,refundId:refund?.id||null,createdAt:FieldValue.serverTimestamp(),read:false});
+    }
+    await writeAdminAudit("QUESTION_REJECTED",questionId,user.uid,rejectionAudit);
+    try{
+      const approvedAstros=await db.collection("smv_astrologers").where("status","==","approved").get();
+      const batch=db.batch();
+      approvedAstros.docs.forEach(a=>{
+        if(a.id===String(q.astrologerId||"")) return;
+        batch.set(db.collection("smv_notifications").doc(),{
+          userId:a.id,type:"question_rejected_broadcast",title:"Question Closed by Admin",
+          message:"A paid customer question has been permanently rejected and refunded by Admin. It is no longer available for answering.",
+          questionId,createdAt:FieldValue.serverTimestamp(),read:false
+        });
+      });
+      if(!approvedAstros.empty) await batch.commit();
+    }catch(notificationError){ console.warn("Reject-question broadcast notification failed:",notificationError?.message||notificationError); }
+    return res.json({success:true,questionId,refundId:refund?.id||q.refundId||null,refundStatus:patch.refundStatus||"not_applicable",refundAmount:Number(patch.refundAmount||amount||0),refundCreated:!!refund});
+  }catch(e){console.error("Admin reject question error:",e);return res.status(500).json({error:e?.message||"Unable to reject question and process refund."});}
+});
+
+// Admin-only diagnostic endpoint. It does NOT create a refund.
+// It verifies that the rejected question contains the real Razorpay payment ID
+// and, when a refund ID exists, reads that refund from Razorpay. Exact API error
+// fields are returned without exposing credentials or request headers.
+app.get("/admin/refund-trace/:questionId", async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
+  try{
+    const questionId=String(req.params.questionId||"").trim();
+    if(!questionId) return res.status(400).json({error:"Question ID is required."});
+    const qSnap=await db.collection("smv_questions").doc(questionId).get();
+    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
+    const q=qSnap.data()||{};
+    const paymentId=String(q.razorpayPaymentId||"").trim();
+    const result={
+      questionId,
+      questionStatus:String(q.status||""),
+      paymentStatus:String(q.paymentStatus||""),
+      customerPaymentId:String(q.customerPaymentId||""),
+      razorpayPaymentId:paymentId||null,
+      refundStatus:String(q.refundStatus||""),
+      refundId:String(q.refundId||""),
+      refundAmount:Number(q.refundAmount||q.amount||0),
+      storedRefundError:String(q.refundError||"")||null,
+      storedRefundErrorCode:String(q.refundErrorCode||"")||null,
+      storedRefundErrorStatusCode:Number(q.refundErrorStatusCode||0)||null,
+      storedRefundErrorReason:String(q.refundErrorReason||"")||null,
+      storedRefundErrorSource:String(q.refundErrorSource||"")||null,
+      storedRefundErrorStep:String(q.refundErrorStep||"")||null
+    };
+    if(!paymentId){
+      return res.json({...result,paymentLookup:"not_available",diagnosis:"No razorpayPaymentId is stored on this question."});
+    }
+    try{
+      const payment=await razorpay.payments.fetch(paymentId);
+      result.paymentLookup={id:payment?.id||paymentId,status:payment?.status||null,amount:payment?.amount!=null?Number(payment.amount)/100:null,currency:payment?.currency||null,orderId:payment?.order_id||null};
+    }catch(e){
+      const err={statusCode:Number(e?.statusCode||e?.status||0)||null,code:String(e?.error?.code||e?.code||"").trim()||null,description:String(e?.error?.description||e?.description||e?.message||"Razorpay payment lookup failed.").trim(),reason:String(e?.error?.reason||e?.reason||"").trim()||null,source:String(e?.error?.source||e?.source||"").trim()||null,step:String(e?.error?.step||e?.step||"").trim()||null};
+      console.error("[REFUND_TRACE] Payment lookup failed",{questionId,razorpayPaymentId:paymentId,error:err});
+      return res.status(502).json({...result,paymentLookupError:err});
+    }
+    if(result.refundId){
+      try{
+        const refund=await razorpay.refunds.fetch(result.refundId);
+        result.refundLookup={id:refund?.id||result.refundId,status:refund?.status||null,amount:refund?.amount!=null?Number(refund.amount)/100:null,paymentId:refund?.payment_id||null,createdAt:refund?.created_at||null};
+      }catch(e){
+        const err={statusCode:Number(e?.statusCode||e?.status||0)||null,code:String(e?.error?.code||e?.code||"").trim()||null,description:String(e?.error?.description||e?.description||e?.message||"Razorpay refund lookup failed.").trim(),reason:String(e?.error?.reason||e?.reason||"").trim()||null,source:String(e?.error?.source||e?.source||"").trim()||null,step:String(e?.error?.step||e?.step||"").trim()||null};
+        console.error("[REFUND_TRACE] Refund lookup failed",{questionId,refundId:result.refundId,error:err});
+        result.refundLookupError=err;
+      }
+    }
+    result.diagnosis=result.refundId?"A Razorpay refund ID is stored; inspect refundLookup/status.":(String(q.refundStatus||"").toLowerCase()==="failed"?"No refund ID was created. Inspect stored refund error and paymentLookup; the refund API did not create a Razorpay refund.":"Payment ID is present and available for refund processing.");
+    return res.json(result);
+  }catch(e){
+    console.error("[REFUND_TRACE] Diagnostic endpoint failed:",e);
+    return res.status(500).json({error:e?.message||"Refund trace failed."});
+  }
+});
+
+// Customer/Admin can explicitly reconcile a Razorpay refund. This is a safe
+// fallback when the Razorpay webhook is delayed or not configured yet.
+app.post("/customer/sync-refund", express.json({limit:"10kb"}), async (req,res)=>{
   const user=await requireUser(req,res); if(!user)return;
   try{
-    const profileSnap=await db.collection("smv_astrologers").doc(user.uid).get();
-    if(!profileSnap.exists || String(profileSnap.data()?.status||"").toLowerCase()!=="approved") return res.status(403).json({error:"Only approved astrologers can claim questions."});
-    const questionId=String(req.body?.questionId||"").trim(); if(!questionId)return res.status(400).json({error:"Question ID is required."});
+    const questionId=String(req.body?.questionId||"").trim();
+    if(!questionId) return res.status(400).json({error:"Question ID is required."});
     const qRef=db.collection("smv_questions").doc(questionId);
-    const result=await db.runTransaction(async tx=>{
-      const qSnap=await tx.get(qRef); if(!qSnap.exists)throw new Error("Question not found.");
-      const q=qSnap.data()||{};
-      const mode=String(q.workflowMode||"").toLowerCase();
-      if(mode && mode!=="auto") throw new Error("This question uses Admin approval workflow.");
-      if(String(q.astrologerId||"")===String(user.uid) && String(q.allocationStatus||"")==="claimed_by_astrologer") return {alreadyClaimed:true};
-      if(String(q.paymentStatus||"").toLowerCase()!=="paid") throw new Error("This question is not paid.");
-      if(String(q.allocationStatus||"")!=="available_to_astrologers" || String(q.status||"")!=="available_to_astrologers") throw new Error("This question has already been claimed by another astrologer.");
-      const a=profileSnap.data()||{}; const amount=Number(q.amount||q.paymentAmount||0);
-      const commissionSnap=await tx.get(db.collection("smv_settings").doc("commission"));
-      const pct=Math.max(0,Math.min(100,Number(commissionSnap.data()?.astroPercent ?? 20)));
-      const astroCommission=Math.round(amount*pct)/100; const adminCommission=Math.round((amount-astroCommission)*100)/100;
-      tx.update(qRef,{astrologerId:user.uid,astrologerName:a.name||"Astrologer",allocationStatus:"claimed_by_astrologer",status:"admin_approved",workflowMode:"auto",questionApprovalModeAtPayment:q.questionApprovalModeAtPayment||"auto",commissionPercent:pct,commissionRate:pct,astrologerCommissionAmount:astroCommission,adminCommissionAmount:adminCommission,commissionStatus:"allocated_pending_answer",claimedAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()});
-      return {pct,astroCommission,alreadyClaimed:false};
+    const qSnap=await qRef.get();
+    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
+    const q=qSnap.data()||{};
+    const isAdmin=await isAdminUser(user);
+    if(!isAdmin && String(q.customerId||"")!==String(user.uid||"")) return res.status(403).json({error:"Access denied."});
+    if(!["question_rejected","admin_rejected"].includes(String(q.status||""))) return res.status(409).json({error:"This question does not have a refund."});
+    if(!q.refundId) return res.json({success:true,refundStatus:String(q.refundStatus||"pending"),refundId:null,refundAmount:Number(q.refundAmount||q.amount||0),synced:false});
+
+    const refund=await razorpay.refunds.fetch(String(q.refundId));
+    const status=String(refund?.status||q.refundStatus||"pending").toLowerCase();
+    const amount=refund?.amount!=null?Number(refund.amount)/100:Number(q.refundAmount||q.amount||0);
+    const resolvedRrn=refund?.acquirer_data?.rrn||refund?.acquirer_data?.bank_reference_number||refund?.acquirer_data?.reference_number||refund?.rrn||q.refundRrn||null;
+    const patch={refundId:refund?.id||q.refundId,refundPaymentId:refund?.payment_id||q.refundPaymentId||q.razorpayPaymentId,refundAmount:amount,refundStatus:status,refundRrn:resolvedRrn||FieldValue.delete(),updatedAt:FieldValue.serverTimestamp()};
+    if(status==="processed"||status==="completed") patch.refundProcessedAt=FieldValue.serverTimestamp();
+    if(status==="failed") patch.refundFailedAt=FieldValue.serverTimestamp();
+    await qRef.set(patch,{merge:true});
+    return res.json({success:true,refundStatus:status,refundId:patch.refundId,refundAmount:amount,refundRrn:resolvedRrn,refundProcessed:status==="processed"||status==="completed"});
+  }catch(e){
+    console.error("Refund status sync failed:",e);
+    return res.status(502).json({error:e?.error?.description||e?.description||e?.message||"Unable to sync refund status from Razorpay."});
+  }
+});
+
+app.post("/admin/sync-refund", express.json({limit:"10kb"}), async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    if(!questionId) return res.status(400).json({error:"Question ID is required."});
+    const qRef=db.collection("smv_questions").doc(questionId); const qSnap=await qRef.get();
+    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
+    const q=qSnap.data()||{};
+    if(!q.refundId) return res.status(409).json({error:"No Razorpay refund ID is stored for this question. If the refund failed to create, review the refund error and payment ID."});
+    const refund=await razorpay.refunds.fetch(String(q.refundId));
+    const status=String(refund?.status||q.refundStatus||"pending").toLowerCase();
+    const amount=refund?.amount!=null?Number(refund.amount)/100:Number(q.refundAmount||q.amount||0);
+    const patch={refundId:refund?.id||q.refundId,refundPaymentId:refund?.payment_id||q.refundPaymentId||q.razorpayPaymentId,refundAmount:amount,refundStatus:status,updatedAt:FieldValue.serverTimestamp()};
+    if(status==="processed"||status==="completed") patch.refundProcessedAt=FieldValue.serverTimestamp();
+    if(status==="failed") patch.refundFailedAt=FieldValue.serverTimestamp();
+    await qRef.set(patch,{merge:true});
+    await writeAdminAudit("REFUND_STATUS_SYNCED",questionId,user.uid,{refundId:patch.refundId,refundStatus:status,refundAmount:amount});
+    return res.json({success:true,refundStatus:status,refundId:patch.refundId,refundAmount:amount});
+  }catch(e){
+    console.error("Admin refund status sync failed:",e);
+    return res.status(502).json({error:e?.error?.description||e?.description||e?.message||"Unable to sync refund status from Razorpay."});
+  }
+});
+
+app.post("/admin/reallocate-question", express.json({limit:"10kb"}), async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    const astrologerId=String(req.body?.astrologerId||"").trim();
+    const pct=Number(req.body?.commissionPercent);
+    if(!questionId||!astrologerId) return res.status(400).json({error:"Question ID and astrologer are required."});
+    if(!Number.isFinite(pct)||pct<0||pct>100) return res.status(400).json({error:"Commission percentage must be between 0 and 100."});
+    const qRef=db.collection("smv_questions").doc(questionId);
+    const aRef=db.collection("smv_astrologers").doc(astrologerId);
+    const [qSnap,aSnap]=await Promise.all([qRef.get(),aRef.get()]);
+    if(!qSnap.exists) return res.status(404).json({error:"Question not found."});
+    if(!aSnap.exists) return res.status(404).json({error:"Astrologer not found."});
+    const q=qSnap.data()||{}, a=aSnap.data()||{};
+    if(String(a.status||"").toLowerCase()!=="approved") return res.status(409).json({error:"Selected astrologer is not approved."});
+    if(["answered","question_rejected","admin_rejected"].includes(String(q.status||""))) return res.status(409).json({error:"This question is already closed."});
+    if(!q.adminQuestionApprovedAt || !q.astrologerId) return res.status(409).json({error:"This question has not been allocated yet."});
+    const amount=Number(q.amount||q.paymentAmount||0);
+    const astroCommission=Math.round(amount*pct)/100;
+    const adminCommission=Math.round((amount-astroCommission)*100)/100;
+    const oldAstrologerId=String(q.astrologerId||"");
+    await qRef.update({
+      astrologerId, astrologerName:a.name||"Astrologer", commissionPercent:pct, commissionRate:pct,
+      astrologerCommissionAmount:astroCommission, adminCommissionAmount:adminCommission,
+      allocationStatus:"assigned_to_astrologer", commissionStatus:"allocated_pending_answer",
+      astrologerAnswerStatus:"pending", status:"admin_approved",
+      answer:"", answerWordCount:0, answerAuthorType:"", adminTakeover:false,
+      adminRejectionReason:FieldValue.delete(), adminRejectedAt:FieldValue.delete(), adminRejectedBy:FieldValue.delete(),
+      reallocatedAt:FieldValue.serverTimestamp(), reallocatedBy:user.uid, updatedAt:FieldValue.serverTimestamp()
     });
-    if(!result.alreadyClaimed){
-      await db.collection("smv_notifications").add({userId:user.uid,type:"question_claimed",title:"Question Claimed",message:"You have claimed a paid astrology question. Please submit your answer.",questionId,createdAt:FieldValue.serverTimestamp(),read:false});
-      await writeAdminAudit("QUESTION_CLAIMED_AUTO_MODE",questionId,user.uid,{commissionPercent:result.pct,astrologerCommissionAmount:result.astroCommission});
+    if(oldAstrologerId && oldAstrologerId!==astrologerId){
+      await db.collection("smv_notifications").add({userId:oldAstrologerId,type:"question_reallocated",title:"Question Re-allocated",message:"Admin has re-allocated this question to another astrologer. It is no longer assigned to you.",questionId,createdAt:FieldValue.serverTimestamp(),read:false});
     }
-    return res.json({success:true,questionId,status:"admin_approved",allocationStatus:"claimed_by_astrologer",alreadyClaimed:!!result.alreadyClaimed});
+    await db.collection("smv_notifications").add({userId:astrologerId,type:"question_assigned",title:"Question Re-allocated",message:"Admin has assigned a paid question to you. Please submit your answer.",questionId,commissionAmount:astroCommission,createdAt:FieldValue.serverTimestamp(),read:false});
+    return res.json({success:true,questionId,astrologerId,commissionPercent:pct,astrologerCommissionAmount:astroCommission,adminCommissionAmount:adminCommission});
+  }catch(e){console.error("Admin reallocate question error:",e);return res.status(500).json({error:e?.message||"Unable to re-allocate question."});}
+});
+
+
+app.post("/admin/edit-question", express.json({limit:"20kb"}), async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    const question=String(req.body?.question||"").trim();
+    if(!questionId||!question) return res.status(400).json({error:"Question ID and question text are required."});
+    if(question.length>10000) return res.status(400).json({error:"Question is too long."});
+    const ref=db.collection("smv_questions").doc(questionId);
+    const snap=await ref.get(); if(!snap.exists) return res.status(404).json({error:"Question not found."});
+    const q=snap.data()||{};
+    if(["answered","question_rejected"].includes(q.status)) return res.status(409).json({error:"This question can no longer be edited."});
+    await ref.update({question,adminQuestionEditedAt:FieldValue.serverTimestamp(),adminQuestionEditedBy:user.uid});
+    return res.json({success:true,questionId});
+  }catch(e){console.error("Admin edit question error:",e);return res.status(500).json({error:e?.message||"Unable to edit question."});}
+});
+
+app.post("/admin/takeover-answer", express.json({limit:"30kb"}), async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    const answer=String(req.body?.answer||"").trim();
+    if(!questionId||!answer) return res.status(400).json({error:"Question ID and Admin answer are required."});
+    const ref=db.collection("smv_questions").doc(questionId);
+    const snap=await ref.get(); if(!snap.exists) return res.status(404).json({error:"Question not found."});
+    const q=snap.data()||{};
+    if(!q.customerId) return res.status(409).json({error:"Customer information is missing."});
+    if(["answered","question_rejected"].includes(q.status)) return res.status(409).json({error:"This question is already closed."});
+    const wordCount=answer.split(/\s+/).filter(Boolean).length;
+    const minWords=Math.max(1,Number(q.answerMinWords||1));
+    if(wordCount<minWords) return res.status(400).json({error:`Admin answer must contain at least ${minWords} words.`});
+    // Translate the Admin answer to Tamil before saving it for the Tamil website.
+    const translatedAnswer=await translateAnswerToTamil(answer);
+    const translatedWordCount=translatedAnswer.split(/\s+/).filter(Boolean).length;
+    await ref.update({
+      question: q.question || "",
+      answer:translatedAnswer,
+      answerWordCount:translatedWordCount,
+      answerAuthorType:"admin",
+      adminAnswered:true,
+      adminAnswerBy:user.uid,
+      adminAnswerAt:FieldValue.serverTimestamp(),
+      status:"answered",
+      astrologerAnswerStatus:"not_required",
+      commissionStatus:"admin_retained",
+      astrologerCommissionAmount:0,
+      commissionAmount:0,
+      commissionCreditedAt:FieldValue.delete(),
+      astrologerPaymentId:FieldValue.delete(),
+      adminTakeover:true,
+      answeredAt:FieldValue.serverTimestamp(),
+      updatedAt:FieldValue.serverTimestamp()
+    });
+    await db.collection("smv_notifications").add({userId:q.customerId,type:"answer_approved",title:"Your astrology answer is ready",message:"SMV ASTRO Admin answered your question directly.",questionId,createdAt:FieldValue.serverTimestamp(),read:false});
+    return res.json({success:true,questionId,answerAuthorType:"admin",adminRetained:true});
+  }catch(e){console.error("Admin takeover answer error:",e);return res.status(500).json({error:e?.message||"Unable to save Admin answer."});}
+});
+
+app.post("/astrologer/change-payout", express.json({limit:"10kb"}), async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  try {
+    const userSnap = await db.collection("smv_users").doc(user.uid).get();
+    const astroSnap = await db.collection("smv_astrologers").doc(user.uid).get();
+    const role = String(userSnap.data()?.role || "").toLowerCase();
+    const astro = astroSnap.data() || {};
+    if (role !== "astrologer" || astro.status !== "approved") return res.status(403).json({error:"Only an approved Astrologer can change the payment method."});
+    const bankName=String(req.body?.bankName||"").trim();
+    const accountName=String(req.body?.accountName||"").trim();
+    const accountNumber=String(req.body?.accountNumber||"").trim();
+    const ifsc=String(req.body?.ifsc||"").trim().toUpperCase();
+    const upi=String(req.body?.upi||"").trim();
+    if(!bankName||!accountName||!accountNumber||!ifsc) return res.status(400).json({error:"Please complete all required payment details."});
+    if(bankName.length>120||accountName.length>120||accountNumber.length>40||ifsc.length>20||upi.length>120) return res.status(400).json({error:"Payment details are too long."});
+    if(accountNumber.length<6) return res.status(400).json({error:"Enter a valid account number."});
+    if(ifsc.length<4) return res.status(400).json({error:"Enter a valid IFSC code."});
+    const payoutRef=db.collection("smv_payouts").doc(user.uid);
+    await payoutRef.set({uid:user.uid,bankName,accountName,accountNumber,ifsc,upi,status:"pending_admin_review",requestedAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp(),approvedAt:FieldValue.delete(),rejectedAt:FieldValue.delete(),rejectionReason:FieldValue.delete()},{merge:true});
+    await db.collection("smv_notifications").add({userId:user.uid,type:"payment_method",title:"Payment Method Submitted",message:"Your new payment method is waiting for Admin approval.",createdAt:FieldValue.serverTimestamp(),read:false});
+    await db.collection("smv_notifications").add({userId:ADMIN_UID,type:"payment_method_review",title:"Astrologer Payment Method Approval Required",message:`Astrologer ${astro.name||user.uid} submitted a new payment method for Admin approval.`,astrologerId:user.uid,createdAt:FieldValue.serverTimestamp(),read:false});
+    return res.json({success:true,status:"pending_admin_review"});
+  } catch(e){
+    console.error("Astrologer payout change error:",e);
+    return res.status(500).json({error:"Unable to submit payment method change right now. Please try again."});
+  }
+});
+
+app.post("/admin/payout-change-status", express.json({limit:"5kb"}), async (req,res)=>{
+  const user=await requireUser(req,res); if(!user) return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
+  try{
+    const astrologerId=String(req.body?.astrologerId||"").trim();
+    const status=String(req.body?.status||"").trim();
+    const reason=String(req.body?.reason||"").trim();
+    if(!astrologerId||!["approved","rejected"].includes(status)) return res.status(400).json({error:"Invalid payment method approval request."});
+    const payoutRef=db.collection("smv_payouts").doc(astrologerId), snap=await payoutRef.get();
+    if(!snap.exists) return res.status(404).json({error:"Payment method request not found."});
+    const p=snap.data()||{};
+    if(String(p.status||"")!=="pending_admin_review") return res.status(400).json({error:"This payment method request is no longer pending."});
+    if(status==="rejected"&&!reason) return res.status(400).json({error:"Enter a rejection reason."});
+    const patch={status,reviewedAt:FieldValue.serverTimestamp(),reviewedBy:user.uid,updatedAt:FieldValue.serverTimestamp()};
+    if(status==="approved") patch.approvedAt=FieldValue.serverTimestamp();
+    else { patch.rejectedAt=FieldValue.serverTimestamp(); patch.rejectionReason=reason; }
+    await payoutRef.update(patch);
+    await db.collection("smv_notifications").add({userId:astrologerId,type:"payment_method",title:status==="approved"?"Payment Method Approved":"Payment Method Rejected",message:status==="approved"?"Your new payment method has been approved by Admin.":`Your new payment method was rejected by Admin. Reason: ${reason}`,createdAt:FieldValue.serverTimestamp(),read:false});
+    await writeAdminAudit("PAYMENT_METHOD_"+status.toUpperCase(), astrologerId, user.uid, {astrologerId});
+    return res.json({success:true,status});
+  }catch(e){console.error("Admin payout status error:",e);return res.status(500).json({error:"Unable to update payment method approval."});}
+});
+
+app.get("/admin-data", async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  if (!(await isAdminUser(user))) return res.status(403).json({ error: "Admin access denied." });
+
+  const readCollection = async (name) => {
+    try {
+      const snap = await db.collection(name).get();
+      return { ok: true, items: snap.docs.map(d => ({ id: d.id, ...d.data() })) };
+    } catch (e) {
+      console.error(`Admin collection ${name} failed:`, e?.message || e);
+      return { ok: false, items: [], error: e?.message || `Unable to read ${name}.` };
+    }
+  };
+
+  try {
+    // Read each collection independently. One damaged/missing collection must
+    // never prevent the Admin Dashboard itself from opening.
+    const [users, astrologers, questions, payments] = await Promise.all([
+      readCollection("smv_users"),
+      readCollection("smv_astrologers"),
+      readCollection("smv_questions"),
+      readCollection("smv_payments")
+    ]);
+
+    const customers = users.items.filter(x => String(x.role || "").toLowerCase() === "customer");
+    return res.json({
+      success: true,
+      customers,
+      users: users.items,
+      astrologers: astrologers.items,
+      questions: questions.items,
+      payments: payments.items,
+      errors: { users: users.error || null, astrologers: astrologers.error || null, questions: questions.error || null, payments: payments.error || null }
+    });
+  } catch (e) {
+    console.error("Admin data load failed:", e);
+    return res.status(500).json({ error: e?.message || "Unable to load Admin data." });
+  }
+});
+
+app.post("/create-order", express.json(), async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+  try {
+    let questionId = String(req.body?.questionId || "").trim();
+    let qRef;
+    let q;
+    if (!questionId) questionId = await nextQuestionId();
+
+    // Create/read the question on the trusted server. The browser no longer calls
+    // Firestore to create the question document, which eliminates the empty
+    // documentPath error seen before Razorpay opened.
+    if (questionId) {
+      if (questionId.includes("/") || questionId === "." || questionId === "..") {
+        return res.status(400).json({ error: "A valid questionId is required." });
+      }
+      qRef = db.collection("smv_questions").doc(questionId);
+      const qSnap = await qRef.get();
+      if (!qSnap.exists) {
+        const settingSnap = await db.collection("smv_settings").doc("question").get();
+        const configuredPrice = Number(settingSnap.data()?.price || 5);
+        const birth = req.body?.birthDetails || {};
+        const customerName = String(req.body?.customerName || birth.name || "").trim();
+        const questionText = String(req.body?.question || "").trim();
+        if (!customerName || !questionText || !birth.birthDate || !birth.birthTime || !String(birth.birthPlace || "").trim()) {
+          return res.status(400).json({ error: "Complete customer birth details and question are required." });
+        }
+        q = {
+          customerId: user.uid, questionId, customerName, birthName: customerName, question: questionText,
+          amount: configuredPrice, status: "awaiting_payment", paymentStatus: "pending",
+          allocationStatus: "awaiting_admin",
+          birthDetails: {
+            name: customerName, birthDate: String(birth.birthDate), birthTime: String(birth.birthTime),
+            birthPlace: String(birth.birthPlace).trim(), birthGender: String(birth.birthGender || ""),
+            timezone: "Asia/Kolkata", utcOffsetMinutes: 330
+          },
+          birthDate: String(birth.birthDate), birthTime: String(birth.birthTime),
+          birthPlace: String(birth.birthPlace).trim(), birthGender: String(birth.birthGender || ""),
+          birthTimezone: "Asia/Kolkata", birthUtcOffsetMinutes: 330,
+          createdAt: FieldValue.serverTimestamp()
+        };
+        await qRef.set(q);
+      } else {
+        q = qSnap.data();
+        if (q.customerId !== user.uid) return res.status(403).json({ error: "You do not own this question." });
+        if (String(q.questionId || "") !== questionId) {
+          await qRef.set({ questionId }, { merge: true });
+          q = { ...q, questionId };
+        }
+        // Preserve India wall-clock birth time. Never reinterpret a user-entered
+        // HH:mm value as UTC and shift it by 5:30 hours.
+        if (!q.birthTimezone || !q.birthUtcOffsetMinutes || !q.birthDetails?.timezone) {
+          await qRef.set({
+            birthTimezone: q.birthTimezone || "Asia/Kolkata",
+            birthUtcOffsetMinutes: Number(q.birthUtcOffsetMinutes ?? 330),
+            birthDetails: {
+              ...(q.birthDetails || {}),
+              timezone: q.birthDetails?.timezone || "Asia/Kolkata",
+              utcOffsetMinutes: Number(q.birthDetails?.utcOffsetMinutes ?? 330)
+            }
+          }, { merge: true });
+          q = {
+            ...q,
+            birthTimezone: q.birthTimezone || "Asia/Kolkata",
+            birthUtcOffsetMinutes: Number(q.birthUtcOffsetMinutes ?? 330),
+            birthDetails: {
+              ...(q.birthDetails || {}),
+              timezone: q.birthDetails?.timezone || "Asia/Kolkata",
+              utcOffsetMinutes: Number(q.birthDetails?.utcOffsetMinutes ?? 330)
+            }
+          };
+        }
+      }
+    } else {
+      qRef = db.collection("smv_questions").doc();
+      questionId = qRef.id;
+      if (!questionId) return res.status(500).json({ error: "Unable to create a valid question ID." });
+
+      const settingSnap = await db.collection("smv_settings").doc("question").get();
+      const configuredPrice = Number(settingSnap.data()?.price || 5);
+      if (!Number.isFinite(configuredPrice) || configuredPrice < 1) {
+        return res.status(409).json({ error: "Question price is not configured correctly by Admin." });
+      }
+
+      const birth = req.body?.birthDetails || {};
+      const customerName = String(req.body?.customerName || birth.name || "").trim();
+      const questionText = String(req.body?.question || "").trim();
+      if (!customerName || !questionText || !birth.birthDate || !birth.birthTime || !String(birth.birthPlace || "").trim()) {
+        return res.status(400).json({ error: "Complete customer birth details and question are required." });
+      }
+
+      q = {
+        customerId: user.uid,
+        questionId,
+        customerName,
+        birthName: customerName,
+        question: questionText,
+        amount: configuredPrice,
+        status: "awaiting_payment",
+        paymentStatus: "pending",
+        allocationStatus: "awaiting_admin",
+        birthDetails: {
+          name: customerName,
+          birthDate: String(birth.birthDate),
+          birthTime: String(birth.birthTime),
+          birthPlace: String(birth.birthPlace).trim(),
+          birthGender: String(birth.birthGender || "")
+        },
+        birthDate: String(birth.birthDate),
+        birthTime: String(birth.birthTime),
+        birthPlace: String(birth.birthPlace).trim(),
+        birthGender: String(birth.birthGender || ""),
+        birthTimezone: "Asia/Kolkata",
+        birthUtcOffsetMinutes: 330,
+        createdAt: FieldValue.serverTimestamp()
+      };
+      await qRef.set(q);
+    }
+
+    if (!q || q.customerId !== user.uid) return res.status(403).json({ error: "You do not own this question." });
+    console.log("[create-order] questionId=", questionId, "customer=", user.uid);
+
+    if (!["awaiting_payment", "payment_failed"].includes(q.status)) {
+      if (q.paymentStatus === "paid" && q.razorpayOrderId) {
+        return res.status(200).json({
+          success: true, alreadyPaid: true, questionId,
+          orderId: q.razorpayOrderId, keyId: RAZORPAY_KEY_ID,
+          amount: Math.round(Number(q.amount || 0) * 100), currency: "INR"
+        });
+      }
+      return res.status(409).json({ error: "This question is not available for payment." });
+    }
+
+    // IMPORTANT: For an existing unpaid/failed question, always retry at the
+    // amount already locked on that question. Admin may have changed the
+    // current public question price after this question was created; that
+    // must NOT invalidate the customer's original question or force a new one.
+    // For a brand-new question, its amount was already created from the
+    // current Admin-configured price above.
+    const amount = Number(q.amount || 0);
+    if (!Number.isFinite(amount) || amount < 1) {
+      return res.status(409).json({ error: "The original question price is unavailable. Please contact Admin." });
+    }
+
+    if (q.razorpayOrderId && ["order_created", "verification_failed", "failed"].includes(q.paymentStatus)) {
+      try {
+        const existing = await razorpay.orders.fetch(q.razorpayOrderId);
+        if (existing.status === "paid") return res.status(409).json({ error: "This payment has already been completed. Please refresh your dashboard." });
+        if (Number(existing.amount) === Math.round(amount * 100) && existing.currency === "INR") {
+          return res.json({ success: true, questionId, orderId: existing.id, keyId: RAZORPAY_KEY_ID, amount: existing.amount, currency: existing.currency, reused: true });
+        }
+      } catch (e) { console.warn("Could not reuse old order:", e?.message || e); }
+    }
+
+    const order = await razorpay.orders.create({
+      amount: Math.round(amount * 100), currency: "INR",
+      receipt: `SMV_${questionId.slice(0, 25)}_${Date.now()}`,
+      notes: { questionId, customerId: user.uid, astrologerId: String(q.astrologerId || "") }
+    });
+    if (!order || !order.id || typeof order.id !== "string") {
+      console.error("Razorpay returned an order without a valid order ID", order);
+      return res.status(502).json({ error: "Razorpay order was created without a valid order ID." });
+    }
+
+    const answerSettings = await db.collection("smv_settings").doc("answer").get();
+    const minimumWords = Math.max(1, Math.min(10000, Math.floor(Number(answerSettings.data()?.minimumWords || 150))));
+    await qRef.set({ razorpayOrderId: order.id, paymentCurrency: "INR", paymentStatus: "order_created", answerMinWords: minimumWords, paymentUpdatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await db.collection("razorpay_orders").doc(order.id).set({
+      razorpayOrderId: order.id, questionId, amount: order.amount, currency: order.currency,
+      firebaseUid: user.uid, customerEmail: user.email || null, astrologerId: String(q.astrologerId || ""),
+      serviceName: req.body?.serviceName || "Public Astrology Question", status: "created", createdAt: FieldValue.serverTimestamp()
+    });
+    return res.json({ success: true, questionId, orderId: order.id, keyId: RAZORPAY_KEY_ID, amount: order.amount, currency: order.currency });
+  } catch (e) {
+    console.error("Create order error:", e);
+    return res.status(500).json({ error: e?.error?.description || e?.description || e?.message || "Unable to create Razorpay order" });
+  }
+});
+
+async function markQuestionPaid(questionId, orderId, paymentId, signature, source) {
+  const qRef = db.collection("smv_questions").doc(questionId);
+  const result = await db.runTransaction(async tx => {
+    const snap = await tx.get(qRef);
+    if (!snap.exists) throw new Error("Question not found.");
+    const q = snap.data();
+    if (q.razorpayOrderId !== orderId) throw new Error("Order mismatch.");
+    if (q.paymentStatus === "paid" && q.razorpayPaymentId === paymentId) return { already: true, customerId: q.customerId, customerPaymentId: q.customerPaymentId || null };
+    const amount = Number(q.amount || 0);
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error("Invalid question amount.");
+    const paymentDateKey = indiaDateKey();
+    const paymentCounterRef = db.collection("smv_counters").doc(`payment_${paymentDateKey}`);
+    const paymentCounterSnap = await tx.get(paymentCounterRef);
+    const paymentInfo = nextPaymentIdInTransaction(paymentDateKey, paymentCounterSnap);
+    tx.set(paymentCounterRef, { lastNumber: paymentInfo.next, dateKey: paymentDateKey, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    const customerPaymentId = paymentInfo.id;
+    const paymentRecordedAt = new Date().toISOString();
+    tx.set(db.collection("smv_payments").doc(customerPaymentId), {
+      paymentId: customerPaymentId, type: "customer_payment", customerId: q.customerId, astrologerId: null, questionId, bookingId: q.bookingId || null,
+      razorpayOrderId: orderId, razorpayPaymentId: paymentId, amount, status: "paid", paymentStatus: "paid", source, createdAt: FieldValue.serverTimestamp(), paymentRecordedAt, updatedAt: FieldValue.serverTimestamp()
+    });
+    tx.update(qRef, {
+      status: "pending_admin_approval", paymentStatus: "paid", allocationStatus: "awaiting_admin", razorpayPaymentId: paymentId, razorpaySignature: signature,
+      paidAt: q.paidAt || FieldValue.serverTimestamp(), paymentUpdatedAt: FieldValue.serverTimestamp(), paymentConfirmedBy: source, customerPaymentId, paymentRecordedAt,
+      astrologerPaymentId: FieldValue.delete(), commissionStatus: "awaiting_admin_allocation"
+    });
+    return { already: false, customerId: q.customerId, customerPaymentId, paymentRecordedAt };
+  });
+  if (!result.already) {
+    const approvalMode = await getQuestionApprovalMode();
+    if (approvalMode === "automatic") {
+      await qRef.update({
+        status:"available_to_astrologers", allocationStatus:"available_to_astrologers",
+        adminQuestionApprovedAt:FieldValue.serverTimestamp(), adminQuestionApprovedBy:"AUTO",
+        updatedAt:FieldValue.serverTimestamp()
+      });
+      await db.collection("smv_notifications").add({userId:result.customerId,type:"question_approved",title:"Question Approved",message:"Your question has been automatically approved and is now available to approved astrologers.",questionId,createdAt:FieldValue.serverTimestamp(),read:false});
+    } else {
+      await db.collection("smv_notifications").add({ userId: result.customerId, type: "payment", title: "Payment successful", message: `Your payment was verified. Your question is now waiting for Admin approval. Payment ID: ${result.customerPaymentId || "N/A"}.`, paymentId: result.customerPaymentId || null, razorpayPaymentId: paymentId || null, questionId, createdAt: FieldValue.serverTimestamp(), read: false });
+    }
+    const qSnap = await qRef.get();
+    const q = qSnap.exists ? (qSnap.data() || {}) : {};
+    const customerEmail = String(q.customerEmail || await getUserEmail(result.customerId) || "").trim();
+    const amount = Number(q.amount || 0);
+    await sendSystemEmail({
+      to: [customerEmail, ADMIN_EMAIL],
+      subject: "SMV ASTRO — Payment Successful",
+      replyTo: ADMIN_EMAIL,
+      text: `Payment successful for SMV ASTRO.\n\nQuestion ID: ${questionId}\nCustomer Payment ID: ${result.customerPaymentId || "N/A"}\nAmount: ₹${amount.toFixed(2)}\nRazorpay Payment ID: ${paymentId}\nRazorpay Order ID: ${orderId}\n\nYour question is now waiting for Admin approval.`
+    });
+    await sendAdminTransactionEmail({ eventType: "PAYMENT SUCCESS", paymentId, orderId, amount, currency: "INR", questionId, customerEmail, status: "paid" });
+  }
+  return result;
+}
+
+
+async function getQuestionApprovalMode() {
+  try {
+    const snap = await db.collection("smv_settings").doc("questionApproval").get();
+    const mode = String(snap.data()?.mode || "manual").toLowerCase();
+    return mode === "automatic" ? "automatic" : "manual";
+  } catch (_) { return "manual"; }
+}
+
+app.get("/admin/approval-mode", async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access required."});
+  return res.json({success:true,mode:await getQuestionApprovalMode()});
+});
+
+app.post("/admin/approval-mode", express.json({limit:"5kb"}), async(req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access required."});
+  try{
+    const mode=String(req.body?.mode||"").toLowerCase();
+    if(!["manual","automatic"].includes(mode)) return res.status(400).json({error:"Invalid approval mode."});
+    await db.collection("smv_settings").doc("questionApproval").set({mode,updatedAt:FieldValue.serverTimestamp(),updatedBy:user.uid},{merge:true});
+    await writeAdminAudit("QUESTION_APPROVAL_MODE_CHANGED",null,user.uid,{mode});
+    return res.json({success:true,mode});
+  }catch(e){return res.status(500).json({error:e?.message||"Unable to save approval mode."});}
+});
+
+app.get("/astrologer/public-questions", async(req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  try{
+    const aSnap=await db.collection("smv_astrologers").doc(user.uid).get();
+    if(!aSnap.exists || String(aSnap.data()?.status||"").toLowerCase()!=="approved") return res.status(403).json({error:"Astrologer approval required."});
+    const snap=await db.collection("smv_questions").where("status","==","available_to_astrologers").limit(100).get();
+    const questions=snap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(q=>String(q.allocationStatus||"")==="available_to_astrologers" && !q.astrologerId).sort((a,b)=>{const av=a.createdAt?.toMillis?a.createdAt.toMillis():0,bv=b.createdAt?.toMillis?b.createdAt.toMillis():0;return bv-av;});
+    return res.json({success:true,questions});
+  }catch(e){return res.status(500).json({error:e?.message||"Unable to load public questions."});}
+});
+
+app.post("/astrologer/claim-public-question", express.json({limit:"10kb"}), async(req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    if(!questionId) return res.status(400).json({error:"Question ID is required."});
+    const aSnap=await db.collection("smv_astrologers").doc(user.uid).get();
+    if(!aSnap.exists || String(aSnap.data()?.status||"").toLowerCase()!=="approved") return res.status(403).json({error:"Your astrologer profile is not approved by Admin."});
+    const result=await db.runTransaction(async tx=>{
+      const ref=db.collection("smv_questions").doc(questionId);
+      const snap=await tx.get(ref); if(!snap.exists) throw new Error("Question not found.");
+      const q=snap.data()||{};
+      if(String(q.status||"")!=="available_to_astrologers" || String(q.allocationStatus||"")!=="available_to_astrologers") throw new Error("This question has already been claimed or is no longer available.");
+      const a=aSnap.data()||{};
+      const pct=Number(q.commissionPercent||q.commissionRate||20);
+      const amount=Math.round(Number(q.amount||0)*pct)/100;
+      tx.update(ref,{status:"admin_approved",allocationStatus:"claimed_by_astrologer",astrologerId:user.uid,astrologerName:a.name||"Astrologer",commissionPercent:pct,commissionRate:pct,astrologerCommissionAmount:amount,adminCommissionAmount:Math.round((Number(q.amount||0)-amount)*100)/100,claimedAt:FieldValue.serverTimestamp(),claimedBy:user.uid,updatedAt:FieldValue.serverTimestamp()});
+      return {questionId,astrologerId:user.uid,astrologerName:a.name||"Astrologer",commissionPercent:pct,astrologerCommissionAmount:amount};
+    });
+    await db.collection("smv_notifications").add({userId:user.uid,type:"question_claimed",title:"Question Claimed",message:"You claimed a public question. Please submit your answer.",questionId,createdAt:FieldValue.serverTimestamp(),read:false});
+    return res.json({success:true,...result});
   }catch(e){return res.status(409).json({error:e?.message||"Unable to claim question."});}
 });
+
+app.post("/customer/view-answer", express.json({limit:"5kb"}), async(req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    const ref=db.collection("smv_questions").doc(questionId); const snap=await ref.get();
+    if(!snap.exists) return res.status(404).json({error:"Question not found."});
+    const q=snap.data()||{};
+    if(String(q.customerId||"")!==String(user.uid)) return res.status(403).json({error:"You do not own this question."});
+    if(String(q.status||"")!=="answered") return res.status(409).json({error:"The answer is not ready."});
+    await ref.update({answerViewedAt:FieldValue.serverTimestamp(),astrologerEditMode:false,customerViewedAnswer:true,updatedAt:FieldValue.serverTimestamp()});
+    return res.json({success:true,questionId});
+  }catch(e){return res.status(500).json({error:e?.message||"Unable to mark answer as viewed."});}
+});
+
+app.post("/api/translate-answer", express.json({limit:"60kb"}), async(req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  try{
+    if(!GEMINI_API_KEY) return res.status(503).json({error:"AI translation is not configured. Add GEMINI_API_KEY in Render Environment Variables."});
+    const text=String(req.body?.text||"").trim();
+    if(!text) return res.status(400).json({error:"Answer text is required."});
+    if(text.length>50000) return res.status(400).json({error:"Answer is too long."});
+    const prompt=`Translate the following astrology consultation answer into natural, clear Tamil. Preserve the exact meaning, names, numbers, dates, astrology terminology and paragraph structure. Do not add, remove, interpret, summarize or invent content. Return Tamil translation only.\n\n${text}`;
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,{method:"POST",headers:{"x-goog-api-key":GEMINI_API_KEY,"Content-Type":"application/json"},body:JSON.stringify({system_instruction:{parts:[{text:"You are a precise Tamil translation assistant for SMV ASTRO. Translate only; do not alter meaning."}]},contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:5000,thinkingConfig:{thinkingLevel:"low"}}})});
+    const body=await r.json().catch(()=>({}));
+    if(!r.ok) return res.status(502).json({error:body?.error?.message||`AI translation failed (HTTP ${r.status}).`});
+    const translated=body?.candidates?.[0]?.content?.parts?.map(x=>x.text||"").join("\n").trim();
+    if(!translated) return res.status(502).json({error:"AI returned an empty translation."});
+    return res.json({success:true,text:translated,model:GEMINI_MODEL});
+  }catch(e){return res.status(500).json({error:e?.message||"AI translation failed."});}
+});
+
+
+app.post("/admin/credit-commission", async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  if (!(await isAdminUser(user))) return res.status(403).json({ error: "Admin access denied." });
+  try {
+    const questionId = String(req.body?.questionId || "").trim(); if (!questionId) return res.status(400).json({ error: "Question ID is required." });
+    const qRef = db.collection("smv_questions").doc(questionId);
+    const qSnap = await qRef.get(); if (!qSnap.exists) return res.status(404).json({ error: "Question not found." });
+    const q = qSnap.data() || {};
+    if (!q.astrologerId) return res.status(400).json({ error: "Astrologer is not assigned." });
+    const amount = Number(q.astrologerCommissionAmount || q.commissionAmount || 0);
+    if (!Number.isFinite(amount) || amount < 0) return res.status(400).json({ error: "Invalid astrologer commission amount." });
+    if (q.astrologerPaymentId && q.commissionStatus === "credited") return res.json({ success: true, astrologerPaymentId: q.astrologerPaymentId, commissionAmount: amount, already: true });
+    const paymentId = await nextPaymentId();
+    const astrologerPaymentId = paymentId.replace(/^SMV-PAY-/, "SMV-PAT-");
+    await db.collection("smv_payments").doc(astrologerPaymentId).set({ paymentId: astrologerPaymentId, type:"astrologer_earning", customerId:q.customerId||null, astrologerId:q.astrologerId, questionId, bookingId:q.bookingId||null, grossAmount:Number(q.amount||0), commissionPercent:Number(q.commissionPercent||q.commissionRate||0), commissionAmount:amount, earningAmount:amount, status:"credited", paymentStatus:"pending_withdrawal", source:"admin_answer_approval", createdAt:FieldValue.serverTimestamp(), updatedAt:FieldValue.serverTimestamp() });
+    await qRef.update({ astrologerPaymentId:astrologerPaymentId, commissionStatus:"credited", commissionCreditedAt:FieldValue.serverTimestamp(), commissionAmount:amount });
+    return res.json({ success:true, astrologerPaymentId:astrologerPaymentId, commissionAmount:amount });
+  } catch(e) { console.error("Commission credit error:",e); return res.status(500).json({ error:e?.message||"Unable to credit commission." }); }
+});
+
+
+app.post("/admin/reject-answer", express.json({limit:"10kb"}), async (req,res)=>{
+  const user=await requireUser(req,res); if(!user)return;
+  if(!(await isAdminUser(user))) return res.status(403).json({error:"Admin access denied."});
+  try{
+    const questionId=String(req.body?.questionId||"").trim();
+    const reason=String(req.body?.reason||"").trim();
+    if(!questionId||!reason) return res.status(400).json({error:"Question ID and rejection reason are required."});
+    const ref=db.collection("smv_questions").doc(questionId);
+    const snap=await ref.get(); if(!snap.exists) return res.status(404).json({error:"Question not found."});
+    const q=snap.data()||{};
+    if(!q.astrologerId) return res.status(409).json({error:"Astrologer is not assigned."});
+    if(["answered","question_rejected","admin_rejected"].includes(String(q.status||""))) return res.status(409).json({error:"This question is already closed."});
+    if(!String(q.answer||"").trim()) return res.status(400).json({error:"No astrologer answer is available to reject."});
+    await ref.update({
+      status:"revision_required", allocationStatus:"claimed_by_astrologer",
+      astrologerAnswerStatus:"revision_required", astrologerEditMode:true,
+      adminRejectionReason:reason, adminRejectedAt:FieldValue.serverTimestamp(), adminRejectedBy:user.uid,
+      commissionStatus:"allocated_pending_answer", updatedAt:FieldValue.serverTimestamp()
+    });
+    await db.collection("smv_notifications").add({userId:q.astrologerId,type:"answer_rejected",title:"Answer revision required",message:`Please revise and resubmit your answer. Reason: ${reason}`,questionId,createdAt:FieldValue.serverTimestamp(),read:false});
+    await writeAdminAudit("ANSWER_REJECTED",questionId,user.uid,{reason,astrologerId:q.astrologerId});
+    return res.json({success:true,questionId,astrologerId:q.astrologerId,status:"revision_required"});
+  }catch(e){console.error("Admin reject answer error:",e);return res.status(500).json({error:e?.message||"Unable to reject answer."});}
+});
+
+app.post("/admin/approve-answer", express.json({limit:"20kb"}), async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  if (!(await isAdminUser(user))) return res.status(403).json({ error: "Admin access denied." });
+  const questionId = String(req.body?.questionId || "").trim();
+  try {
+    if (!questionId) return res.status(400).json({ error: "Question ID is required." });
+    const qRef = db.collection("smv_questions").doc(questionId);
+    const snap = await qRef.get();
+    if (!snap.exists) return res.status(404).json({ error: "Question not found." });
+    const q = snap.data() || {};
+    if (!q.astrologerId) return res.status(400).json({ error: "Astrologer is not assigned." });
+    if (["question_rejected","admin_rejected"].includes(String(q.status||""))) return res.status(409).json({ error: "This question was rejected and refunded. Its answer cannot be approved." });
+    if (!String(q.answer || "").trim()) return res.status(400).json({ error: "No answer found." });
+    const alreadyApproved = String(q.status || "") === "answered" && String(q.astrologerAnswerStatus || "") === "approved";
+    // IMPORTANT: An answer may have been approved before email delivery was fixed.
+    // Do not return early in that case. Re-run the email notification so Admin can
+    // safely approve/retry and the customer still receives the message.
+    const amount = Number(q.astrologerCommissionAmount || q.commissionAmount || 0);
+    if (!Number.isFinite(amount) || amount < 0) return res.status(400).json({ error: "Invalid astrologer commission amount." });
+
+    let astrologerPaymentId = q.astrologerPaymentId || "";
+    if (!alreadyApproved && (!astrologerPaymentId || String(q.commissionStatus || "") !== "credited")) {
+      const paymentId = await nextPaymentId();
+      astrologerPaymentId = paymentId.replace(/^SMV-PAY-/, "SMV-PAT-");
+      await db.collection("smv_payments").doc(astrologerPaymentId).set({
+        paymentId: astrologerPaymentId, type:"astrologer_earning", customerId:q.customerId||null,
+        astrologerId:q.astrologerId, questionId, bookingId:q.bookingId||null,
+        grossAmount:Number(q.amount||0), commissionPercent:Number(q.commissionPercent||q.commissionRate||0),
+        commissionAmount:amount, earningAmount:amount, status:"credited", paymentStatus:"pending_withdrawal",
+        source:"admin_answer_approval", createdAt:FieldValue.serverTimestamp(), updatedAt:FieldValue.serverTimestamp()
+      });
+    }
+
+    if (!alreadyApproved) {
+      await qRef.update({
+        status:"answered",
+        astrologerAnswerStatus:"approved",
+        commissionStatus:"credited",
+        answerApprovedAt:FieldValue.serverTimestamp(),
+        adminAnswerApprovedAt:FieldValue.serverTimestamp(),
+        answerApprovedBy:user.uid,
+        commissionCreditedAt:q.commissionCreditedAt || FieldValue.serverTimestamp(),
+        commissionAmount:amount,
+        astrologerCommissionAmount:amount,
+        astrologerPaymentId,
+        updatedAt:FieldValue.serverTimestamp(),
+        answerApprovalEmailStatus:{state:"pending",updatedAt:FieldValue.serverTimestamp(),retry:true}
+      });
+
+      await db.collection("smv_notifications").add({
+        userId:q.astrologerId,type:"answer_approved",title:"Answer Approved",
+        message:`Your answer has been approved. Commission credited: ₹${amount.toFixed(2)}`,
+        questionId,commissionAmount:amount,createdAt:FieldValue.serverTimestamp(),read:false
+      });
+      await writeAdminAudit("ANSWER_APPROVED", questionId, user.uid, {
+        commissionAmount: amount, astrologerId: q.astrologerId, customerId: q.customerId || null
+      });
+    } else {
+      await qRef.set({
+        answerApprovalEmailStatus:{state:"pending",updatedAt:FieldValue.serverTimestamp(),retry:true},
+        updatedAt:FieldValue.serverTimestamp()
+      }, {merge:true});
+    }
+
+    const customerEmail = String(q.customerEmail || await getUserEmail(q.customerId) || "").trim();
+    const astrologerEmail = String(await getUserEmail(q.astrologerId) || "").trim();
+    const customerName = String(q.customerName || q.birthName || "Customer");
+    const astrologerName = String(q.astrologerName || "Astrologer");
+    const subject = "SMV ASTRO — Astrology answer approved";
+    const results = {};
+    const recipients = uniqueRecipients([customerEmail, astrologerEmail, ADMIN_EMAIL]);
+    for (const recipient of recipients) {
+      const key = recipient.toLowerCase();
+      const isCustomer = key === customerEmail.toLowerCase();
+      const isAstrologer = key === astrologerEmail.toLowerCase();
+      const text = isCustomer
+        ? `Dear ${customerName},\n\nYour astrology answer has been approved by SMV ASTRO Admin and is now ready to view.\n\nQuestion: ${q.question || ""}\nQuestion ID: ${questionId}\n\nRegards,\nSMV ASTRO`
+        : isAstrologer
+          ? `Dear ${astrologerName},\n\nYour submitted astrology answer has been approved by SMV ASTRO Admin.\n\nQuestion ID: ${questionId}\nCommission credited: ₹${amount.toFixed(2)}\n\nRegards,\nSMV ASTRO`
+          : `SMV ASTRO answer approval notification.\n\nQuestion ID: ${questionId}\nCustomer Email: ${customerEmail || "N/A"}\nAstrologer Email: ${astrologerEmail || "N/A"}\nCommission: ₹${amount.toFixed(2)}`;
+      const result = await sendSystemEmail({to:[recipient],replyTo:ADMIN_EMAIL,subject,text});
+      if (result?.failed) {
+        results[key] = {status:"failed",error:String(result.error || "Unknown email error")};
+        console.error(`Resend delivery failed | Question ID: ${questionId} | Recipient Email: ${recipient} | Reason: ${result.error || "Unknown email error"}`);
+      } else {
+        results[key] = {status:"sent",messageId:result?.id || null};
+        console.log(`Resend notification sent | Question ID: ${questionId} | Recipient Email: ${recipient}`);
+      }
+    }
+    const vals = Object.values(results);
+    const emailState = !vals.length ? "failed" : vals.every(x=>x.status==="sent") ? "sent" : vals.every(x=>x.status==="failed") ? "failed" : "partial";
+    await qRef.set({answerApprovalEmailStatus:{state:emailState,recipients:results,updatedAt:FieldValue.serverTimestamp()}},{merge:true});
+    // Never expose Resend delivery state to the Admin/Customer/Astrologer web UI.
+    // The business action is successful once the answer is approved and commission is credited.
+    return res.json({success:true,questionId,already:alreadyApproved,commissionAmount:amount});
+  } catch (e) {
+    console.error(`Admin answer approval failed | Question ID: ${questionId || "N/A"} | Reason:`, e?.message || e);
+    return res.status(500).json({error:e?.message || "Unable to approve answer."});
+  }
+});
+
 
 app.get("/astrologer/earnings", async (req, res) => {
   const user = await requireUser(req, res);
@@ -1452,6 +2212,7 @@ app.get("/customer/consultations", async (req, res) => {
           adminQuestionApprovedAt: toIso(q.adminQuestionApprovedAt),
           answerSubmittedAt: toIso(q.answerSubmittedAt),
           answerApprovedAt: toIso(q.answerApprovedAt),
+          answerViewedAt: toIso(q.answerViewedAt),
           adminAnswerApprovedAt: toIso(q.adminAnswerApprovedAt),
           commissionCreditedAt: toIso(q.commissionCreditedAt)
         };
@@ -2216,8 +2977,81 @@ app.post("/api/horoscope/calculate", async (req,res)=>{
   }
 });
 
-// OpenAI translation is intentionally NOT used for Astrologer/Admin answers.
-// Blog translation remains available through /api/translate-tamil below.
+// Shared OpenAI Tamil answer translator used by both Astrologer and Admin answer submission.
+// The translation is performed server-side so OPENAI_API_KEY never reaches the browser.
+async function translateAnswerToTamil(answerText) {
+  const source = String(answerText || "").trim();
+  if (!source) return "";
+  if (!OPENAI_API_KEY) {
+    throw new Error("OpenAI தமிழ் மொழிபெயர்ப்பு சேவை அமைக்கப்படவில்லை. Render Environment Variables-ல் OPENAI_API_KEY-ஐ அமைக்கவும்.");
+  }
+
+  const prompt = `
+Translate the following astrology consultation answer into natural, polished Tamil for the SMV ASTRO Tamil website.
+Rules:
+- Preserve the exact meaning, advice, cautions, dates, numbers, names, zodiac signs, nakshatras, planet names, and other factual details.
+- Translate all human-readable English into clear Tamil.
+- If the answer is already Tamil, keep its meaning and wording as intact as possible; only clean obvious mixed-language fragments when appropriate.
+- Do not add predictions, advice, explanations, headings, disclaimers, or facts that are not in the source.
+- Do not remove any important sentence.
+- Use established Tamil astrology terminology such as ஜோதிடம், ஜாதகம், ராசி, நட்சத்திரம், கிரகம், பாவம், தசா, கோச்சாரம், பரிகாரம் where appropriate.
+- Return ONLY the translated answer text. Do not return JSON, markdown fences, or commentary.
+
+ANSWER:
+${source}
+`;
+
+  let lastDetail = "";
+  for (const model of OPENAI_TRANSLATION_FALLBACK_MODELS) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 60000);
+      try {
+        const response = await fetch("https://api.openai.com/v1/responses", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${OPENAI_API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model,
+            instructions: "நீங்கள் SMV ASTRO தமிழ் ஜோதிட ஆலோசனைக்கான தொழில்முறை மொழிபெயர்ப்பாளர். வழங்கப்பட்ட பதிலின் பொருளை மாற்றாமல் இயல்பான, தெளிவான தமிழில் மொழிபெயர்க்கவும். பதில் உரையை மட்டும் திருப்பி அனுப்பவும்.",
+            input: prompt,
+            max_output_tokens: 6000
+          }),
+          signal: controller.signal
+        });
+        const result = await response.json().catch(() => ({}));
+        if (response.ok) {
+          const translated = String(result?.output_text || result?.output?.flatMap(x => x?.content || []).map(x => x?.text || "").join("\n") || "").trim();
+          if (!translated) {
+            lastDetail = "OpenAI எந்த தமிழாக்க பதிலும் வழங்கவில்லை.";
+          } else {
+            const sourceHasTamil = /[\u0B80-\u0BFF]/.test(source);
+            const tamilChars = (translated.match(/[\u0B80-\u0BFF]/g) || []).length;
+            if (!sourceHasTamil && tamilChars < 3) {
+              lastDetail = "OpenAI தமிழாக்கம் சரியாக உருவாகவில்லை.";
+            } else {
+              return translated.replace(/^```(?:text)?\s*/i, "").replace(/\s*```$/i, "").trim();
+            }
+          }
+        } else {
+          lastDetail = result?.error?.message || `OpenAI API HTTP ${response.status}`;
+          if (![429, 500, 502, 503, 504].includes(response.status) || attempt === 1) break;
+          await new Promise(r => setTimeout(r, 1500 * (2 ** attempt)));
+        }
+      } catch (err) {
+        lastDetail = err?.name === "AbortError" ? "OpenAI கோரிக்கைக்கு நேரம் முடிந்தது." : (err?.message || "OpenAI request failed");
+        if (attempt === 1) break;
+        await new Promise(r => setTimeout(r, 1500 * (2 ** attempt)));
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+  }
+
+  throw new Error(`OpenAI தமிழ் மொழிபெயர்ப்பு சேவை தற்காலிகமாக கிடைக்கவில்லை. (${lastDetail})`);
+}
 
 // Tamil translation endpoint for the Tamil website/blog manager.
 // OpenAI is called ONLY from Render so OPENAI_API_KEY never reaches the browser.
