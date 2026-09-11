@@ -42,7 +42,10 @@ const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
 const RESEND_FROM = String(process.env.RESEND_FROM || "onboarding@resend.dev").trim();
 const RESEND_TEST_RECIPIENT = String(process.env.RESEND_TEST_RECIPIENT || ADMIN_EMAIL || "").trim();
 const GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || "").trim();
-const GEMINI_MODEL = "gemini-3.7-flash";
+const GEMINI_MODEL = String(process.env.GEMINI_MODEL || "gemini-3.7-flash").trim();
+const GEMINI_TRANSLATION_FALLBACK_MODELS = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-2.5-flash", "gemini-3.1-pro-preview"].filter((v,i,a)=>v && a.indexOf(v)===i);
+// OpenAI is used ONLY for English → Tamil blog translation. Other Gemini-powered
+// horoscope features remain unchanged. The API key never reaches the browser.
 const AI_RATE_LIMIT_MAX = Number(process.env.AI_RATE_LIMIT_MAX || 10);
 const AI_RATE_LIMIT_WINDOW_MS = Number(process.env.AI_RATE_LIMIT_WINDOW_MS || 10 * 60 * 1000);
 const aiRateBuckets = new Map();
@@ -581,6 +584,9 @@ app.post("/submit-answer", async (req, res) => {
       return res.status(400).json({ error: `Please write at least ${minWords} words.` });
     }
 
+    // Keep the author's submitted answer; no external translation request.
+    const submittedAnswer = answer;
+
     const commissionPercent = Number(q.commissionPercent || q.commissionRate || 20);
     const commissionAmount =
       Math.round(Number(q.amount || 0) * commissionPercent) / 100;
@@ -588,8 +594,8 @@ app.post("/submit-answer", async (req, res) => {
     // Save the answer before attempting email. This makes the submission
     // independent of browser notification calls and email-provider latency.
     await questionRef.update({
-      answer,
-      answerWordCount: wordCount,
+      answer: submittedAnswer,
+      answerWordCount: submittedAnswer.split(/\s+/).filter(Boolean).length,
       answerSubmittedAt: FieldValue.serverTimestamp(),
       astrologerAnswerStatus: "submitted",
       // Once resubmitted, remove edit mode so the same question is no longer
@@ -1173,6 +1179,8 @@ app.post("/admin/approve-question", express.json({limit:"10kb"}), async (req,res
 });
 
 
+// Astrologer claim: use the trusted Admin SDK so the browser does not need
+// direct Firestore write permission for the claim/status transition.
 app.post('/astrologer/claim-question', express.json({limit:'10kb'}), async(req,res)=>{
  const user=await requireUser(req,res);if(!user)return;
  const questionId=String(req.body?.questionId||'').trim();
@@ -1357,10 +1365,13 @@ app.post("/admin/takeover-answer", express.json({limit:"30kb"}), async (req,res)
     const wordCount=answer.split(/\s+/).filter(Boolean).length;
     const minWords=Math.max(1,Number(q.answerMinWords||1));
     if(wordCount<minWords) return res.status(400).json({error:`Admin answer must contain at least ${minWords} words.`});
+    // Keep the Admin answer in the language in which it was submitted.
+    const submittedAnswer=answer;
+    const submittedWordCount=submittedAnswer.split(/\s+/).filter(Boolean).length;
     await ref.update({
       question: q.question || "",
-      answer,
-      answerWordCount:wordCount,
+      answer:submittedAnswer,
+      answerWordCount:submittedWordCount,
       answerAuthorType:"admin",
       adminAnswered:true,
       adminAnswerBy:user.uid,
@@ -2684,7 +2695,7 @@ app.get("/api/geocode", async (req, res) => {
 
     if (now - last < 1100) {
       return res.status(429).json({
-        error:"Please wait a moment before searching another place."
+        error:"வேறு இடத்தைத் தேடுவதற்கு முன் சிறிது நேரம் காத்திருக்கவும்."
       });
     }
 
@@ -2709,7 +2720,7 @@ app.get("/api/geocode", async (req, res) => {
 
     if (!r.ok) {
       return res.status(502).json({
-        error:"Location service is temporarily unavailable."
+        error:"இடத் தேடல் சேவை தற்போது தற்காலிகமாக கிடைக்கவில்லை."
       });
     }
 
@@ -2756,7 +2767,7 @@ app.get("/api/geocode", async (req, res) => {
   } catch(e) {
     console.error("Geocode error:",e?.message||e);
     return res.status(502).json({
-      error:"Unable to search this place right now. Please try again."
+      error:"இந்த இடத்தை இப்போது தேட முடியவில்லை. மீண்டும் முயற்சிக்கவும்."
     });
   }
 });;;;;
@@ -2779,6 +2790,9 @@ app.post("/api/horoscope/calculate", async (req,res)=>{
     });
   }
 });
+
+// Translation service removed. Authors' answers and blogs are saved as submitted.
+app.post('/api/translate-tamil', (req,res)=>res.status(410).json({ok:false,error:'Automatic translation has been removed. Publish the original text.'}));
 
 app.post("/api/horoscope/ai-future", express.json({ limit: "60kb" }), async (req, res) => {
   try {

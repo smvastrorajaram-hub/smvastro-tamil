@@ -118,7 +118,7 @@ table.data-table{width:100%;min-width:680px;border-collapse:separate;border-spac
 .data-table tr:last-child td{border-bottom:0}.data-table th:last-child,.data-table td:last-child{border-right:0}
 .data-table tbody tr:nth-child(even){background:#fffaf0}.data-table tbody tr:hover{background:#fff3d5}
 .data-table th:nth-child(1),.data-table td:nth-child(1){width:22%}.data-table th:nth-child(2),.data-table td:nth-child(2){width:20%}.data-table th:nth-child(3),.data-table td:nth-child(3){width:18%}.data-table th:nth-child(4),.data-table td:nth-child(4){width:30%}.data-table th:nth-child(5),.data-table td:nth-child(5){width:14%}
-/* V20: Bhava Table — clean Tamil alignment; table only */
+/* V20: பாவ கட்டம் — clean Tamil alignment; table only */
 .bhava-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .bhava-table{min-width:0!important;width:100%!important;table-layout:fixed;border-collapse:collapse}
 .bhava-table th,.bhava-table td{box-sizing:border-box;text-align:center!important;vertical-align:middle!important;white-space:normal!important;word-break:normal!important;overflow-wrap:anywhere!important;padding:9px 5px!important;line-height:1.35}
@@ -156,7 +156,7 @@ table.data-table{width:100%;min-width:680px;border-collapse:separate;border-spac
 .south-rasi-cell .lagna{display:block;width:100%;padding:2px 0;border:1px solid #b78625;border-radius:5px;background:#fff0c7;color:#7b3d0e;font-size:10px}
 @media(max-width:700px){table.data-table{min-width:620px}.data-table th,.data-table td{padding:9px 8px;font-size:13px}.south-indian-chart{width:min(680px,100%)}.south-rasi-cell .planet-line{font-size:10px;gap:2px}}
 
-/* V133 South Indian Rasi chart: fixed-sign 4x4 layout with center blank */
+/* V133 South Indian ராசி chart: fixed-sign 4x4 layout with center blank */
 .south-indian-chart{width:min(640px,100%);margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);border:2px solid #6f4d2c;background:#fffdf7;aspect-ratio:1/1;box-shadow:0 8px 24px rgba(111,21,21,.08)}
 .south-rasi-cell{border:1px solid #8f704f;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:7px 4px;min-width:0;overflow:hidden;background:linear-gradient(180deg,#fffdf7,#fff8e9)}
 .south-rasi-cell .sign{font-weight:900;color:var(--maroon);font-size:clamp(20px,3.8vw,28px);line-height:1;min-height:28px;display:flex;align-items:center;justify-content:center;width:100%;margin:0 0 3px}
@@ -263,7 +263,7 @@ footer{text-align:center;padding:35px 16px;color:var(--muted);border-top:3px dou
 .customer-option{border-top:3px solid #8f1d1d}
 .astrologer-option{border-top:3px solid #b8860b}
 @media(max-width:760px){
- .hero{padding:34px 8px 32px}.hero h1{font-size:clamp(34px,10vw,49px)}.hero p{font-size:15px;line-height:1.75}.home-rule:before,.home-rule:after{width:18vw}.hero-subline{font-size:9px;letter-spacing:1.2px}.registration-option{min-height:0}
+ .hero{padding:34px 8px 32px}.hero h1{font-size:clamp(34px,10vw,49px);text-align:center;width:100%;margin-left:auto;margin-right:auto}.hero p{font-size:15px;line-height:1.75}.home-rule:before,.home-rule:after{width:18vw}.hero-subline{font-size:9px;letter-spacing:1.2px}.registration-option{min-height:0}
 }
 
 /* V58 astrologer registration: traditional temple-gold identity */
@@ -542,7 +542,7 @@ textarea[id^="adminAns_"]{
   .data-table th:nth-child(4),.data-table td:nth-child(4){width:24%!important}
   .data-table th:nth-child(5),.data-table td:nth-child(5){width:20%!important}
 
-  /* Bhava / strength tables: crop excess padding, never create a wide hidden column. */
+  /* பாவம் / strength tables: crop excess padding, never create a wide hidden column. */
   .bhava-table,.strength-table,.phase2-strength-table,.phase3-shadbala-table{min-width:0!important;width:100%!important;table-layout:fixed!important;}
   .bhava-table th,.bhava-table td,.strength-table th,.strength-table td,.phase2-strength-table th,.phase2-strength-table td,.phase3-shadbala-table th,.phase3-shadbala-table td{padding:5px 2px!important;font-size:10px!important;line-height:1.18!important;}
   .phase3-shadbala-table th:nth-child(1),.phase3-shadbala-table td:nth-child(1){width:12%!important}
@@ -796,7 +796,7 @@ textarea[id^="adminAns_"]{
 /* SMV ASTRO — FINAL RESPONSIVE RULE
    Mobile/tablet: normal vertical cards.
    Desktop: exactly 3 horizontal cards.
-   Public Question Inbox remains full width. */
+   Public கேள்வி Inbox remains full width. */
 #dashboardContent .astro-dashboard-summary{
   display:grid !important;
   width:100% !important;
@@ -838,7 +838,7 @@ textarea[id^="adminAns_"]{
   }
 }
 
-/* Public Question Inbox: same content width, one full-width card */
+/* Public கேள்வி Inbox: same content width, one full-width card */
 #dashboardContent .astro-dashboard-summary + .card{
   width:100% !important;
   max-width:100% !important;
@@ -903,7 +903,7 @@ textarea[id^="adminAns_"]{
   #adminSummary .stat b{font-size:22px!important}
   #admin table{font-size:11px!important;max-width:100%!important}
 
-  /* Question form */
+  /* கேள்வி form */
   #ask-flow{margin-top:20px!important}
   #ask-flow>.card{
     width:100%!important;max-width:100%!important;box-sizing:border-box!important;
@@ -1091,8 +1091,9 @@ textarea[id^="adminAns_"]{
 
 /* base */
 
-/* V160 language-separated builds */
+/* Tamil-only website: legacy language-exclusive containers stay hidden. */
 .language-exclusive-hide { display:none !important; }
+#english-horoscope,#englishHoroscopeResult{display:none!important;visibility:hidden!important;}
 
 /* smv-v161-english-horoscope-readability */
 
@@ -1416,7 +1417,7 @@ textarea[id^="adminAns_"]{
 
 /* smv-v166-planet-only-chart-clean */
 
-/* V166: Keep dynamic house numbers; remove all Rasi names/symbols.
+/* V166: Keep dynamic house numbers; remove all ராசி names/symbols.
    Planet labels are slightly larger while fitting safely inside cells. */
 #tamilHoroscopeResult .south-rasi-cell .sign,
 #englishHoroscopeResult .south-rasi-cell .sign,
@@ -2154,7 +2155,7 @@ header nav #adminLink{
     line-height:1.6!important;
   }
 
-  /* Question/answer inner cards */
+  /* கேள்வி/answer inner cards */
   #dashboardContent > .card .card{
     padding:17px!important;
     margin-top:12px!important;
@@ -2313,7 +2314,7 @@ body{
   font-size:14px!important;
 }
 
-/* Question form / other logged-in content */
+/* கேள்வி form / other logged-in content */
 #ask-flow,
 #register-flow,
 #astro-register-form{
@@ -2553,7 +2554,7 @@ button{font-size:16px!important}
 #dashboardContent h3,#admin h3{font-size:23px!important}
 #dashboardContent h4,#admin h4{font-size:20px!important}
 
-/* Consultation/question list — the text seen in the screenshot */
+/* ஆலோசனை/question list — the text seen in the screenshot */
 #dashboardContent [style*="border-bottom"]{
   font-size:17px!important;
   line-height:1.6!important;
@@ -3870,32 +3871,9 @@ header .nav nav > #registerNav{
   #tamilHoroscopeResult .dasha-subtable th,#tamilHoroscopeResult .dasha-subtable td,#englishHoroscopeResult .dasha-subtable th,#englishHoroscopeResult .dasha-subtable td{padding:5px 4px!important;font-size:12px!important}
 }
 
-/* smv-v22-bhava-english-final */
-
-/* V22: Mobile-only clean Bhava Table. The visual Bhava chart is not part of this section. */
-.bhava-table-wrap{width:100%!important;overflow-x:hidden!important}
-.bhava-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}
-.bhava-table th,.bhava-table td{
-  box-sizing:border-box!important;text-align:center!important;vertical-align:middle!important;
-  white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;
-  padding:6px 3px!important;line-height:1.2!important;
-}
-.bhava-table th{font-weight:900!important}
-@media(max-width:700px){
-  .bhava-table th,.bhava-table td{font-size:10.5px!important;padding:5px 2px!important}
-  .bhava-table th:nth-child(1),.bhava-table td:nth-child(1){width:8%!important}
-  .bhava-table th:nth-child(2),.bhava-table td:nth-child(2){width:18%!important}
-  .bhava-table th:nth-child(3),.bhava-table td:nth-child(3){width:20%!important}
-  .bhava-table th:nth-child(4),.bhava-table td:nth-child(4){width:18%!important}
-  .bhava-table th:nth-child(5),.bhava-table td:nth-child(5){width:14%!important}
-  .bhava-table th:nth-child(6),.bhava-table td:nth-child(6){width:22%!important}
-  .bhava-table th:nth-child(5),.bhava-table td:nth-child(5),
-  .bhava-table th:nth-child(6),.bhava-table td:nth-child(6){font-size:10px!important}
-}
-
 /* base */
 
-  /* V30: Bhava Chart visibility fix — valid CSS, not page text. */
+  /* V30: பாவ கட்டம் visibility fix — valid CSS, not page text. */
   #englishHoroscopeResult .bhava-chart,
   #tamilHoroscopeResult .bhava-chart{
     display:grid!important;
@@ -4129,7 +4107,7 @@ header .nav nav > #registerNav{
 #englishHoroscopeResult .data-table:not(.bhava-table):not(.navamsa-table):not(.strength-table):not(.phase3-shadbala-table) th:nth-child(5),
 #englishHoroscopeResult .data-table:not(.bhava-table):not(.navamsa-table):not(.strength-table):not(.phase3-shadbala-table) td:nth-child(5){width:16%!important}
 
-/* Bhava: preserve six-column geometry; scroll rather than crush Tamil text on small screens. */
+/* பாவம்: preserve six-column geometry; scroll rather than crush Tamil text on small screens. */
 #tamilHoroscopeResult .bhava-table-wrap,#englishHoroscopeResult .bhava-table-wrap{overflow-x:auto!important}
 #tamilHoroscopeResult .bhava-table,#englishHoroscopeResult .bhava-table{width:100%!important;min-width:620px!important;table-layout:fixed!important}
 #tamilHoroscopeResult .bhava-table th:nth-child(1),#tamilHoroscopeResult .bhava-table td:nth-child(1),#englishHoroscopeResult .bhava-table th:nth-child(1),#englishHoroscopeResult .bhava-table td:nth-child(1){width:8%!important}
@@ -4139,7 +4117,7 @@ header .nav nav > #registerNav{
 #tamilHoroscopeResult .bhava-table th:nth-child(5),#tamilHoroscopeResult .bhava-table td:nth-child(5),#englishHoroscopeResult .bhava-table th:nth-child(5),#englishHoroscopeResult .bhava-table td:nth-child(5){width:15%!important}
 #tamilHoroscopeResult .bhava-table th:nth-child(6),#tamilHoroscopeResult .bhava-table td:nth-child(6),#englishHoroscopeResult .bhava-table th:nth-child(6),#englishHoroscopeResult .bhava-table td:nth-child(6){width:25%!important}
 
-/* D1 → D9 Navamsa table. */
+/* D1 → D9 நவாம்சம் table. */
 #tamilHoroscopeResult .navamsa-table,#englishHoroscopeResult .navamsa-table{width:100%!important;min-width:0!important;table-layout:fixed!important}
 #tamilHoroscopeResult .navamsa-table th:nth-child(1),#tamilHoroscopeResult .navamsa-table td:nth-child(1),#englishHoroscopeResult .navamsa-table th:nth-child(1),#englishHoroscopeResult .navamsa-table td:nth-child(1){width:20%!important}
 #tamilHoroscopeResult .navamsa-table th:nth-child(2),#tamilHoroscopeResult .navamsa-table td:nth-child(2),#englishHoroscopeResult .navamsa-table th:nth-child(2),#englishHoroscopeResult .navamsa-table td:nth-child(2){width:18%!important}
@@ -4220,13 +4198,13 @@ header .nav nav > #registerNav{
 
 /* Advanced Analysis owns the single visible Planetary Strength/Shadbala module. */
 .base-planet-strength,.base-shadbala{display:none!important}
-/* Bhava Special Features: red highlighted header row, including mobile. */
+/* பாவம் Special Features: red highlighted header row, including mobile. */
 .bhava-special-features .bhava-special-table thead th{background:#a00000!important;color:#fff!important;font-weight:900!important;text-align:center!important;border-color:#fff!important}
 .bhava-special-features .bhava-special-table thead th:first-child,.bhava-special-features .bhava-special-table thead th:nth-child(2){background:#a00000!important;color:#fff!important}
 
 /* smv-final-bhava-house-fixes */
 
-/* Final targeted fix: Bhava Special Features header must stay red in every language and viewport. */
+/* Final targeted fix: பாவம் Special Features header must stay red in every language and viewport. */
 .smv-advanced-shell .bhava-special-features .bhava-special-table thead tr th,
 .smv-advanced-shell .bhava-special-features .bhava-special-table thead th:first-child,
 .smv-advanced-shell .bhava-special-features .bhava-special-table thead th:nth-child(2){
@@ -4599,7 +4577,7 @@ html body header .brand .brand-text .logo a {
 /* CUSTOMER + ASTROLOGER DASHBOARD — typography only.
    No colors, layout, loading, Firebase, payment or other functionality changed. */
 @media (max-width:767px){
-  /* Customer: My Consultations must use the same main-section heading size
+  /* Customer: My ஆலோசனைs must use the same main-section heading size
      as My Questions and the other dashboard section headings. */
   #dashboardContent > .card > h3.customer-consultations-title,
   #dashboardContent > .card > h3{
@@ -4607,7 +4585,7 @@ html body header .brand .brand-text .logo a {
     line-height:1.28 !important;
   }
 
-  /* Astrologer: Withdrawal History is a section heading, so keep its existing
+  /* ஜோதிடர்: Withdrawal History is a section heading, so keep its existing
      size and make the heading text clearly bold. */
   #dashboardContent .withdrawal-history-title{
     font-weight:900 !important;
@@ -4651,43 +4629,218 @@ html body header .brand .brand-text .logo a {
 }
 
 
-/* smv-english-home-blog-horizontal */
+/* smv-customer-astro-content-meta-clean-final */
 
-/* Desktop: each homepage blog post is a single horizontal card. Mobile stays vertical. */
-@media(min-width:701px){
-  #smv-content-hub #publicBlogs{display:flex;flex-direction:column;gap:16px;}
-  #smv-content-hub #publicBlogs .blog-card{display:grid!important;grid-template-columns:minmax(220px,34%) minmax(0,1fr);grid-template-rows:auto auto 1fr auto;column-gap:20px;align-items:start;height:auto!important;min-height:220px;padding:18px;}
-  #smv-content-hub #publicBlogs .blog-card:before{grid-column:1 / -1;}
-  #smv-content-hub #publicBlogs .blog-card > h3{grid-column:2;grid-row:1;margin:0 0 8px!important;}
-  #smv-content-hub #publicBlogs .blog-card > .content-thumb{grid-column:1;grid-row:1 / 5;width:100%;height:100%;min-height:180px;max-height:300px;object-fit:cover;margin:0!important;}
-  #smv-content-hub #publicBlogs .blog-card > p.small{grid-column:2;grid-row:2;margin:4px 0 10px!important;}
-  #smv-content-hub #publicBlogs .blog-card > .blog-content{grid-column:2;grid-row:3;margin-top:0;}
-  #smv-content-hub #publicBlogs .blog-card > .small:last-child{grid-column:2;grid-row:4;margin-top:10px!important;padding-top:10px!important;}
-  #smv-content-hub #publicBlogs .blog-card:not(:has(.content-thumb)){grid-template-columns:1fr;}
-  #smv-content-hub #publicBlogs .blog-card:not(:has(.content-thumb)) > h3,
-  #smv-content-hub #publicBlogs .blog-card:not(:has(.content-thumb)) > p.small,
-  #smv-content-hub #publicBlogs .blog-card:not(:has(.content-thumb)) > .blog-content,
-  #smv-content-hub #publicBlogs .blog-card:not(:has(.content-thumb)) > .small:last-child{grid-column:1;}
+/* FINAL CONTENT/META TYPOGRAPHY ONLY
+   No colour declarations. No layout, data, Firebase, payment or JS logic changes. */
+@media (max-width:767px){
+  /* Customer consultation: label = stronger/larger; value = smaller/normal. */
+  #dashboardContent .smv-meta-line{
+    font-size:14px !important;
+    font-weight:800 !important;
+    line-height:1.35 !important;
+  }
+  #dashboardContent .smv-meta-line .smv-meta-label{
+    font-size:14px !important;
+    font-weight:800 !important;
+  }
+  #dashboardContent .smv-meta-line .smv-meta-value{
+    font-size:11px !important;
+    font-weight:500 !important;
+  }
+
+  /* கேள்வி text itself: readable, but not oversized/heavy. */
+  #dashboardContent .smv-question-text{
+    display:block !important;
+    font-size:13px !important;
+    font-weight:700 !important;
+    line-height:1.4 !important;
+    margin-bottom:4px !important;
+  }
+
+  /* Small secondary/meta information. */
+  #dashboardContent .small{
+    line-height:1.35 !important;
+  }
+
+  /* Astrologer dashboard normal descriptive content. */
+  #dashboardContent .astro-profile-info > p:not(.astro-profile-bio){
+    font-size:12px !important;
+    font-weight:500 !important;
+    line-height:1.4 !important;
+  }
+  #dashboardContent .astro-profile-bio{
+    font-size:12px !important;
+    font-weight:500 !important;
+    line-height:1.42 !important;
+  }
+
+  /* Astrologer question/answer meta: same hierarchy as the reference. */
+  #dashboardContent .astro-question-item .small,
+  #dashboardContent .astro-answer-item .small{
+    font-size:10px !important;
+    font-weight:500 !important;
+    line-height:1.35 !important;
+  }
+  #dashboardContent .astro-question-item .small b,
+  #dashboardContent .astro-answer-item .small b{
+    font-weight:800 !important;
+  }
+
+  /* Timeline text remains compact; existing colours are untouched. */
+  #dashboardContent .timeline-step{
+    font-size:9px !important;
+    font-weight:500 !important;
+    line-height:1.25 !important;
+  }
+  #dashboardContent .timeline-step span{font-weight:700 !important;}
 }
+
+/* smv-admin-reject-question-green */
+
+.smv-reject-question-green{background:#2e7d32!important;color:#fff!important;border:2px solid #1b5e20!important;}
+.smv-reject-question-green:hover{background:#256b2b!important;}
+/* Admin action-state colors: only RE-ALLOCATE and REJECT ANSWER change color.
+   Default = existing blue. Red = action reflected/pending on Astrologer.
+   Green = new/revised answer received back by Admin. */
+.smv-action-red{background:linear-gradient(135deg,#d32f2f,#a61f1f)!important;color:#fff!important;border-color:#8f1717!important;box-shadow:0 5px 13px rgba(167,31,31,.22)!important;}
+.smv-action-red:hover{background:linear-gradient(135deg,#b92525,#8f1717)!important;}
+.smv-action-green{background:linear-gradient(135deg,#2e9b57,#176b45)!important;color:#fff!important;border-color:#125737!important;box-shadow:0 5px 13px rgba(23,107,69,.22)!important;}
+.smv-action-green:hover{background:linear-gradient(135deg,#25834a,#145d3b)!important;}
+
+
+/* smv-final-daily-panchang-horizontal-and-advanced-full-color */
+
+/* FINAL: Daily Panchang — desktop horizontal fit. Mobile remains stacked. */
+@media (min-width:901px){
+  .transit-panchang-grid .panchang-card{
+    min-width:0!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .transit-panchang-grid .panchang-card .panchang-compact-grid{
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:6px!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  .transit-panchang-grid .panchang-card .panchang-compact-grid>div{
+    min-width:0!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+    overflow-wrap:anywhere!important;
+    word-break:break-word!important;
+  }
+}
+
+/* FINAL: Advanced Analysis Parts I–V — title colour fills the complete box width. */
+.smv-advanced-part{
+  overflow:hidden!important;
+}
+.smv-advanced-part-title{
+  display:block!important;
+  width:calc(100% + 24px)!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  margin:-12px -12px 14px!important;
+  padding:11px 14px!important;
+  background:#fff3d5!important;
+  background-clip:border-box!important;
+  border-bottom:2px solid #d8c7a7!important;
+  border-radius:14px 14px 0 0!important;
+}
+.smv-advanced-part-title h3{
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+}
+
 @media(max-width:700px){
-  #smv-content-hub #publicBlogs .blog-card{display:flex!important;flex-direction:column!important;height:auto!important;}
-  #smv-content-hub #publicBlogs .blog-card > .content-thumb{width:100%;height:auto;max-height:240px;object-fit:cover;}
+  .smv-advanced-part-title{
+    width:calc(100% + 20px)!important;
+    margin:-10px -10px 12px!important;
+    padding:11px 12px!important;
+    border-radius:12px 12px 0 0!important;
+  }
 }
 
-/* smv-english-blog-horizontal-desktop */
+/* smv-tamil-blog-horizontal-desktop-final */
 
-@media(min-width:701px){
-#smv-content-hub #publicBlogs{display:flex;flex-direction:column;gap:16px;}
-#smv-content-hub #publicBlogs .blog-card{display:grid!important;grid-template-columns:minmax(220px,34%) minmax(0,1fr);grid-template-rows:auto auto 1fr auto;column-gap:20px;align-items:start;height:auto!important;min-height:220px;padding:18px;}
-#smv-content-hub #publicBlogs .blog-card:before{grid-column:1 / -1;}
-#smv-content-hub #publicBlogs .blog-card > h3{grid-column:2;grid-row:1;margin:0 0 8px!important;}
-#smv-content-hub #publicBlogs .blog-card > .content-thumb{grid-column:1;grid-row:1 / 5;width:100%;height:100%;min-height:180px;max-height:300px;object-fit:cover;margin:0!important;}
-#smv-content-hub #publicBlogs .blog-card > p.small{grid-column:2;grid-row:2;margin:4px 0 10px!important;}
-#smv-content-hub #publicBlogs .blog-card > .blog-content{grid-column:2;grid-row:3;margin-top:0;}
-#smv-content-hub #publicBlogs .blog-card > .small:last-child{grid-column:2;grid-row:4;margin-top:10px!important;padding-top:10px!important;}
-#smv-content-hub #publicBlogs .blog-card:not(:has(.content-thumb)){grid-template-columns:1fr;}
+/* Tamil homepage Blogs: horizontal cards on desktop only. No other UI/functionality changed. */
+@media (min-width: 701px){
+  #smv-content-hub #publicBlogs{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:16px !important;
+  }
+  #smv-content-hub #publicBlogs > .blog-card{
+    display:grid !important;
+    grid-template-columns:minmax(220px,34%) minmax(0,1fr) !important;
+    grid-template-rows:auto auto 1fr auto !important;
+    column-gap:20px !important;
+    align-items:start !important;
+    width:100% !important;
+    min-width:0 !important;
+    min-height:220px !important;
+    height:auto !important;
+    box-sizing:border-box !important;
+  }
+  #smv-content-hub #publicBlogs > .blog-card > h3{
+    grid-column:2 !important; grid-row:1 !important;
+    margin:0 0 8px !important;
+  }
+  #smv-content-hub #publicBlogs > .blog-card > .content-thumb{
+    grid-column:1 !important; grid-row:1 / 5 !important;
+    width:100% !important; height:100% !important;
+    min-height:180px !important; max-height:300px !important;
+    object-fit:cover !important; margin:0 !important;
+    align-self:stretch !important;
+  }
+  #smv-content-hub #publicBlogs > .blog-card > p.small{
+    grid-column:2 !important; grid-row:2 !important;
+    margin:4px 0 10px !important;
+  }
+  #smv-content-hub #publicBlogs > .blog-card > .blog-content{
+    grid-column:2 !important; grid-row:3 !important;
+    margin-top:0 !important;
+  }
+  #smv-content-hub #publicBlogs > .blog-card > .small:last-child{
+    grid-column:2 !important; grid-row:4 !important;
+    margin-top:10px !important; padding-top:10px !important;
+  }
+  #smv-content-hub #publicBlogs > .blog-card:not(:has(.content-thumb)){
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+  #smv-content-hub #publicBlogs > .blog-card:not(:has(.content-thumb)) > h3,
+  #smv-content-hub #publicBlogs > .blog-card:not(:has(.content-thumb)) > p.small,
+  #smv-content-hub #publicBlogs > .blog-card:not(:has(.content-thumb)) > .blog-content,
+  #smv-content-hub #publicBlogs > .blog-card:not(:has(.content-thumb)) > .small:last-child{
+    grid-column:1 !important;
+  }
 }
-@media(max-width:700px){#smv-content-hub #publicBlogs .blog-card{display:flex!important;flex-direction:column!important;height:auto!important;}#smv-content-hub #publicBlogs .blog-card > .content-thumb{width:100%;height:auto;max-height:240px;object-fit:cover;}}
+@media (max-width: 700px){
+  #smv-content-hub #publicBlogs > .blog-card{
+    display:flex !important;
+    flex-direction:column !important;
+    width:100% !important;
+    height:auto !important;
+  }
+  #smv-content-hub #publicBlogs > .blog-card > .content-thumb{
+    width:100% !important; height:auto !important;
+    max-height:240px !important; object-fit:cover !important;
+  }
+}
+
+/* smv-welcome-title-center-final */
+
+.hero .badge{
+  display:block!important;
+  width:100%!important;
+  text-align:center!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
 
 /* smv-media-horizontal-desktop-final-fix */
 
@@ -4786,65 +4939,15 @@ html body header .brand .brand-text .logo a {
 /* FINAL MEDIA ORDER + DESKTOP HORIZONTAL LAYOUT
    Desktop: Video first, Music next, PDF files after that, all side-by-side.
    Mobile: keep the normal compact single-column layout. */
-#smv-content-hub #publicMedia .smv-media-horizontal-grid{
-  width:100%!important;
-  max-width:none!important;
-  min-width:0!important;
-  display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:16px!important;
-  align-items:start!important;
-  margin:10px 0 0!important;
-  box-sizing:border-box!important;
-}
-#smv-content-hub #publicMedia .smv-media-horizontal-grid > .media-card{
-  width:100%!important;
-  min-width:0!important;
-  max-width:none!important;
-  margin:0!important;
-  align-self:start!important;
-  box-sizing:border-box!important;
-  overflow:hidden!important;
-}
-#smv-content-hub #publicMedia .smv-media-horizontal-grid > .media-card h3{
-  overflow-wrap:anywhere!important;
-  word-break:break-word!important;
-}
-#smv-content-hub #publicMedia .media-video video,
-#smv-content-hub #publicMedia .media-image img{
-  display:block!important;
-  width:100%!important;
-  max-width:100%!important;
-  height:260px!important;
-  max-height:260px!important;
-  object-fit:contain!important;
-  box-sizing:border-box!important;
-}
+#smv-content-hub #publicMedia .smv-media-horizontal-grid{width:100%!important;max-width:none!important;min-width:0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important;align-items:start!important;margin:10px 0 0!important;box-sizing:border-box!important;}
+#smv-content-hub #publicMedia .smv-media-horizontal-grid > .media-card{width:100%!important;min-width:0!important;max-width:none!important;margin:0!important;align-self:start!important;box-sizing:border-box!important;overflow:hidden!important;}
+#smv-content-hub #publicMedia .smv-media-horizontal-grid > .media-card h3{overflow-wrap:anywhere!important;word-break:break-word!important;}
+#smv-content-hub #publicMedia .media-video video,#smv-content-hub #publicMedia .media-image img{display:block!important;width:100%!important;max-width:100%!important;height:260px!important;max-height:260px!important;object-fit:contain!important;box-sizing:border-box!important;}
 #smv-content-hub #publicMedia .media-music audio{width:100%!important;max-width:100%!important;}
 #smv-content-hub #publicMedia .media-pdf{min-height:150px!important;}
-@media (min-width:768px) and (max-width:1100px){
-  #smv-content-hub #publicMedia .smv-media-horizontal-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
-}
-@media (min-width:1101px){
-  #smv-content-hub #publicMedia .smv-media-horizontal-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
-}
-@media (max-width:767px){
-  #smv-content-hub #publicMedia .smv-media-horizontal-grid{
-    grid-template-columns:1fr!important;
-    gap:7px!important;
-    margin-top:7px!important;
-  }
-  #smv-content-hub #publicMedia .smv-media-horizontal-grid > .media-card{
-    width:100%!important;
-    margin:0!important;
-    padding:7px!important;
-  }
-  #smv-content-hub #publicMedia .media-video video,
-  #smv-content-hub #publicMedia .media-image img{
-    height:auto!important;
-    max-height:180px!important;
-  }
-}
+@media (min-width:768px) and (max-width:1100px){#smv-content-hub #publicMedia .smv-media-horizontal-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
+@media (min-width:1101px){#smv-content-hub #publicMedia .smv-media-horizontal-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}}
+@media (max-width:767px){#smv-content-hub #publicMedia .smv-media-horizontal-grid{grid-template-columns:1fr!important;gap:7px!important;margin-top:7px!important;}#smv-content-hub #publicMedia .smv-media-horizontal-grid > .media-card{width:100%!important;margin:0!important;padding:7px!important;}#smv-content-hub #publicMedia .media-video video,#smv-content-hub #publicMedia .media-image img{height:auto!important;max-height:180px!important;}}
 
 /* smv-media-desktop-stacked-type-rows-final */
 
@@ -4941,37 +5044,39 @@ html body header .brand .brand-text .logo a {
   #smv-content-hub #publicMedia .smv-media-type-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
 }
 
-/* smv-english-hero-mobile-center-final */
+/* smv-hero-madurai-veeran-final */
 
-@media (max-width:600px){
-  #home.hero h1{
-    text-align:center !important;
-  }
-  #home.hero .hero-subline{
-    width:100% !important;
-    margin-left:auto !important;
-    margin-right:auto !important;
-    justify-content:center !important;
-    align-items:center !important;
-    text-align:center !important;
-    flex-wrap:wrap !important;
+#home.hero .hero-quote{font-family:Georgia,"Times New Roman",serif;font-weight:800;color:#7e1818;font-size:18px;line-height:1.6;margin:8px auto 18px!important}
+#home.hero p:not(.hero-quote){max-width:780px}
+@media(max-width:600px){#home.hero .hero-quote{font-size:15px;line-height:1.6;margin:7px auto 14px!important}}
+
+/* smv-tamil-hero-third-line-left-final */
+
+/* Mobile only: move the third Hero line slightly left so it visually aligns with the second line. */
+@media (max-width: 767px){
+  #home.hero h1 .smv-hero-line-3{
+    display:inline-block!important;
+    transform:translateX(-12px)!important;
   }
 }
 
-/* smv-english-five-part-accordion */
+/* smv-tamil-header-two-buttons-full-fit-final */
 
-.smv-advanced-part{display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;margin:10px 0 16px!important;padding:10px!important;border:2px solid #d8c7a7!important;border-radius:12px!important;background:#fffdf8!important;overflow:hidden!important}
-.smv-advanced-part-title.smv-accordion-trigger{width:calc(100% + 20px)!important;margin:-10px -10px 12px!important;padding:11px 12px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;gap:10px!important;cursor:pointer!important;background:#fff3d5!important;border-bottom:2px solid #d8c7a7!important;border-radius:12px 12px 0 0!important;user-select:none!important}
-.smv-part-medallion{flex:0 0 34px!important;width:34px!important;height:34px!important;border-radius:50%!important;display:grid!important;place-items:center!important;background:#fffaf0!important;border:1px solid #c59b4a!important;color:#8b0000!important;font-weight:900!important;font-size:13px!important}
-.smv-part-heading{min-width:0!important;flex:1 1 auto!important;display:flex!important;flex-direction:column!important;gap:2px!important}
-.smv-part-heading h3{margin:0!important;padding:0!important;color:#8b0000!important;font-size:16px!important;line-height:1.3!important;font-weight:900!important;text-align:left!important}
-.smv-part-tap{display:block!important;color:#6d6674!important;font-size:12px!important;line-height:1.25!important;font-weight:600!important}
-.smv-part-chevron{flex:0 0 auto!important;color:#8b0000!important;font-size:22px!important;line-height:1!important;transition:transform .2s ease!important}
-.smv-advanced-part.is-expanded .smv-part-chevron{transform:rotate(180deg)!important}
-.smv-advanced-part-content{width:100%!important;box-sizing:border-box!important}
-.smv-advanced-part-content[hidden]{display:none!important}
-@media(min-width:701px){.smv-advanced-part-title.smv-accordion-trigger{padding:12px 14px!important}.smv-part-heading h3{font-size:17px!important}}
-@media(max-width:520px){.smv-advanced-part{margin:10px 0 14px!important;padding:9px!important}.smv-advanced-part-title.smv-accordion-trigger{width:calc(100% + 18px)!important;margin:-9px -9px 10px!important;padding:10px!important;gap:8px!important}.smv-part-medallion{flex-basis:30px!important;width:30px!important;height:30px!important;font-size:12px!important}.smv-part-heading h3{font-size:15px!important}.smv-part-tap{font-size:11px!important}.smv-part-chevron{font-size:20px!important}}
+/* Only the two Tamil header labels need extra width so every character remains visible. */
+#contentNav, #dashLink{
+  width:132px !important;
+  min-width:132px !important;
+  white-space:nowrap !important;
+  overflow:visible !important;
+}
+@media(max-width:760px){
+  #contentNav, #dashLink{
+    width:132px !important;
+    min-width:132px !important;
+    padding-left:6px !important;
+    padding-right:6px !important;
+  }
+}
 
 /* smv-install-app-ui */
 
@@ -5004,7 +5109,7 @@ html body header .brand .brand-text .logo a {
 
 /* FINAL RESPONSIVE FIX — ASTROLOGER DASHBOARD ONLY
    Mobile/tablet: 3 summary cards stack normally.
-   Desktop: 3 summary cards fit horizontally in the same content width as Public Question Inbox.
+   Desktop: 3 summary cards fit horizontally in the same content width as Public கேள்வி Inbox.
    Do not change other dashboard sections. */
 #dashboardContent .astro-dashboard-summary{
   display:grid !important;
@@ -5022,7 +5127,7 @@ html body header .brand .brand-text .logo a {
   overflow-wrap:anywhere !important;
 }
 
-/* Public Question Inbox stays full-width like the summary row container. */
+/* Public கேள்வி Inbox stays full-width like the summary row container. */
 #dashboardContent .astro-dashboard-summary + .card{
   width:100% !important;
   max-width:100% !important;
@@ -5160,7 +5265,7 @@ header nav a[href="#home"]{
   [id*="answer" i], [class*="answer" i]{
     line-height:1.45;
   }
-  /* Question text remains compact but readable */
+  /* கேள்வி text remains compact but readable */
   [class*="question" i]{
     line-height:1.42;
   }
@@ -5226,73 +5331,6 @@ header nav a[href="#home"]{
   }
 }
 
-/* smv-v19-vimsottari-mobile-final */
-
-/* V19: Mobile-only Bhava + Vimshottari Dasa cleanup. Desktop is untouched. */
-.dasha-antara-title{font-weight:900;font-size:14px;margin:6px 0 6px;color:#7b1111}
-@media(max-width:700px){
-  /* Bhava table: short, proportional headings and no oversized empty columns. */
-  #tamilHoroscopeResult .bhava-table,#englishHoroscopeResult .bhava-table{table-layout:fixed!important;width:100%!important;min-width:0!important}
-  #tamilHoroscopeResult .bhava-table th,#englishHoroscopeResult .bhava-table th{font-size:0!important;padding:5px 2px!important;white-space:normal!important;line-height:1.05!important}
-  #tamilHoroscopeResult .bhava-table th:nth-child(1),#englishHoroscopeResult .bhava-table th:nth-child(1){width:8%!important}
-  #tamilHoroscopeResult .bhava-table th:nth-child(2),#englishHoroscopeResult .bhava-table th:nth-child(2){width:18%!important}
-  #tamilHoroscopeResult .bhava-table th:nth-child(3),#englishHoroscopeResult .bhava-table th:nth-child(3){width:23%!important}
-  #tamilHoroscopeResult .bhava-table th:nth-child(4),#englishHoroscopeResult .bhava-table th:nth-child(4){width:18%!important}
-  #tamilHoroscopeResult .bhava-table th:nth-child(5),#englishHoroscopeResult .bhava-table th:nth-child(5){width:15%!important}
-  #tamilHoroscopeResult .bhava-table th:nth-child(6),#englishHoroscopeResult .bhava-table th:nth-child(6){width:18%!important}
-  #tamilHoroscopeResult .bhava-table th:nth-child(1)::after{content:'பாவம்';font-size:10px}
-  #tamilHoroscopeResult .bhava-table th:nth-child(2)::after{content:'ஆரம்பம்';font-size:10px}
-  #tamilHoroscopeResult .bhava-table th:nth-child(3)::after{content:'ஸ்புடம்';font-size:10px}
-  #tamilHoroscopeResult .bhava-table th:nth-child(4)::after{content:'முடிவு';font-size:10px}
-  #tamilHoroscopeResult .bhava-table th:nth-child(5)::after{content:'ராசி';font-size:10px}
-  #tamilHoroscopeResult .bhava-table th:nth-child(6)::after{content:'கிரகங்கள்';font-size:10px}
-  #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(1)::after{content:'Bhava';font-size:10px}
-  #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(2)::after{content:'Start';font-size:10px}
-  #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(3)::after{content:'Middle';font-size:10px}
-  #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(4)::after{content:'End';font-size:10px}
-  #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(5)::after{content:'Rasi';font-size:10px}
-  #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(6)::after{content:'Planets';font-size:10px}
-  /* V29: English Bhava Table headers must remain visible in #englishHoroscopeResult. */
-  #englishHoroscopeResult .bhava-table th{color:inherit!important;font-size:10px!important;line-height:1.15!important;visibility:visible!important;opacity:1!important}
-  #englishHoroscopeResult .bhava-table th:nth-child(1)::after{content:'House';font-size:10px}
-  #englishHoroscopeResult .bhava-table th:nth-child(2)::after{content:'Start';font-size:10px}
-  #englishHoroscopeResult .bhava-table th:nth-child(3)::after{content:'Middle';font-size:10px}
-  #englishHoroscopeResult .bhava-table th:nth-child(4)::after{content:'End';font-size:10px}
-  #englishHoroscopeResult .bhava-table th:nth-child(5)::after{content:'Rasi';font-size:10px}
-  #englishHoroscopeResult .bhava-table th:nth-child(6)::after{content:'Planets';font-size:10px}
-
-  #tamilHoroscopeResult .bhava-table td,#englishHoroscopeResult .bhava-table td{padding:5px 2px!important;font-size:10px!important;line-height:1.15!important;word-break:break-word!important;overflow-wrap:anywhere!important}
-
-  /* V28: English Navamsa Positions — fit all columns inside mobile width. */
-  #tamilHoroscopeResult .navamsa-table,#englishHoroscopeResult .navamsa-table{
-    min-width:0!important;width:100%!important;table-layout:fixed!important
-  }
-  #tamilHoroscopeResult .navamsa-table th,#tamilHoroscopeResult .navamsa-table td,
-  #englishHoroscopeResult .navamsa-table th,#englishHoroscopeResult .navamsa-table td{
-    padding:6px 3px!important;font-size:10px!important;line-height:1.15!important;
-    white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important
-  }
-  #tamilHoroscopeResult .navamsa-table th:nth-child(1),#tamilHoroscopeResult .navamsa-table td:nth-child(1),
-  #englishHoroscopeResult .navamsa-table th:nth-child(1),#englishHoroscopeResult .navamsa-table td:nth-child(1){width:18%!important}
-  #tamilHoroscopeResult .navamsa-table th:nth-child(2),#tamilHoroscopeResult .navamsa-table td:nth-child(2),
-  #englishHoroscopeResult .navamsa-table th:nth-child(2),#englishHoroscopeResult .navamsa-table td:nth-child(2){width:20%!important}
-  #tamilHoroscopeResult .navamsa-table th:nth-child(3),#tamilHoroscopeResult .navamsa-table td:nth-child(3),
-  #englishHoroscopeResult .navamsa-table th:nth-child(3),#englishHoroscopeResult .navamsa-table td:nth-child(3){width:27%!important}
-  #tamilHoroscopeResult .navamsa-table th:nth-child(4),#tamilHoroscopeResult .navamsa-table td:nth-child(4),
-  #englishHoroscopeResult .navamsa-table th:nth-child(4),#englishHoroscopeResult .navamsa-table td:nth-child(4){width:17%!important}
-  #tamilHoroscopeResult .navamsa-table th:nth-child(5),#tamilHoroscopeResult .navamsa-table td:nth-child(5),
-  #englishHoroscopeResult .navamsa-table th:nth-child(5),#englishHoroscopeResult .navamsa-table td:nth-child(5){width:18%!important}
-
-  /* Every Vimshottari sub-table: Mahadasha/Bhukti context is the title, not a long column heading. */
-  #tamilHoroscopeResult .dasha-antara-title,#englishHoroscopeResult .dasha-antara-title{font-size:14px!important;margin:5px 0 5px!important}
-  #tamilHoroscopeResult .dasha-subtable,#englishHoroscopeResult .dasha-subtable{width:100%!important;min-width:0!important;table-layout:fixed!important;font-size:11px!important}
-  #tamilHoroscopeResult .dasha-subtable th,#englishHoroscopeResult .dasha-subtable th{padding:5px 3px!important;font-size:10px!important;line-height:1.05!important;white-space:nowrap!important}
-  #tamilHoroscopeResult .dasha-subtable td,#englishHoroscopeResult .dasha-subtable td{padding:5px 3px!important;font-size:10px!important;line-height:1.1!important;white-space:nowrap!important}
-  #tamilHoroscopeResult .dasha-subtable th:nth-child(1),#englishHoroscopeResult .dasha-subtable th:nth-child(1),#tamilHoroscopeResult .dasha-subtable td:nth-child(1),#englishHoroscopeResult .dasha-subtable td:nth-child(1){width:38%!important}
-  #tamilHoroscopeResult .dasha-subtable th:nth-child(2),#englishHoroscopeResult .dasha-subtable th:nth-child(2),#tamilHoroscopeResult .dasha-subtable td:nth-child(2){width:31%!important}
-  #tamilHoroscopeResult .dasha-subtable th:nth-child(3),#englishHoroscopeResult .dasha-subtable th:nth-child(3),#tamilHoroscopeResult .dasha-subtable td:nth-child(3){width:31%!important}
-}
-
 /* smv-v24-horoscope-no-hang-header */
 
 @media(max-width:599px){
@@ -5339,40 +5377,327 @@ header nav a[href="#home"]{
   }
 }
 
-/* smv-english-horoscope-tamil-ui-parity-final */
+/* smv-final-dashboard-typography-hierarchy-v4 */
 
-/* Keep English Horoscope result visually identical to the Tamil Horoscope
-   result: same card geometry, chart/table spacing and responsive behavior.
-   Only language text is different. */
-#englishHoroscopeResult.english-horoscope{
-  width:100%!important;
-  max-width:100%!important;
-  box-sizing:border-box!important;
-}
-#englishHoroscopeResult.english-horoscope>.card{
-  width:100%!important;
-  max-width:100%!important;
-  box-sizing:border-box!important;
-}
-#englishHoroscopeResult.english-horoscope .home-rule{
-  margin-left:auto!important;
-  margin-right:auto!important;
-}
-#englishHoroscopeResult.english-horoscope .south-indian-chart,
-#englishHoroscopeResult.english-horoscope .data-table-wrap{
-  width:100%!important;
-  max-width:100%!important;
-  box-sizing:border-box!important;
-}
-@media(max-width:700px){
-  #englishHoroscopeResult.english-horoscope>.card{
-    margin-left:0!important;
-    margin-right:0!important;
+/* =========================================================
+   SMV FINAL DASHBOARD TYPOGRAPHY HIERARCHY — V4
+   ONLY font-size / font-weight / line-height.
+   NO color declarations. NO layout. NO JS/data/payment/Firebase changes.
+   Mobile only.
+   ========================================================= */
+@media (max-width:760px){
+
+  /* =======================================================
+     ASTROLOGER — QUESTIONS / பதிலளிக்கப்படவில்லை QUEUE
+     Label = bold, value/content = normal.
+     ======================================================= */
+  #dashboardContent #astroQuestionQueue > h3,
+  #dashboardContent #astroAnsweredBox > h3{
+    font-size:18px!important;
+    line-height:1.28!important;
+    font-weight:800!important;
   }
-  #englishHoroscopeResult.english-horoscope .south-indian-chart{
+
+  #dashboardContent #astroQuestionQueue > p.small,
+  #dashboardContent #astroAnsweredBox > p.small{
+    font-size:13px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+  }
+
+  #dashboardContent #astroQuestionQueue .astro-question-item > h3,
+  #dashboardContent #astroAnsweredBox .astro-answer-item > h3{
+    font-size:14px!important;
+    line-height:1.4!important;
+    font-weight:500!important;
+  }
+
+  #dashboardContent #astroQuestionQueue .astro-question-item > .small,
+  #dashboardContent #astroAnsweredBox .astro-answer-item > .small{
+    font-size:12.5px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+  }
+
+  #dashboardContent #astroQuestionQueue .astro-question-item > .small b,
+  #dashboardContent #astroAnsweredBox .astro-answer-item > .small b{
+    font-weight:700!important;
+  }
+
+  /* Actual answer text: readable, normal weight, slightly larger than history. */
+  #dashboardContent #astroAnsweredBox .astro-answer-item > div[style*="white-space:pre-wrap"]{
+    font-size:13px!important;
+    line-height:1.55!important;
+    font-weight:400!important;
+  }
+
+  /* Status line: label bold, status value normal. */
+  #dashboardContent #astroAnsweredBox .astro-answer-item > .small[style*="margin-top:8px"]{
+    font-size:12.5px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+  }
+  #dashboardContent #astroAnsweredBox .astro-answer-item > .small[style*="margin-top:8px"] b{
+    font-weight:700!important;
+  }
+
+  /* Pending/revision note remains normal. */
+  #dashboardContent #astroQuestionQueue .pending-note{
+    font-size:12.5px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+  }
+
+  /* =======================================================
+     CUSTOMER — ALL CONSULTATION CONTENT / META
+     Slightly larger than Astrologer Earnings History.
+     Label = bold, value = normal.
+     ======================================================= */
+  #dashboardContent .customer-consultations-title{
+    font-size:18px!important;
+    line-height:1.28!important;
+    font-weight:800!important;
+  }
+
+  #dashboardContent .smv-question-text{
+    font-size:14px!important;
+    line-height:1.45!important;
+    font-weight:500!important;
+  }
+
+  #dashboardContent .smv-meta-line{
+    font-size:13px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+  }
+
+  #dashboardContent .smv-meta-line .smv-meta-label{
+    font-weight:700!important;
+  }
+  #dashboardContent .smv-meta-line .smv-meta-value{
+    font-weight:400!important;
+  }
+
+  /* Refund / status details follow the same hierarchy. */
+  #dashboardContent .refund-summary .smv-meta-line{
+    font-size:12.5px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+  }
+  #dashboardContent .refund-summary .smv-meta-label{
+    font-weight:700!important;
+  }
+  #dashboardContent .refund-summary .smv-meta-value{
+    font-weight:400!important;
+  }
+
+  /* Customer timeline text stays compact but readable. */
+  #dashboardContent .timeline .timeline-step{
+    font-size:12px!important;
+    line-height:1.35!important;
+    font-weight:600!important;
+  }
+
+  /* Customer answer body: slightly larger than Earnings History, normal. */
+  #dashboardContent .smv-meta-line + .card p[style*="white-space:pre-wrap"]{
+    font-size:13px!important;
+    line-height:1.55!important;
+    font-weight:400!important;
+  }
+
+  /* =======================================================
+     CUSTOMER NOTIFICATIONS
+     Keep the hierarchy already established: title prominent,
+     message normal, metadata label bold/value normal.
+     ======================================================= */
+  #dashboardContent #userNotifications,
+  #dashboardContent #astroNotifications,
+  #dashboardContent #astrologerNotifications{
+    font-size:13px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+  }
+
+  #dashboardContent #userNotifications .smv-notification-title,
+  #dashboardContent #astroNotifications .smv-notification-title,
+  #dashboardContent #astrologerNotifications .smv-notification-title{
+    font-size:13.5px!important;
+    line-height:1.4!important;
+    font-weight:700!important;
+  }
+
+  #dashboardContent #userNotifications .smv-notification-content,
+  #dashboardContent #astroNotifications .smv-notification-content,
+  #dashboardContent #astrologerNotifications .smv-notification-content{
+    font-size:13px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+  }
+
+  #dashboardContent #userNotifications .smv-notification-meta,
+  #dashboardContent #astroNotifications .smv-notification-meta,
+  #dashboardContent #astrologerNotifications .smv-notification-meta{
+    font-size:12.5px!important;
+    line-height:1.4!important;
+    font-weight:400!important;
+  }
+  #dashboardContent #userNotifications .smv-notification-meta b,
+  #dashboardContent #astroNotifications .smv-notification-meta b,
+  #dashboardContent #astrologerNotifications .smv-notification-meta b{
+    font-weight:700!important;
+  }
+  #dashboardContent #userNotifications .notification-red-value,
+  #dashboardContent #astroNotifications .notification-red-value,
+  #dashboardContent #astrologerNotifications .notification-red-value{
+    font-weight:400!important;
+  }
+}
+
+/* smv-final-tamil-only-polish */
+
+/* Final Tamil-only UI polish. SMV remains English by request. */
+.smv-new-asknow-button{font-size:clamp(14px,3.2vw,18px)!important;padding:10px 16px!important;white-space:nowrap!important;line-height:1.2!important;min-width:0!important;width:auto!important;max-width:100%!important;box-sizing:border-box!important}
+.smv-new-asknow-button .asknow-label{font-size:inherit!important;white-space:nowrap!important}
+.smv-new-asknow-button .asknow-arrow{font-size:.95em!important;flex:0 0 auto!important}
+@media(max-width:420px){.smv-new-asknow-button{font-size:13px!important;padding:9px 12px!important;gap:5px!important}.smv-new-asknow-inner{padding:18px 14px!important}}
+
+/* smv-final-tamil-fit */
+
+/* தமிழ் மட்டும்: இப்போதே கேளுங்கள் பொத்தான் */
+#askNowButton{width:min(260px,100%)!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;padding:10px 44px 10px 12px!important;overflow:hidden!important;}
+#askNowButton .asknow-label{font-size:14px!important;max-width:calc(100% - 28px)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;}
+#askNowButton .asknow-arrow{right:12px!important;font-size:18px!important;}
+@media(max-width:767px){#askNowButton{width:min(240px,100%)!important;padding:9px 40px 9px 10px!important}#askNowButton .asknow-label{font-size:13px!important}}
+
+/* smv-final-asknow-fit */
+
+/* Final Ask Now fit: keep the complete Tamil label visible with the arrow. */
+#askNowButton.smv-new-asknow-button,
+#askNowButton{
+  width:min(290px,100%)!important;
+  min-width:290px!important;
+  max-width:100%!important;
+  min-height:50px!important;
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  padding:10px 16px!important;
+  overflow:visible!important;
+  white-space:nowrap!important;
+}
+#askNowButton .asknow-label{
+  position:static!important;
+  left:auto!important;
+  top:auto!important;
+  transform:none!important;
+  display:inline-block!important;
+  flex:0 1 auto!important;
+  max-width:none!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:nowrap!important;
+  font-size:15px!important;
+  line-height:1.25!important;
+}
+#askNowButton .asknow-arrow{
+  position:static!important;
+  right:auto!important;
+  top:auto!important;
+  transform:none!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+  font-size:19px!important;
+  line-height:1!important;
+}
+@media(max-width:767px){
+  #askNowButton.smv-new-asknow-button,
+  #askNowButton{
+    width:min(270px,100%)!important;
+    min-width:270px!important;
+    min-height:48px!important;
+    padding:9px 12px!important;
+    gap:8px!important;
+  }
+  #askNowButton .asknow-label{font-size:14px!important;}
+  #askNowButton .asknow-arrow{font-size:18px!important;}
+}
+@media(max-width:300px){
+  #askNowButton.smv-new-asknow-button,
+  #askNowButton{min-width:0!important;width:100%!important;}
+  #askNowButton .asknow-label{font-size:13px!important;}
+}
+
+/* smv-tamil-renderer-final-css */
+
+#askNowButton.smv-new-asknow-button,#askNowButton{width:min(270px,100%)!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;padding:9px 46px 9px 10px!important;overflow:hidden!important;}
+#askNowButton .asknow-label{font-size:14px!important;line-height:1.15!important;white-space:nowrap!important;max-width:calc(100% - 24px)!important;overflow:hidden!important;}
+#askNowButton .asknow-arrow{right:11px!important;font-size:18px!important;line-height:1!important;}
+@media(max-width:767px){#askNowButton.smv-new-asknow-button,#askNowButton{width:min(250px,100%)!important;padding:8px 42px 8px 8px!important;}#askNowButton .asknow-label{font-size:13px!important;}#askNowButton .asknow-arrow{right:10px!important;font-size:17px!important;}}
+
+/* smv-tamil-header-hero-mobile-final-only */
+
+/* ONLY the requested Tamil header labels + Hero dots on mobile. Everything else remains unchanged. */
+#contentNav,
+#dashLink{
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+@media(max-width:767px){
+  #contentNav,
+  #dashLink{
+    font-size:10px!important;
+    letter-spacing:-.2px!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+  /* Mobile only: use spacing between the three Hero phrases; desktop dots remain unchanged. */
+  #home.hero h1 .smv-hero-dot{
+    display:inline!important;
+    font-size:0!important;
+    width:0!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #home.hero h1 .smv-hero-line-1,
+  #home.hero h1 .smv-hero-line-2{
+    margin-right:8px!important;
+  }
+  /* Mobile only: keep the second phrase visually centered. */
+  #home.hero h1 .smv-hero-line-2{
+    display:inline-block!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+  }
+  /* Mobile only: exact center for the third phrase. */
+  #home.hero h1 .smv-hero-line-3{
+    display:block!important;
+    width:max-content!important;
     max-width:100%!important;
+    margin:0 auto!important;
+    position:static!important;
+    left:auto!important;
+    transform:none!important;
+    text-align:center!important;
   }
 }
+@media(min-width:768px){
+  #contentNav,
+  #dashLink{
+    font-size:11px!important;
+    letter-spacing:-.1px!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+}
+
+/* smv-tamil-bhava-attavani-final */
+
+/* Only the Tamil Horoscope பாவ கட்டம் heading/label is renamed as requested. */
+#tamilHoroscopeResult .bhava-table-wrap ~ * { }
 
 /* smv-dashboard-auto-typography */
 
@@ -6786,7 +7111,7 @@ html.smv-desktop-site header nav{
     font-weight:650 !important;
   }
 
-  /* C — UNANSWERED QUESTIONS */
+  /* C — பதிலளிக்கப்படவில்லை QUESTIONS */
   #dashboardContent #astroQuestionQueue > p.small,
   #dashboardContent #astroAnsweredBox > p.small{
     font-size:13px !important;
@@ -6977,7 +7302,7 @@ html.smv-desktop-site header nav{
      The customer/question name is rendered as:
        .astro-answer-item > h3
      So target that real element directly.
-     Keep the "Answers — Answered Questions" section heading untouched. */
+     Keep the "பதில்கள் — பதிலளிக்கப்பட்ட கேள்விகள்" section heading untouched. */
   #dashboardContent #astroAnsweredBox > h3{
     font-size:18px !important;
     line-height:1.28 !important;
@@ -7104,7 +7429,7 @@ table.data-table{width:100%;min-width:680px;border-collapse:separate;border-spac
 .data-table tr:last-child td{border-bottom:0}.data-table th:last-child,.data-table td:last-child{border-right:0}
 .data-table tbody tr:nth-child(even){background:#fffaf0}.data-table tbody tr:hover{background:#fff3d5}
 .data-table th:nth-child(1),.data-table td:nth-child(1){width:22%}.data-table th:nth-child(2),.data-table td:nth-child(2){width:20%}.data-table th:nth-child(3),.data-table td:nth-child(3){width:18%}.data-table th:nth-child(4),.data-table td:nth-child(4){width:30%}.data-table th:nth-child(5),.data-table td:nth-child(5){width:14%}
-/* V20: Bhava Chart — clean Tamil alignment; table only */
+/* V20: பாவ கட்டம் — clean Tamil alignment; table only */
 .bhava-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .bhava-table{min-width:0!important;width:100%!important;table-layout:fixed;border-collapse:collapse}
 .bhava-table th,.bhava-table td{box-sizing:border-box;text-align:center!important;vertical-align:middle!important;white-space:normal!important;word-break:normal!important;overflow-wrap:anywhere!important;padding:9px 5px!important;line-height:1.35}
@@ -7142,7 +7467,7 @@ table.data-table{width:100%;min-width:680px;border-collapse:separate;border-spac
 .south-rasi-cell .lagna{display:block;width:100%;padding:2px 0;border:1px solid #b78625;border-radius:5px;background:#fff0c7;color:#7b3d0e;font-size:10px}
 @media(max-width:700px){table.data-table{min-width:620px}.data-table th,.data-table td{padding:9px 8px;font-size:13px}.south-indian-chart{width:min(680px,100%)}.south-rasi-cell .planet-line{font-size:10px;gap:2px}}
 
-/* V133 South Indian Rasi chart: fixed-sign 4x4 layout with center blank */
+/* V133 South Indian ராசி chart: fixed-sign 4x4 layout with center blank */
 .south-indian-chart{width:min(640px,100%);margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);border:2px solid #6f4d2c;background:#fffdf7;aspect-ratio:1/1;box-shadow:0 8px 24px rgba(111,21,21,.08)}
 .south-rasi-cell{border:1px solid #8f704f;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:7px 4px;min-width:0;overflow:hidden;background:linear-gradient(180deg,#fffdf7,#fff8e9)}
 .south-rasi-cell .sign{font-weight:900;color:var(--maroon);font-size:clamp(20px,3.8vw,28px);line-height:1;min-height:28px;display:flex;align-items:center;justify-content:center;width:100%;margin:0 0 3px}
@@ -7523,7 +7848,7 @@ textarea[id^="adminAns_"]{
   .data-table th:nth-child(4),.data-table td:nth-child(4){width:24%!important}
   .data-table th:nth-child(5),.data-table td:nth-child(5){width:20%!important}
 
-  /* Bhava / strength tables: crop excess padding, never create a wide hidden column. */
+  /* பாவம் / strength tables: crop excess padding, never create a wide hidden column. */
   .bhava-table,.strength-table,.phase2-strength-table,.phase3-shadbala-table{min-width:0!important;width:100%!important;table-layout:fixed!important;}
   .bhava-table th,.bhava-table td,.strength-table th,.strength-table td,.phase2-strength-table th,.phase2-strength-table td,.phase3-shadbala-table th,.phase3-shadbala-table td{padding:5px 2px!important;font-size:10px!important;line-height:1.18!important;}
   .phase3-shadbala-table th:nth-child(1),.phase3-shadbala-table td:nth-child(1){width:12%!important}
@@ -7641,7 +7966,7 @@ textarea[id^="adminAns_"]{
   #astroCards .astro-public-card p{font-size:12px!important;line-height:1.45!important}
   #astroCards .astro-public-card img{width:56px!important;height:56px!important}
 
-  /* Question form / answer form / contact */
+  /* கேள்வி form / answer form / contact */
   #ask-flow,#appointment,#contact{width:100%!important;max-width:100%!important;min-width:0!important;margin-top:18px!important}
   #ask-flow>.card,#appointment>.card,#contact>.card{width:100%!important;max-width:100%!important;padding:14px!important;box-sizing:border-box!important}
   #ask-flow h2,#appointment h2,#contact h2{font-size:22px!important}
@@ -8323,7 +8648,7 @@ footer a:hover{
   #dashboardContent>.card p,#admin>.card p{font-size:11.5px!important}
   #dashboardContent .action-row .btn,#admin .action-row .btn{min-height:32px!important;padding:6px 8px!important;font-size:10.5px!important}
 
-  /* Question/answer containers: compact question; DO NOT reduce answer editor */
+  /* கேள்வி/answer containers: compact question; DO NOT reduce answer editor */
   .astro-question-item,.astro-answer-item{padding:7px!important;margin:5px 0!important;border-radius:8px!important}
   .astro-question-item p,.astro-answer-item p{font-size:11.5px!important;line-height:1.4!important}
   #questionText{min-height:68px!important}
@@ -8342,7 +8667,7 @@ footer a:hover{
 
 /* smv-v22-bhava-english-final */
 
-/* V22: Mobile-only clean Bhava Chart. The visual Bhava chart is not part of this section. */
+/* V22: Mobile-only clean பாவ கட்டம். The visual பாவம் chart is not part of this section. */
 .bhava-table-wrap{width:100%!important;overflow-x:hidden!important}
 .bhava-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}
 .bhava-table th,.bhava-table td{
@@ -8739,7 +9064,7 @@ header .brand-logo{
   --smv-planet-red:#a40000;
 }
 
-/* 1) PROFILE & REVIEWS button — homepage header/navigation unaffected */
+/* 1) சுயவிவரம் மற்றும் மதிப்புரைகள் button — homepage header/navigation unaffected */
 #astroCards .astro-public-card [data-profile],
 #astroCards .astro-public-card .action-row .btn{
   background:linear-gradient(135deg,var(--smv-header-red),var(--smv-header-red-dark))!important;
@@ -8845,7 +9170,7 @@ table.data-table thead th{
   border-color:#9b6b27!important;
 }
 
-/* Rasi / house numbers remain clearly visible on yellow */
+/* ராசி / house numbers remain clearly visible on yellow */
 #tamilHoroscopeResult .south-rasi-cell .sign,
 #englishHoroscopeResult .south-rasi-cell .sign,
 #tamilHoroscopeResult .south-rasi-cell .dynamic-rasi-number,
@@ -8853,7 +9178,7 @@ table.data-table thead th{
   color:#6f2a12!important;
 }
 
-/* Bhava cusp labels */
+/* பாவம் cusp labels */
 #tamilHoroscopeResult .bhava-rasi-cell .bhava-cusp,
 #englishHoroscopeResult .bhava-rasi-cell .bhava-cusp{
   color:var(--smv-planet-red)!important;
@@ -8961,7 +9286,7 @@ nav,
   font-weight:900!important;
 }
 
-/* Bhava Roman house numbers I, II ... XII */
+/* பாவம் Roman house numbers I, II ... XII */
 #tamilHoroscopeResult .bhava-rasi-cell .sign,
 #englishHoroscopeResult .bhava-rasi-cell .sign,
 #tamilHoroscopeResult .bhava-rasi-cell .house,
@@ -9057,7 +9382,7 @@ nav,
   font-weight:900!important;
 }
 
-/* Public Question Inbox description + empty message: bold black */
+/* Public கேள்வி Inbox description + empty message: bold black */
 #dashboardContent .public-inbox-description,
 #dashboardContent .no-paid-public-questions{
   color:#000!important;
@@ -9128,7 +9453,7 @@ nav,
   font-weight:900!important;
 }
 
-/* Public Question Inbox */
+/* Public கேள்வி Inbox */
 #dashboardContent .public-inbox-description,
 #dashboardContent .no-paid-public-questions{
   color:#000!important;
@@ -9177,8 +9502,8 @@ nav,
 }
 
 /* Notifications:
-   titles/messages such as Withdrawal ID, Payment ID, Question Re-allocated,
-   Withdrawal paid, Withdrawal is processing, New Question Assigned = bold black.
+   titles/messages such as Withdrawal ID, Payment ID, கேள்வி Re-allocated,
+   Withdrawal paid, Withdrawal is processing, New கேள்வி Assigned = bold black.
    IDs and date/time values are normal red. */
 #dashboardContent #userNotifications .smv-notification-title,
 #dashboardContent #userNotifications .smv-notification-title b,
@@ -9443,7 +9768,7 @@ nav,
    ADMIN DASHBOARD — REQUESTED TYPOGRAPHY
    Main headings       24px bold
    Content / stats     18px bold
-   Question/Answer     14px
+   கேள்வி/Answer     14px
    Normal content      13px
    Amount / status     15px
    Date & Time         12px
@@ -9575,7 +9900,7 @@ nav,
   font-weight:400 !important;
 }
 
-/* Question ID / Payment ID / Customer ID lines are metadata,
+/* கேள்வி ID / Payment ID / Customer ID lines are metadata,
    but do not touch the answer textarea. */
 #adminPendingQuestions p:has(b),
 #adminAnswers p:has(b){
@@ -9609,7 +9934,7 @@ nav,
 
    Main section heading       24px bold
    Main dashboard content     18px bold where important
-   Question / Answer title    14px
+   கேள்வி / Answer title    14px
    Normal content             13px normal
    Important amount/status    15px bold
    Date & Time                12px
@@ -9875,7 +10200,7 @@ nav,
   white-space:pre-wrap !important;
 }
 
-/* Published date is metadata */
+/* வெளியிடப்பட்டது date is metadata */
 #publicBlogs .blog-card > .small:last-child,
 #blogs .blog-card > .small:last-child,
 #blogList .blog-card > .small:last-child{
@@ -10561,7 +10886,7 @@ nav,
   font-weight:400 !important;
 }
 
-/* Question/customer title */
+/* கேள்வி/customer title */
 #adminQuestions > div > b:first-child{
   display:block !important;
   font-size:14px !important;
@@ -11023,9 +11348,9 @@ nav,
 
 /* smv-final-bhava-header-chart-center-fix */
 
-/* FINAL FIX — Bhava table headers, Bhava chart box backgrounds, homepage zodiac centering */
+/* FINAL FIX — பாவம் table headers, பாவம் chart box backgrounds, homepage zodiac centering */
 
-/* 1) Bhava Chart: remove the duplicate generated header text.
+/* 1) பாவ கட்டம்: remove the duplicate generated header text.
    The real <th> text is already supplied by the renderer/English translator. */
 #tamilHoroscopeResult .bhava-table th::after,
 #englishHoroscopeResult .bhava-table th::after{
@@ -11033,7 +11358,7 @@ nav,
   display:none !important;
 }
 
-/* Keep the real Bhava table header text visible and centered. */
+/* Keep the real பாவம் table header text visible and centered. */
 #tamilHoroscopeResult .bhava-table th,
 #englishHoroscopeResult .bhava-table th{
   font-size:10.5px !important;
@@ -11042,7 +11367,7 @@ nav,
   vertical-align:middle !important;
 }
 
-/* 2) Bhava Chart: remove the yellow fill/shadow from every box.
+/* 2) பாவ கட்டம்: remove the yellow fill/shadow from every box.
    Keep the gold/brown grid borders and the red planet/house text. */
 #tamilHoroscopeResult #bhavaChart.south-indian-chart,
 #englishHoroscopeResult #bhavaChart.south-indian-chart,
@@ -11055,7 +11380,7 @@ nav,
   box-shadow:none !important;
 }
 
-/* Remove the pale-yellow fill specifically from Bhava house-number labels. */
+/* Remove the pale-yellow fill specifically from பாவம் house-number labels. */
 #tamilHoroscopeResult #bhavaChart .bhava-cusp,
 #englishHoroscopeResult #bhavaChart .bhava-cusp{
   background:#fff !important;
@@ -11065,7 +11390,7 @@ nav,
 
 /* smv-final-rasi-navamsa-center-fix */
 
-/* FINAL — Rasi + Navamsa chart center styling */
+/* FINAL — ராசி + நவாம்சம் chart center styling */
 
 /* Remove the yellow center fill/shadow from D1 and D9 charts. */
 #tamilHoroscopeResult #rasiChart .south-chart-center,
@@ -11097,9 +11422,9 @@ nav,
 
 /* smv-final-bhava-and-rasi-degree-fix */
 
-/* FINAL V2 — Bhava center title + Rasi planet degrees */
+/* FINAL V2 — பாவம் center title + ராசி planet degrees */
 
-/* Bhava Chart center title: bold red, no yellow background/shadow. */
+/* பாவ கட்டம் center title: bold red, no yellow background/shadow. */
 #tamilHoroscopeResult #bhavaChart .south-chart-center,
 #englishHoroscopeResult #bhavaChart .south-chart-center{
   background:#fff !important;
@@ -11113,7 +11438,7 @@ nav,
   letter-spacing:.5px !important;
 }
 
-/* Rasi Chart: planet degrees only — bold violet. */
+/* ராசி கட்டம்: planet degrees only — bold violet. */
 #tamilHoroscopeResult #rasiChart .planet-degree,
 #englishHoroscopeResult #rasiChart .planet-degree{
   color:#7a1fa2 !important;
@@ -11121,7 +11446,7 @@ nav,
   font-weight:900 !important;
 }
 
-/* Do not change the Navamsa chart degree styling. */
+/* Do not change the நவாம்சம் chart degree styling. */
 
 /* smv-final-la-heading-fix */
 
@@ -11176,7 +11501,7 @@ nav,
 }
 
 /* Combustion = C in dark blue; Retrograde = R in normal green.
-   Markers are intentionally compact and appear only in Rasi + Planetary Positions. */
+   Markers are intentionally compact and appear only in ராசி + Planetary Positions. */
 .rasi-status-marker{
   font-weight:900 !important;
   font-size:.82em !important;
@@ -11193,7 +11518,7 @@ nav,
   -webkit-text-fill-color:#2e8b57 !important;
 }
 
-/* Keep Rasi markers aligned with the existing planet label/degree. */
+/* Keep ராசி markers aligned with the existing planet label/degree. */
 #tamilHoroscopeResult #rasiChart .rasi-status-marker,
 #englishHoroscopeResult #rasiChart .rasi-status-marker{
   font-size:.78em !important;
@@ -11209,7 +11534,7 @@ nav,
 
 /* V6 — Ascendant and degree display */
 
-/* Ascendant: As, same font size as other short planet names, bold pink. */
+/* Ascendant: லக், same font size as other short planet names, bold pink. */
 #tamilHoroscopeResult .south-rasi-cell .lagna,
 #englishHoroscopeResult .south-rasi-cell .lagna,
 #tamilHoroscopeResult .bhava-rasi-cell .lagna,
@@ -11220,7 +11545,7 @@ nav,
   font-size:inherit !important;
 }
 
-/* Rasi chart degree text: retain only whole degrees, no minutes. */
+/* ராசி chart degree text: retain only whole degrees, no minutes. */
 #tamilHoroscopeResult #rasiChart .planet-degree,
 #englishHoroscopeResult #rasiChart .planet-degree{
   font-weight:900 !important;
@@ -11236,7 +11561,7 @@ nav,
 
 /* V7 — actual final fixes */
 
-/* Ascendant: show As only (no house number 1), bold pink, same size as planet names. */
+/* Ascendant: show லக் only (no house number 1), bold pink, same size as planet names. */
 #tamilHoroscopeResult #rasiChart .lagna,
 #englishHoroscopeResult #rasiChart .lagna,
 #tamilHoroscopeResult #navamsaChart .lagna,
@@ -11256,7 +11581,7 @@ nav,
   white-space:nowrap !important;
 }
 
-/* Whole-degree values in the Rasi chart. */
+/* Whole-degree values in the ராசி chart. */
 #tamilHoroscopeResult #rasiChart .planet-degree,
 #englishHoroscopeResult #rasiChart .planet-degree{
   color:#7a1fa2 !important;
@@ -11267,10 +11592,10 @@ nav,
 /* smv-final-v8-degree-format */
 
 /* V8 — degree format:
-   Rasi Chart = whole degrees only (e.g. Sa 20°)
+   ராசி கட்டம் = whole degrees only (e.g. Sa 20°)
    Planetary Positions = full source degree (e.g. 14°13'34") */
 
-/* Rasi degrees stay bold violet and whole-degree only. */
+/* ராசி degrees stay bold violet and whole-degree only. */
 #tamilHoroscopeResult #rasiChart .planet-degree,
 #englishHoroscopeResult #rasiChart .planet-degree{
   color:#7a1fa2 !important;
@@ -11288,7 +11613,7 @@ nav,
 
 /* V9 — make the requested degree distinction unmistakable */
 
-/* Rasi: planet short name + whole degree, e.g. Sa 20°. */
+/* ராசி: planet short name + whole degree, e.g. Sa 20°. */
 #tamilHoroscopeResult #rasiChart .planet-line,
 #englishHoroscopeResult #rasiChart .planet-line{
   display:flex !important;
@@ -11390,10 +11715,10 @@ nav,
 .advanced-astro-grid{display:block}.adv-section{margin:16px 0;padding:14px;border:1px solid #d8c7a7;border-radius:14px;background:#fffdf8}.adv-section h3,.adv-section h4{margin:0 0 12px}.adv-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}.adv-wide{border-collapse:collapse;min-width:900px;width:max-content}.adv-wide th,.adv-wide td{border:1px solid #e1d4bd;padding:8px 10px;text-align:center;white-space:nowrap;vertical-align:middle}.adv-wide thead th{background:#fff3d5}.adv-wide tbody th{background:#fffaf0;position:sticky;left:0}.adv-meta{margin-top:10px;font-size:13px;line-height:1.7}.sbc-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}.sbc-grid-full{display:grid;grid-template-columns:repeat(9,minmax(105px,1fr));gap:2px;min-width:945px}.sbc-cell{min-height:78px;border:1px solid #cdb98e;background:#fffaf0;padding:5px;display:flex;flex-direction:column;gap:3px;font-size:11px}.sbc-cell span{font-weight:700}.sbc-cell em{font-style:normal;font-weight:700;font-size:10px}.adv-section .small{font-size:13px}@media(max-width:700px){.adv-section{padding:10px;margin:12px 0}.adv-wide{min-width:860px}.sbc-grid-full{min-width:945px}.sbc-cell{min-height:72px}} 
 /* smv-v19-vimsottari-mobile-final */
 
-/* V19: Mobile-only Bhava + Vimshottari Dasa cleanup. Desktop is untouched. */
+/* V19: Mobile-only பாவம் + Vimshottari Dasa cleanup. Desktop is untouched. */
 .dasha-antara-title{font-weight:900;font-size:14px;margin:6px 0 6px;color:#7b1111}
 @media(max-width:700px){
-  /* Bhava table: short, proportional headings and no oversized empty columns. */
+  /* பாவம் table: short, proportional headings and no oversized empty columns. */
   #tamilHoroscopeResult .bhava-table,#englishHoroscopeResult .bhava-table{table-layout:fixed!important;width:100%!important;min-width:0!important}
   #tamilHoroscopeResult .bhava-table th,#englishHoroscopeResult .bhava-table th{font-size:0!important;padding:5px 2px!important;white-space:normal!important;line-height:1.05!important}
   #tamilHoroscopeResult .bhava-table th:nth-child(1),#englishHoroscopeResult .bhava-table th:nth-child(1){width:8%!important}
@@ -11408,24 +11733,24 @@ nav,
   #tamilHoroscopeResult .bhava-table th:nth-child(4)::after{content:'முடிவு';font-size:10px}
   #tamilHoroscopeResult .bhava-table th:nth-child(5)::after{content:'ராசி';font-size:10px}
   #tamilHoroscopeResult .bhava-table th:nth-child(6)::after{content:'கிரகங்கள்';font-size:10px}
-  #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(1)::after{content:'Bhava';font-size:10px}
+  #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(1)::after{content:'பாவம்';font-size:10px}
   #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(2)::after{content:'Start';font-size:10px}
   #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(3)::after{content:'Middle';font-size:10px}
   #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(4)::after{content:'End';font-size:10px}
-  #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(5)::after{content:'Rasi';font-size:10px}
+  #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(5)::after{content:'ராசி';font-size:10px}
   #tamilHoroscopeResult.english-horoscope .bhava-table th:nth-child(6)::after{content:'Planets';font-size:10px}
-  /* V29: English Bhava Chart headers must remain visible in #englishHoroscopeResult. */
+  /* V29: English பாவ கட்டம் headers must remain visible in #englishHoroscopeResult. */
   #englishHoroscopeResult .bhava-table th{color:inherit!important;font-size:10px!important;line-height:1.15!important;visibility:visible!important;opacity:1!important}
   #englishHoroscopeResult .bhava-table th:nth-child(1)::after{content:'House';font-size:10px}
   #englishHoroscopeResult .bhava-table th:nth-child(2)::after{content:'Start';font-size:10px}
   #englishHoroscopeResult .bhava-table th:nth-child(3)::after{content:'Middle';font-size:10px}
   #englishHoroscopeResult .bhava-table th:nth-child(4)::after{content:'End';font-size:10px}
-  #englishHoroscopeResult .bhava-table th:nth-child(5)::after{content:'Rasi';font-size:10px}
+  #englishHoroscopeResult .bhava-table th:nth-child(5)::after{content:'ராசி';font-size:10px}
   #englishHoroscopeResult .bhava-table th:nth-child(6)::after{content:'Planets';font-size:10px}
 
   #tamilHoroscopeResult .bhava-table td,#englishHoroscopeResult .bhava-table td{padding:5px 2px!important;font-size:10px!important;line-height:1.15!important;word-break:break-word!important;overflow-wrap:anywhere!important}
 
-  /* V28: English Navamsa Positions — fit all columns inside mobile width. */
+  /* V28: English நவாம்சம் Positions — fit all columns inside mobile width. */
   #tamilHoroscopeResult .navamsa-table,#englishHoroscopeResult .navamsa-table{
     min-width:0!important;width:100%!important;table-layout:fixed!important
   }
@@ -11697,7 +12022,7 @@ a:hover{color:#b22222;}
 .smv-advanced-part{overflow:visible!important}
 .smv-advanced-part>.adv-section{overflow:visible!important}
 .smv-advanced-part .adv-table-wrap{overflow-x:auto!important;overflow-y:visible!important;width:100%!important;max-width:100%!important}
-/* Bhava Special Features must always show both columns on mobile. */
+/* பாவம் Special Features must always show both columns on mobile. */
 .bhava-special-features .adv-table-wrap{overflow-x:visible!important}
 .bhava-special-features .bhava-special-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important}
 .bhava-special-features .bhava-special-table th,
@@ -11721,4 +12046,509 @@ a:hover{color:#b22222;}
   .part1-chara-karakas .adv-wide th,.part1-chara-karakas .adv-wide td,
   .part1-baadhaka .adv-wide th,.part1-baadhaka .adv-wide td,
   .part1-house-classification .adv-wide th,.part1-house-classification .adv-wide td{font-size:12px!important;padding:7px 5px!important}
+}
+
+/* smv-dashboard-content-meta-hierarchy-final */
+
+/* =========================================================
+   SMV FINAL CONTENT / META HIERARCHY ONLY
+   Font weight + size only.
+   NO color declarations. NO layout changes. NO JS changes.
+   ========================================================= */
+@media (max-width:760px){
+
+  /* ---------- CUSTOMER / ASTROLOGER SUMMARY CONTENT ---------- */
+  #dashboardContent .astro-dashboard-summary .card p,
+  #dashboardContent .astro-dashboard-summary .card .small,
+  #dashboardContent .astro-dashboard-summary .card .empty{
+    font-weight:400!important;
+  }
+
+  /* Labels inside metadata remain bold; their values stay normal. */
+  #dashboardContent .astro-dashboard-summary .card p b,
+  #dashboardContent .astro-dashboard-summary .card p strong,
+  #dashboardContent .astro-dashboard-summary .card .small b,
+  #dashboardContent .astro-dashboard-summary .card .small strong{
+    font-weight:700!important;
+  }
+
+  /* கேள்வி / answer body text: readable normal weight. */
+  #dashboardContent #astroAnsweredBox .astro-answer-item > h3,
+  #dashboardContent #astroAnsweredBox .astro-answer-item > div[style*="white-space:pre-wrap"],
+  #dashboardContent #astroQuestionQueue .astro-question-item > h3{
+    font-weight:500!important;
+  }
+
+  #dashboardContent #astroAnsweredBox .astro-answer-item .small,
+  #dashboardContent #astroQuestionQueue .astro-question-item .small{
+    font-weight:400!important;
+  }
+
+  #dashboardContent #astroAnsweredBox .astro-answer-item .small b,
+  #dashboardContent #astroQuestionQueue .astro-question-item .small b{
+    font-weight:700!important;
+  }
+
+  /* Existing semantic label/value spans: label bold, value normal. */
+  #dashboardContent .answer-meta-label,
+  #dashboardContent .withdrawal-meta-label,
+  #dashboardContent .smv-meta-label{
+    font-weight:700!important;
+  }
+  #dashboardContent .answer-meta-value,
+  #dashboardContent .withdrawal-meta-value,
+  #dashboardContent .smv-meta-value{
+    font-weight:400!important;
+  }
+
+  /* ---------- NOTIFICATIONS ---------- */
+  #dashboardContent #userNotifications,
+  #dashboardContent #astroNotifications,
+  #dashboardContent #astrologerNotifications{
+    font-weight:400!important;
+  }
+
+  /* Notification title is the only prominent notification text. */
+  #dashboardContent #userNotifications .smv-notification-title,
+  #dashboardContent #astroNotifications .smv-notification-title,
+  #dashboardContent #astrologerNotifications .smv-notification-title,
+  #dashboardContent #userNotifications .smv-notification-title b,
+  #dashboardContent #astroNotifications .smv-notification-title b,
+  #dashboardContent #astrologerNotifications .smv-notification-title b{
+    font-weight:700!important;
+  }
+
+  /* Notification message is normal weight. */
+  #dashboardContent #userNotifications .smv-notification-content,
+  #dashboardContent #astroNotifications .smv-notification-content,
+  #dashboardContent #astrologerNotifications .smv-notification-content,
+  #dashboardContent #userNotifications .smv-notification-content b,
+  #dashboardContent #astroNotifications .smv-notification-content b,
+  #dashboardContent #astrologerNotifications .smv-notification-content b{
+    font-weight:400!important;
+  }
+
+  /* Notification meta: label bold, date/value normal. */
+  #dashboardContent #userNotifications .smv-notification-meta,
+  #dashboardContent #astroNotifications .smv-notification-meta,
+  #dashboardContent #astrologerNotifications .smv-notification-meta{
+    font-weight:400!important;
+  }
+  #dashboardContent #userNotifications .smv-notification-meta b,
+  #dashboardContent #astroNotifications .smv-notification-meta b,
+  #dashboardContent #astrologerNotifications .smv-notification-meta b{
+    font-weight:700!important;
+  }
+  #dashboardContent #userNotifications .notification-red-value,
+  #dashboardContent #astroNotifications .notification-red-value,
+  #dashboardContent #astrologerNotifications .notification-red-value{
+    font-weight:400!important;
+  }
+
+  /* ---------- EARNINGS / HISTORY META ---------- */
+  #dashboardContent .smv-history-detail,
+  #dashboardContent .smv-history-content{
+    font-weight:400!important;
+  }
+  #dashboardContent .smv-history-detail b{
+    font-weight:700!important;
+  }
+
+  /* Keep section headings and badges prominent; this patch does not flatten them. */
+  #dashboardContent .card > h3,
+  #dashboardContent .customer-consultations-title,
+  #dashboardContent .withdrawal-history-title,
+  #dashboardContent .badge{
+    font-weight:800!important;
+  }
+}
+
+/* smv-astrologer-dashboard-sections-final-typography */
+
+/* =========================================================
+   ASTROLOGER DASHBOARD — FINAL SECTION TYPOGRAPHY ONLY
+   Reference: compact/professional Admin dashboard density.
+   Scope: Earnings History, Withdrawal History, My Questions,
+          Total Earnings, Public கேள்வி Inbox, Payment Method.
+   NO color declarations. NO layout changes. NO JS/data/functionality changes.
+   Mobile only, preserving existing desktop presentation.
+   ========================================================= */
+@media (max-width:760px){
+
+  /* ---------- SECTION HEADINGS ---------- */
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(2) > h3, /* My Questions */
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(3) > h3, /* Total Earnings */
+  #dashboardContent .astro-dashboard-summary + .card > h3,              /* Public கேள்வி Inbox */
+  #dashboardContent .card:has(> .smv-history-row) > h3,                 /* Earnings History */
+  #dashboardContent .card:has(#changePayoutBtn2) > h3,                  /* Payment Method */
+  #dashboardContent .withdrawal-history-title{                           /* Withdrawal History */
+    font-size:18px!important;
+    line-height:1.28!important;
+    font-weight:800!important;
+  }
+
+  /* ---------- MY QUESTIONS ----------
+     Label text is bold; the numeric/status value is normal. */
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(2) > p{
+    font-size:13px!important;
+    line-height:1.45!important;
+    font-weight:700!important;
+  }
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(2) > p b,
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(2) > p strong{
+    font-weight:400!important;
+  }
+
+  /* ---------- TOTAL EARNINGS ----------
+     Labels bold, values normal. Main total remains prominent. */
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(3) > p{
+    font-size:13px!important;
+    line-height:1.45!important;
+    font-weight:700!important;
+  }
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(3) > p b{
+    font-weight:400!important;
+  }
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(3) > p[style*="font-size:28px"]{
+    font-size:21px!important;
+    line-height:1.2!important;
+    font-weight:700!important;
+  }
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(3) > p[style*="font-size:28px"] b{
+    font-weight:700!important;
+  }
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(3) > p.small{
+    font-size:12px!important;
+    line-height:1.4!important;
+    font-weight:700!important;
+  }
+  #dashboardContent .astro-dashboard-summary > .card:nth-child(3) > p.small .small{
+    font-weight:400!important;
+  }
+
+  /* ---------- PUBLIC QUESTION INBOX ----------
+     Description normal; question itself normal; metadata labels bold,
+     actual values normal. */
+  #dashboardContent .astro-dashboard-summary + .card > p.small{
+    font-size:12px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+  }
+  #dashboardContent .astro-dashboard-summary + .card > .card > b{
+    font-size:13px!important;
+    line-height:1.4!important;
+    font-weight:500!important;
+  }
+  #dashboardContent .astro-dashboard-summary + .card > .card .small{
+    font-size:12px!important;
+    line-height:1.4!important;
+    font-weight:400!important;
+  }
+  #dashboardContent .astro-dashboard-summary + .card > .card .small b{
+    font-weight:700!important;
+  }
+
+  /* ---------- EARNINGS HISTORY ----------
+     Amount/content compact; metadata labels bold, values normal. */
+  #dashboardContent .card:has(> .smv-history-row) .smv-history-row .smv-history-amount{
+    font-size:13px!important;
+    line-height:1.4!important;
+    font-weight:500!important;
+  }
+  #dashboardContent .card:has(> .smv-history-row) .smv-history-row .smv-history-amount b{
+    font-weight:500!important;
+  }
+  #dashboardContent .card:has(> .smv-history-row) .smv-history-row .smv-history-content{
+    font-size:12px!important;
+    line-height:1.4!important;
+    font-weight:400!important;
+  }
+  #dashboardContent .card:has(> .smv-history-row) .smv-history-row .smv-history-detail{
+    font-size:12px!important;
+    line-height:1.4!important;
+    font-weight:400!important;
+  }
+  #dashboardContent .card:has(> .smv-history-row) .smv-history-row .smv-history-detail b{
+    font-weight:700!important;
+  }
+
+  /* ---------- WITHDRAWAL HISTORY ---------- */
+  #dashboardContent .withdrawal-history-section .smv-withdrawal-row .smv-history-amount{
+    font-size:13px!important;
+    line-height:1.4!important;
+    font-weight:500!important;
+  }
+  #dashboardContent .withdrawal-history-section .smv-withdrawal-row .smv-history-amount b{
+    font-weight:500!important;
+  }
+  #dashboardContent .withdrawal-history-section .smv-withdrawal-row .smv-history-detail,
+  #dashboardContent .withdrawal-history-section .smv-withdrawal-row .small{
+    font-size:12px!important;
+    line-height:1.4!important;
+    font-weight:400!important;
+  }
+  #dashboardContent .withdrawal-history-section .smv-withdrawal-row .smv-history-detail b,
+  #dashboardContent .withdrawal-history-section .smv-withdrawal-row .small b{
+    font-weight:700!important;
+  }
+
+  /* Existing semantic label/value classes: label bold, value normal. */
+  #dashboardContent .withdrawal-history-section .withdrawal-meta-label,
+  #dashboardContent .withdrawal-history-section .smv-meta-label{
+    font-weight:700!important;
+  }
+  #dashboardContent .withdrawal-history-section .withdrawal-meta-value,
+  #dashboardContent .withdrawal-history-section .smv-meta-value{
+    font-weight:400!important;
+  }
+
+  /* ---------- PAYMENT METHOD ---------- */
+  #dashboardContent .card:has(#changePayoutBtn2) > p.small{
+    font-size:12px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+  }
+  #dashboardContent .card:has(#changePayoutBtn2) > .btn{
+    font-size:12px!important;
+  }
+
+  /* ---------- GENERAL ASTROLOGER SECTION CONTENT ---------- */
+  #dashboardContent .astro-dashboard-summary > .card:not(.astro-profile-summary-card) > p,
+  #dashboardContent .astro-dashboard-summary > .card:not(.astro-profile-summary-card) > .small{
+    line-height:1.45!important;
+  }
+}
+
+/* smv-final-admin-typography-hierarchy-v8 */
+
+/* =========================================================
+   FINAL ADMIN TYPOGRAPHY HIERARCHY — V8
+   Requested:
+   - Main "Admin Dashboard" = bright bold pink
+   - All other Admin section headings = bold #FF0000
+   - Admin content = clean hierarchy, not all-heavy
+   - Notifications covered if/when rendered inside Admin
+   - No layout/data/Firebase/payment/API changes
+   ========================================================= */
+
+/* MAIN ADMIN DASHBOARD HEADING ONLY */
+#admin > .card:first-child h2,
+#admin h2.admin-dashboard-title{
+  color:#FF1493 !important;
+  -webkit-text-fill-color:#FF1493 !important;
+  font-size:24px !important;
+  line-height:1.25 !important;
+  font-weight:800 !important;
+}
+
+/* ALL OTHER ADMIN SECTION HEADINGS */
+#admin h3,
+#admin h4,
+#admin h5,
+#admin h6,
+#admin .section-title,
+#admin .admin-section-title,
+#admin .withdrawal-history-title{
+  color:#FF0000 !important;
+  -webkit-text-fill-color:#FF0000 !important;
+  font-weight:800 !important;
+}
+
+#admin > .card > h3,
+#admin > .card > div:first-child > div > h3,
+#admin .admin-section-title,
+#admin .withdrawal-history-title{
+  font-size:18px !important;
+  line-height:1.35 !important;
+}
+
+#admin > .card h4,
+#admin > .card > div h4{
+  font-size:16px !important;
+  line-height:1.35 !important;
+}
+
+/* ADMIN BODY CONTENT — NORMAL, READABLE HIERARCHY */
+#admin p,
+#admin li,
+#admin label,
+#admin .small,
+#admin .empty,
+#admin .card p,
+#admin .card li,
+#admin .card label,
+#admin .card span,
+#admin .card div{
+  font-weight:400 !important;
+  line-height:1.5 !important;
+}
+
+#admin p,
+#admin li,
+#admin label,
+#admin .card p,
+#admin .card li,
+#admin .card label{
+  font-size:14px !important;
+}
+
+#admin .small,
+#admin .empty{
+  font-size:12.5px !important;
+}
+
+/* Keep the Admin intro sentence clearly secondary. */
+#admin > .card:first-child p.small{
+  font-size:12.5px !important;
+  font-weight:400 !important;
+}
+
+/* Statistics: value remains visually important, label remains normal. */
+#admin .stats-grid .stat{
+  font-size:14px !important;
+  font-weight:400 !important;
+}
+#admin .stats-grid .stat b,
+#admin .stats-grid .stat strong{
+  font-size:20px !important;
+  font-weight:700 !important;
+}
+
+/* Action rows / controls */
+#admin .action-row,
+#admin input,
+#admin select,
+#admin textarea{
+  font-size:14px !important;
+  line-height:1.45 !important;
+  font-weight:400 !important;
+}
+
+#admin .btn{
+  font-weight:700 !important;
+}
+
+/* Tables: compact metadata hierarchy */
+#admin table{
+  font-size:12.5px !important;
+  line-height:1.4 !important;
+}
+#admin th{
+  font-weight:700 !important;
+}
+#admin td{
+  font-weight:400 !important;
+}
+
+/* Status / badge text stays visibly important without making every word heavy. */
+#admin .badge,
+#admin .success,
+#admin .error,
+#admin .danger{
+  font-weight:700 !important;
+}
+
+/* Notification hierarchy, if an Admin notification container is rendered. */
+#admin #adminNotifications,
+#admin #adminNotification,
+#admin .admin-notifications,
+#admin .admin-notification{
+  font-size:13px !important;
+  line-height:1.45 !important;
+  font-weight:400 !important;
+}
+#admin #adminNotifications .smv-notification-title,
+#admin #adminNotification .smv-notification-title,
+#admin .admin-notifications .smv-notification-title,
+#admin .admin-notification .smv-notification-title{
+  font-size:14px !important;
+  font-weight:700 !important;
+}
+#admin #adminNotifications .smv-notification-content,
+#admin #adminNotification .smv-notification-content,
+#admin .admin-notifications .smv-notification-content,
+#admin .admin-notification .smv-notification-content{
+  font-size:13px !important;
+  font-weight:400 !important;
+}
+#admin #adminNotifications .smv-notification-meta,
+#admin #adminNotification .smv-notification-meta,
+#admin .admin-notifications .smv-notification-meta,
+#admin .admin-notification .smv-notification-meta{
+  font-size:11.5px !important;
+  font-weight:400 !important;
+}
+#admin #adminNotifications .smv-notification-meta b,
+#admin #adminNotification .smv-notification-meta b,
+#admin .admin-notifications .smv-notification-meta b,
+#admin .admin-notification .smv-notification-meta b{
+  font-weight:700 !important;
+}
+
+/* IMPORTANT: preserve existing colours for Admin content/values.
+   This patch changes Admin content typography only, except the requested headings. */
+
+/* smv-final-astro-two-helper-text-normal-v1 */
+
+/* Astrologer Dashboard — ONLY these two helper sentences become normal weight. */
+#dashboardContent #astroQuestionQueue > p.small,
+#dashboardContent #astroAnsweredBox > p.small{
+  font-weight:400 !important;
+}
+
+/* smv-final-tamil-only-safety */
+
+/* FINAL TAMIL-ONLY MODE: the public site and horoscope are Tamil only. */
+html{lang:ta;}
+#english-horoscope,#englishHoroscopeResult{display:none!important;visibility:hidden!important;}
+#horoscope-tools .btn.gray,#horoscope-tools a[href="#english-horoscope"]{display:none!important;}
+
+/* smv-asknow-center-only-fix */
+
+/* Ask Now: keep the Tamil label exactly centered. No other site layout/features are changed. */
+#askNowButton .asknow-label{
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  margin:0!important;
+  width:auto!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+}
+
+/* smv-tamil-asknow-label-clear-final */
+
+/* Tamil Ask Now label clarity only — no other layout/features changed. */
+#askNowButton .asknow-label{
+  font-family:"Noto Sans Tamil",Arial,sans-serif!important;
+  font-size:16px!important;
+  font-weight:800!important;
+  letter-spacing:0!important;
+  line-height:1.35!important;
+  -webkit-font-smoothing:antialiased!important;
+  text-rendering:optimizeLegibility!important;
+}
+@media(max-width:767px){
+  #askNowButton .asknow-label{font-size:16px!important;line-height:1.35!important;}
+}
+
+/* smv-tamil-hero-h1-mobile-center-final */
+
+/* Tamil Hero heading: mobile center alignment only. Desktop remains untouched. */
+@media (max-width: 767px){
+  #home.hero h1{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    text-wrap:balance!important;
+  }
 }
