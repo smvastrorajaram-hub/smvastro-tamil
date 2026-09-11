@@ -1,0 +1,1 @@
+Added Admin ALLOW ON/OFF approval control, Open Questions for approved astrologers, safe first-claim flow, direct answers when allowed, edit until customer view, and forced Answered-section refresh after submission.
