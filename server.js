@@ -1182,6 +1182,8 @@ app.post('/astrologer/claim-question', express.json({limit:'10kb'}), async(req,r
 });
 
 const refundService=()=>createRefundService({db,razorpay,FieldValue,keyId:RAZORPAY_KEY_ID,keySecret:RAZORPAY_KEY_SECRET});
+app.get('/api-version', (req,res)=>res.set('Cache-Control','no-store').json({version:'20260911c-retry-v4',features:['refund-retry','original-price-payment-retry']}));
+
 for(const [path,retry] of [['/admin/reject-question',false],['/admin/retry-refund',true]]){
  app.post(path,express.json({limit:'10kb'}),async(req,res)=>{
   const user=await requireUser(req,res);if(!user)return;
@@ -1614,7 +1616,7 @@ app.post("/create-order", express.json(), async (req, res) => {
         if (Number(existing.amount) === Math.round(amount * 100) && existing.currency === "INR") {
           return res.json({ success: true, questionId, orderId: existing.id, keyId: RAZORPAY_KEY_ID, amount: existing.amount, currency: existing.currency, reused: true });
         }
-      } catch (e) { console.warn("Could not reuse old order:", e?.message || e); }
+      } catch (e) { return res.status(409).json({error:"Unable to confirm the previous payment order. Check its status and Razorpay account/mode before retrying; no new payment was created."}); }
     }
 
     const order = await razorpay.orders.create({
