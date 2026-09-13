@@ -1,0 +1,18 @@
+SMV ASTRO FINAL REGISTRATION + REFUND BUILD
+
+Version: 20260913-refund-v5-email-mobile-unique-v6
+
+Included:
+- Refund v5 balance-aware retry logic retained.
+- Email verification remains required.
+- Mobile number is saved in canonical form.
+- One mobile number = one account, enforced server-side with a Firestore transaction and smv_phone_registry.
+- Existing pre-v6 profiles are checked before a new number is claimed.
+- WhatsApp OTP switch is prepared through PHONE_VERIFICATION_MODE and is OFF by default (email_unique).
+- IMPORTANT: WhatsApp OTP sending/verification itself is NOT enabled until a paid provider is selected and integrated. Do not set PHONE_VERIFICATION_MODE=whatsapp yet unless provider integration is added.
+
+Free-plan setting:
+PHONE_VERIFICATION_MODE=email_unique
+WHATSAPP_OTP_PROVIDER=
+
+No SMS OTP is used in the default configuration.

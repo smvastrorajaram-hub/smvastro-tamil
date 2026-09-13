@@ -975,7 +975,7 @@ async function submitAuth(mode){
     // created Auth account behind.
     profileResponse=await renderApi("/register-customer-profile",{
       method:"POST",
-      body:JSON.stringify({name,phone})
+      body:JSON.stringify({name,phone,language:"ta"})
     },cred.user);
     if(!profileResponse?.ok) throw new Error(profileResponse?.error||"Customer profile setup failed.");
     try{await withTimeout(sendEmailVerification(cred.user),15000);}catch(ve){console.warn("Verification email could not be sent immediately",ve);}
@@ -1335,7 +1335,7 @@ $("astroRegistrationForm")?.addEventListener("submit",async e=>{
   try {
     profileResponse=await withTimeout(renderApi("/register-astrologer-profile",{
       method:"POST",
-      body:JSON.stringify({name,mobile,specialization,experience,bio,bankName,accountName,accountNumber,ifsc,upi,photoData})
+      body:JSON.stringify({name,mobile,specialization,experience,bio,bankName,accountName,accountNumber,ifsc,upi,photoData,language:"ta"})
     }),30000);
   } catch(networkErr) {
     const raw=String(networkErr?.message||networkErr||"");

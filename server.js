@@ -49,6 +49,68 @@ const GEMINI_TRANSLATION_FALLBACK_MODELS = [GEMINI_MODEL, "gemini-3.8-flash", "g
 const AI_RATE_LIMIT_MAX = Number(process.env.AI_RATE_LIMIT_MAX || 10);
 const AI_RATE_LIMIT_WINDOW_MS = Number(process.env.AI_RATE_LIMIT_WINDOW_MS || 10 * 60 * 1000);
 const aiRateBuckets = new Map();
+
+const PHONE_VERIFICATION_MODE = String(process.env.PHONE_VERIFICATION_MODE || "email_unique").trim().toLowerCase();
+const WHATSAPP_OTP_PROVIDER = String(process.env.WHATSAPP_OTP_PROVIDER || "").trim().toLowerCase();
+
+function normalizeRegistrationPhone(input) {
+  let digits = String(input || "").replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  // SMV ASTRO primarily serves India. Canonicalize common Indian forms so
+  // 9876543210, 09876543210, 919876543210 and +91 98765 43210 are identical.
+  if (digits.length === 11 && digits.startsWith("0")) digits = "91" + digits.slice(1);
+  else if (digits.length === 10) digits = "91" + digits;
+  if (digits.length < 8 || digits.length > 15) return null;
+  return { digits, e164: "+" + digits, hash: crypto.createHash("sha256").update(digits).digest("hex") };
+}
+
+async function findExistingPhoneOwners(phoneNorm, currentUid) {
+  // Registry is the fast path for all registrations made after this release.
+  const regRef = db.collection("smv_phone_registry").doc(phoneNorm.hash);
+  const regSnap = await regRef.get();
+  if (regSnap.exists) {
+    const ownerUid = String(regSnap.data()?.uid || "");
+    return { taken: !!ownerUid && ownerUid !== currentUid, ownerUid, regRef };
+  }
+
+  // Migration safety for accounts created before the registry existed.
+  // Scan only the small user profile fields so a previously-used number cannot
+  // be claimed just because it has not yet been backfilled into the registry.
+  const snap = await db.collection("smv_users").select("phone","mobile","phoneNormalized").get();
+  const owners = [];
+  for (const doc of snap.docs) {
+    const d = doc.data() || {};
+    const candidates = [d.phoneNormalized, d.phone, d.mobile].filter(Boolean);
+    if (candidates.some(v => normalizeRegistrationPhone(v)?.digits === phoneNorm.digits)) owners.push(doc.id);
+  }
+  const other = owners.find(uid => uid !== currentUid) || "";
+  return { taken: !!other, ownerUid: other || (owners[0] || ""), regRef };
+}
+
+async function claimUniquePhoneInTransaction(tx, phoneNorm, uid, role) {
+  const regRef = db.collection("smv_phone_registry").doc(phoneNorm.hash);
+  const snap = await tx.get(regRef);
+  if (snap.exists) {
+    const ownerUid = String(snap.data()?.uid || "");
+    if (ownerUid && ownerUid !== uid) {
+      const err = new Error("PHONE_ALREADY_REGISTERED"); err.code = "PHONE_ALREADY_REGISTERED"; throw err;
+    }
+  }
+  tx.set(regRef, {
+    uid, role, phoneNormalized: phoneNorm.e164,
+    verificationMode: PHONE_VERIFICATION_MODE === "whatsapp" ? "whatsapp" : "email_unique",
+    updatedAt: FieldValue.serverTimestamp(),
+    createdAt: snap.exists ? (snap.data()?.createdAt || FieldValue.serverTimestamp()) : FieldValue.serverTimestamp()
+  }, { merge: true });
+}
+
+function phoneAlreadyRegisteredResponse(res, language="en") {
+  const error = language === "ta"
+    ? "இந்த மொபைல் எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது. வேறு மொபைல் எண்ணைப் பயன்படுத்தவும்."
+    : "This mobile number is already registered. Please use another mobile number.";
+  return res.status(409).json({ error, code: "PHONE_ALREADY_REGISTERED" });
+}
+
 // SMTP is retained as an optional fallback for paid Render services. Render Free
 // services block outbound SMTP ports 25/465/587, so Resend HTTP API is preferred.
 const SMTP_HOST = String(process.env.SMTP_HOST || "").trim();
@@ -294,22 +356,32 @@ app.post("/register-customer-profile", async (req, res) => {
     const name = String(req.body?.name || "").trim();
     const phone = String(req.body?.phone || "").trim();
     if (!name || name.length > 120) return res.status(400).json({ error: "A valid customer name is required." });
-    if (phone.length > 30) return res.status(400).json({ error: "Invalid mobile number." });
+    const phoneNorm = normalizeRegistrationPhone(phone);
+    if (!phoneNorm) return res.status(400).json({ error: "Enter a valid mobile number." });
     const ref = db.collection("smv_users").doc(user.uid);
     const existing = await ref.get();
     if (existing.exists && String(existing.data()?.role || "").toLowerCase() === "customer" && existing.data()?.publicId) {
       return res.json({ ok: true, alreadyRegistered: true, publicId: existing.data().publicId });
     }
+    const preflight = await findExistingPhoneOwners(phoneNorm, user.uid);
+    if (preflight.taken) return phoneAlreadyRegisteredResponse(res, req.body?.language === "ta" ? "ta" : "en");
     const publicId = await nextCustomerId();
-    await ref.set({
-      uid: user.uid, name, phone, mobile: phone, email: user.email || "", role: "customer",
-      status: "active", publicId, customerId: publicId,
-      emailVerificationRequired: true, phoneVerificationRequired: false, phoneVerified: false, verificationMethod: "email",
-      createdAt: existing.exists ? (existing.data()?.createdAt || FieldValue.serverTimestamp()) : FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp()
-    }, { merge: true });
-    return res.json({ ok: true, publicId });
+    await db.runTransaction(async tx => {
+      await claimUniquePhoneInTransaction(tx, phoneNorm, user.uid, "customer");
+      tx.set(ref, {
+        uid: user.uid, name, phone: phoneNorm.e164, mobile: phoneNorm.e164, phoneNormalized: phoneNorm.e164,
+        email: user.email || "", role: "customer", status: "active", publicId, customerId: publicId,
+        emailVerificationRequired: true,
+        phoneVerificationRequired: PHONE_VERIFICATION_MODE === "whatsapp",
+        phoneVerified: false,
+        verificationMethod: PHONE_VERIFICATION_MODE === "whatsapp" ? "whatsapp" : "email",
+        createdAt: existing.exists ? (existing.data()?.createdAt || FieldValue.serverTimestamp()) : FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp()
+      }, { merge: true });
+    });
+    return res.json({ ok: true, publicId, phone: phoneNorm.e164, phoneVerificationMode: PHONE_VERIFICATION_MODE });
   } catch (e) {
+    if (e?.code === "PHONE_ALREADY_REGISTERED" || e?.message === "PHONE_ALREADY_REGISTERED") return phoneAlreadyRegisteredResponse(res, req.body?.language === "ta" ? "ta" : "en");
     console.error("Customer registration profile error:", e);
     return res.status(500).json({ error: "Customer profile setup failed on the server. Please try again." });
   }
@@ -325,23 +397,41 @@ app.post("/register-astrologer-profile", async (req, res) => {
     const bankName=String(b.bankName||"").trim(), accountName=String(b.accountName||"").trim(), accountNumber=String(b.accountNumber||"").trim(), ifsc=String(b.ifsc||"").trim(), upi=String(b.upi||"").trim(), photoData=String(b.photoData||"");
     if(!name||!mobile||!specialization||!bio||!bankName||!accountName||!accountNumber||!ifsc||!photoData) return res.status(400).json({error:"Please complete all required astrologer registration details."});
     if(!Number.isFinite(experience)||experience<0) return res.status(400).json({error:"Invalid experience."});
+    const phoneNorm = normalizeRegistrationPhone(mobile);
+    if(!phoneNorm) return res.status(400).json({error:"Enter a valid mobile number."});
     const userRef=db.collection("smv_users").doc(user.uid), astroRef=db.collection("smv_astrologers").doc(user.uid), payoutRef=db.collection("smv_payouts").doc(user.uid);
     const existing=await userRef.get();
     if(existing.exists && String(existing.data()?.role||"").toLowerCase()==="astrologer" && existing.data()?.publicId) return res.json({ok:true,alreadyRegistered:true,publicId:existing.data().publicId});
+    const preflight = await findExistingPhoneOwners(phoneNorm, user.uid);
+    if (preflight.taken) return phoneAlreadyRegisteredResponse(res, b.language === "ta" ? "ta" : "en");
     const dateKey=indiaDateKey(), publicId=await nextPublicId("AT",dateKey);
-    const batch=db.batch();
-    batch.set(userRef,{uid:user.uid,name,phone:mobile,mobile,email:user.email||"",publicId,role:"astrologer",status:"pending",emailVerificationRequired:true,phoneVerificationRequired:false,phoneVerified:false,verificationMethod:"email",createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()},{merge:true});
-    batch.set(astroRef,{uid:user.uid,name,publicId,specialization,expertise:specialization,experience,about:bio,bio,photoData,status:"pending",role:"astrologer",createdAt:FieldValue.serverTimestamp()},{merge:true});
-    batch.set(payoutRef,{uid:user.uid,bankName,accountName,accountNumber,ifsc,upi,updatedAt:FieldValue.serverTimestamp(),status:"pending_admin_review"},{merge:true});
-    batch.set(db.collection("smv_notifications").doc(user.uid+"_"+Date.now()),{userId:user.uid,type:"registration",title:"Registration submitted",message:"Your astrologer application is pending Admin approval.",createdAt:FieldValue.serverTimestamp(),read:false});
-    await batch.commit();
-    return res.json({ok:true,publicId});
-  } catch(e){ console.error("Astrologer registration profile error:",e); return res.status(500).json({error:"Astrologer profile setup failed on the server. Please try again."}); }
+    const notificationRef=db.collection("smv_notifications").doc(user.uid+"_"+Date.now());
+    await db.runTransaction(async tx => {
+      await claimUniquePhoneInTransaction(tx, phoneNorm, user.uid, "astrologer");
+      tx.set(userRef,{uid:user.uid,name,phone:phoneNorm.e164,mobile:phoneNorm.e164,phoneNormalized:phoneNorm.e164,email:user.email||"",publicId,role:"astrologer",status:"pending",emailVerificationRequired:true,phoneVerificationRequired:PHONE_VERIFICATION_MODE === "whatsapp",phoneVerified:false,verificationMethod:PHONE_VERIFICATION_MODE === "whatsapp" ? "whatsapp" : "email",createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()},{merge:true});
+      tx.set(astroRef,{uid:user.uid,name,publicId,specialization,expertise:specialization,experience,about:bio,bio,photoData,status:"pending",role:"astrologer",createdAt:FieldValue.serverTimestamp()},{merge:true});
+      tx.set(payoutRef,{uid:user.uid,bankName,accountName,accountNumber,ifsc,upi,updatedAt:FieldValue.serverTimestamp(),status:"pending_admin_review"},{merge:true});
+      tx.set(notificationRef,{userId:user.uid,type:"registration",title:"Registration submitted",message:"Your astrologer application is pending Admin approval.",createdAt:FieldValue.serverTimestamp(),read:false});
+    });
+    return res.json({ok:true,publicId,phone:phoneNorm.e164,phoneVerificationMode:PHONE_VERIFICATION_MODE});
+  } catch(e){
+    if (e?.code === "PHONE_ALREADY_REGISTERED" || e?.message === "PHONE_ALREADY_REGISTERED") return phoneAlreadyRegisteredResponse(res, req.body?.language === "ta" ? "ta" : "en");
+    console.error("Astrologer registration profile error:",e); return res.status(500).json({error:"Astrologer profile setup failed on the server. Please try again."});
+  }
 });
+
+
+app.get("/public/registration-config", (req,res)=>res.set("Cache-Control","no-store").json({
+  emailVerificationRequired:true,
+  onePhoneOneAccount:true,
+  phoneVerificationMode: PHONE_VERIFICATION_MODE === "whatsapp" ? "whatsapp" : "email_unique",
+  whatsappOtpEnabled: PHONE_VERIFICATION_MODE === "whatsapp",
+  whatsappProviderConfigured: !!WHATSAPP_OTP_PROVIDER
+}));
 
 app.get("/", (req, res) => res.status(200).json({
   service: "SMV ASTRO Razorpay Backend",
-  version: "2026-08-22-v130-time-debug-fix",
+  version: "20260913-refund-v5-email-mobile-unique-v6",
   status: "online",
   razorpay: "enabled",
   firebase: "enabled"
@@ -1209,7 +1299,7 @@ app.post('/astrologer/claim-question', express.json({limit:'10kb'}), async(req,r
 });
 
 const refundService=()=>createRefundService({db,razorpay,FieldValue,keyId:RAZORPAY_KEY_ID,keySecret:RAZORPAY_KEY_SECRET});
-app.get('/api-version', (req,res)=>res.set('Cache-Control','no-store').json({version:'20260913-refund-balance-v5',features:['refund-retry','original-price-payment-retry']}));
+app.get('/api-version', (req,res)=>res.set('Cache-Control','no-store').json({version:'20260913-refund-v5-email-mobile-unique-v6',features:['refund-retry','original-price-payment-retry','email-verification-only','one-phone-one-account','whatsapp-otp-switch-ready']}));
 
 for(const [path,retry] of [['/admin/reject-question',false],['/admin/retry-refund',true]]){
  app.post(path,express.json({limit:'10kb'}),async(req,res)=>{
