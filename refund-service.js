@@ -69,10 +69,24 @@ function createRefundService({db,razorpay,FieldValue,keyId,keySecret,fetchImpl=f
    const result=await save(ref,q,r);await notify(q,user,questionId,result);return result;
   }catch(e){
    const uncertain=e.name==='AbortError'||e.name==='TimeoutError'||e.name==='TypeError';
-   const refundStatus=q.refundId?(q.refundStatus||'pending'):(uncertain?'pending':'failed');
-   const message=uncertain?'Razorpay response was not received. Retry refund will reconcile existing refunds and reuse the same request key.':String(e.message||'Refund failed.');
-   await ref.set({refundStatus,refundError:message,refundErrorCode:e.refundCode||e.code||'REFUND_REVIEW_REQUIRED',refundLastAttemptAt:now(),refundFailedAt:uncertain?(q.refundFailedAt||null):now(),refundBusyUntil:0,updatedAt:now()},{merge:true});
-   const result={success:false,questionId,refundStatus,refundEventAt:now(),refundError:message,error:message};await notify(q,user,questionId,result);return result;
+   const rawDescription=String(e?.error?.description||e?.description||e?.message||'Refund failed.').trim();
+   const rawCode=String(e?.refundCode||e?.error?.code||e?.code||'REFUND_REVIEW_REQUIRED').trim();
+   const rawReason=String(e?.error?.reason||e?.reason||'').trim();
+   const rawSource=String(e?.error?.source||e?.source||'').trim();
+   const rawStep=String(e?.error?.step||e?.step||'').trim();
+   const insufficientBalance=/not have enough balance|insufficient.{0,20}balance|balance.{0,20}insufficient/i.test(rawDescription+' '+rawReason);
+   // Razorpay cannot create a refund (and therefore cannot issue an RRN) until
+   // the merchant account has sufficient refundable balance. Keep this state
+   // retriable instead of permanently marking it as a generic failure.
+   const refundStatus=q.refundId?(q.refundStatus||'pending'):(uncertain?'pending':(insufficientBalance?'waiting_balance':'failed'));
+   const message=uncertain
+    ?'Razorpay response was not received. Retry refund will reconcile any existing refund before creating another request.'
+    :insufficientBalance
+      ?'Refund is waiting for sufficient Razorpay account balance. Add/receive sufficient balance in the same Razorpay mode/account, then use Retry Refund. RRN/ARN is issued only after Razorpay creates/processes the refund.'
+      :rawDescription;
+   const patch={refundStatus,refundError:message,refundErrorCode:rawCode,refundErrorReason:rawReason||FieldValue.delete(),refundErrorSource:rawSource||FieldValue.delete(),refundErrorStep:rawStep||FieldValue.delete(),refundErrorStatusCode:Number(e?.statusCode||e?.status||0)||FieldValue.delete(),refundPendingReason:insufficientBalance?'insufficient_balance':FieldValue.delete(),refundLastAttemptAt:now(),refundFailedAt:(uncertain||insufficientBalance)?(q.refundFailedAt||FieldValue.delete()):now(),refundBusyUntil:0,updatedAt:now()};
+   await ref.set(patch,{merge:true});
+   const result={success:false,questionId,refundStatus,refundEventAt:now(),refundError:message,error:message,refundErrorCode:rawCode,refundPendingReason:insufficientBalance?'insufficient_balance':null};await notify(q,user,questionId,result);return result;
   }
  }
  return {reject,sync};

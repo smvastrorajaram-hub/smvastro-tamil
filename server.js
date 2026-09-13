@@ -302,8 +302,9 @@ app.post("/register-customer-profile", async (req, res) => {
     }
     const publicId = await nextCustomerId();
     await ref.set({
-      uid: user.uid, name, phone, email: user.email || "", role: "customer",
-      status: "active", publicId, customerId: publicId, emailVerificationRequired: true,
+      uid: user.uid, name, phone, mobile: phone, email: user.email || "", role: "customer",
+      status: "active", publicId, customerId: publicId,
+      emailVerificationRequired: true, phoneVerificationRequired: false, phoneVerified: false, verificationMethod: "email",
       createdAt: existing.exists ? (existing.data()?.createdAt || FieldValue.serverTimestamp()) : FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
@@ -329,7 +330,7 @@ app.post("/register-astrologer-profile", async (req, res) => {
     if(existing.exists && String(existing.data()?.role||"").toLowerCase()==="astrologer" && existing.data()?.publicId) return res.json({ok:true,alreadyRegistered:true,publicId:existing.data().publicId});
     const dateKey=indiaDateKey(), publicId=await nextPublicId("AT",dateKey);
     const batch=db.batch();
-    batch.set(userRef,{uid:user.uid,name,phone:mobile,mobile,email:user.email||"",publicId,role:"astrologer",status:"pending",emailVerificationRequired:true,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()},{merge:true});
+    batch.set(userRef,{uid:user.uid,name,phone:mobile,mobile,email:user.email||"",publicId,role:"astrologer",status:"pending",emailVerificationRequired:true,phoneVerificationRequired:false,phoneVerified:false,verificationMethod:"email",createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()},{merge:true});
     batch.set(astroRef,{uid:user.uid,name,publicId,specialization,expertise:specialization,experience,about:bio,bio,photoData,status:"pending",role:"astrologer",createdAt:FieldValue.serverTimestamp()},{merge:true});
     batch.set(payoutRef,{uid:user.uid,bankName,accountName,accountNumber,ifsc,upi,updatedAt:FieldValue.serverTimestamp(),status:"pending_admin_review"},{merge:true});
     batch.set(db.collection("smv_notifications").doc(user.uid+"_"+Date.now()),{userId:user.uid,type:"registration",title:"Registration submitted",message:"Your astrologer application is pending Admin approval.",createdAt:FieldValue.serverTimestamp(),read:false});
@@ -1208,7 +1209,7 @@ app.post('/astrologer/claim-question', express.json({limit:'10kb'}), async(req,r
 });
 
 const refundService=()=>createRefundService({db,razorpay,FieldValue,keyId:RAZORPAY_KEY_ID,keySecret:RAZORPAY_KEY_SECRET});
-app.get('/api-version', (req,res)=>res.set('Cache-Control','no-store').json({version:'20260911c-retry-v4',features:['refund-retry','original-price-payment-retry']}));
+app.get('/api-version', (req,res)=>res.set('Cache-Control','no-store').json({version:'20260913-refund-balance-v5',features:['refund-retry','original-price-payment-retry']}));
 
 for(const [path,retry] of [['/admin/reject-question',false],['/admin/retry-refund',true]]){
  app.post(path,express.json({limit:'10kb'}),async(req,res)=>{

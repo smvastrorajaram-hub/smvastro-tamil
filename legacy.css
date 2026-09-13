@@ -12552,3 +12552,51 @@ html{lang:ta;}
     text-wrap:balance!important;
   }
 }
+
+
+/* SMV 2026-09-13 — unified dashboard typography + refund presentation.
+   Presentation only: no auth/payment/calculation/layout behaviour changed. */
+#dashboardContent .smv-consultation-item,
+#dashboardContent .smv-consultation-item .small,
+#dashboardContent .smv-consultation-item .refund-summary,
+#dashboardContent .smv-consultation-item .timeline-step{
+  font-size:14px !important;
+  line-height:1.55 !important;
+  font-weight:400 !important;
+}
+#dashboardContent .smv-consultation-item b,
+#dashboardContent .smv-consultation-item strong,
+#dashboardContent .smv-consultation-item .smv-meta-label,
+#dashboardContent .smv-consultation-item .smv-meta-value,
+#dashboardContent .smv-consultation-item .refund-summary b{
+  font-size:inherit !important;
+  font-weight:400 !important;
+}
+#dashboardContent .smv-consultation-item .smv-question-text{
+  display:block !important;
+  font-size:15px !important;
+  line-height:1.5 !important;
+  font-weight:500 !important;
+  margin-bottom:4px !important;
+}
+#dashboardContent .smv-consultation-item .success,
+#dashboardContent .smv-consultation-item .error{
+  font-weight:500 !important;
+}
+@media (max-width:767px){
+  #dashboardContent .smv-consultation-item,
+  #dashboardContent .smv-consultation-item .small,
+  #dashboardContent .smv-consultation-item .refund-summary,
+  #dashboardContent .smv-consultation-item .timeline-step{
+    font-size:14px !important;
+    line-height:1.55 !important;
+    font-weight:400 !important;
+  }
+  #dashboardContent .smv-consultation-item .smv-meta-line,
+  #dashboardContent .smv-consultation-item .smv-meta-label,
+  #dashboardContent .smv-consultation-item .smv-meta-value{
+    font-size:14px !important;
+    line-height:1.55 !important;
+    font-weight:400 !important;
+  }
+}
