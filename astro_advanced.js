@@ -26,33 +26,33 @@ const NAK_EN=['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Puna
 const KOTA_28_EN=['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Mula','Purva Ashadha','Uttara Ashadha','Abhijit','Shravana','Dhanishtha','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'];
 const KOTA_28_TA=['அஸ்வினி','பரணி','கார்த்திகை','ரோகிணி','மிருகசீரிஷம்','திருவாதிரை','புனர்பூசம்','பூசம்','ஆயில்யம்','மகம்','பூரம்','உத்திரம்','ஹஸ்தம்','சித்திரை','சுவாதி','விசாகம்','அனுஷம்','கேட்டை','மூலம்','பூராடம்','உத்திராடம்','அபிஜித்','திருவோணம்','அவிட்டம்','சதயம்','பூரட்டாதி','உத்திரட்டாதி','ரேவதி'];
 const KOTA_PALA_BY_PADA={
- Ashwini:['சுக்கிரன்','சுக்கிரன்','சுக்கிரன்','சந்திரன்'],
- Bharani:['சந்திரன்','சந்திரன்','சந்திரன்','சந்திரன்'],
- Krittika:['சூரியன்','சூரியன்','சூரியன்','சூரியன்'],
- Rohini:['சூரியன்','சந்திரன்','சந்திரன்','சந்திரன்'],
- Mrigashira:['சந்திரன்','சந்திரன்','செவ்வாய்','செவ்வாய்'],
- Ardra:['செவ்வாய்','செவ்வாய்','செவ்வாய்','சுக்கிரன்'],
- Punarvasu:['செவ்வாய்','செவ்வாய்','ராகு','ராகு'],
- Pushya:['ராகு','ராகு','ராகு','புதன்'],
- Ashlesha:['புதன்','புதன்','புதன்','புதன்'],
- Magha:['சனி','சனி','சனி','சனி'],
- 'Purva Phalguni':['சனி','புதன்','புதன்','புதன்'],
- 'Uttara Phalguni':['புதன்','புதன்','சனி','சனி'],
- Hasta:['சனி','ராகு','புதன்','புதன்'],
- Chitra:['சனி','சனி','சந்திரன்','சந்திரன்'],
- Swati:['சந்திரன்','சந்திரன்','சந்திரன்','குரு'],
- Vishakha:['குரு','குரு','குரு','குரு'],
- Anuradha:['குரு','குரு','குரு','குரு'],
- Jyeshtha:['குரு','சந்திரன்','சந்திரன்','சந்திரன்'],
- Mula:['சந்திரன்','சந்திரன்','சனி','சனி'],
- 'Purva Ashadha':['சனி','குரு','சனி','புதன்'],
- 'Uttara Ashadha':['சனி','சனி','சுக்கிரன்','சுக்கிரன்'],
- Shravana:['செவ்வாய்','செவ்வாய்','செவ்வாய்','செவ்வாய்'],
- Dhanishtha:['செவ்வாய்','செவ்வாய்','செவ்வாய்','செவ்வாய்'],
- Shatabhisha:['செவ்வாய்','ராகு','ராகு','ராகு'],
- 'Purva Bhadrapada':['ராகு','ராகு','குரு','குரு'],
- 'Uttara Bhadrapada':['குரு','குரு','சுக்கிரன்','சுக்கிரன்'],
- Revati:['குரு','குரு','சுக்கிரன்','சுக்கிரன்'],
+ Ashwini:['செவ்வாய்','சுக்கிரன்','புதன்','சந்திரன்'],
+ Bharani:['சூரியன்','புதன்','செவ்வாய்','சனி'],
+ Krittika:['குரு','சுக்கிரன்','சனி','சந்திரன்'],
+ Rohini:['புதன்','செவ்வாய்','சூரியன்','சுக்கிரன்'],
+ Mrigashira:['செவ்வாய்','குரு','புதன்','சுக்கிரன்'],
+ Ardra:['சனி','குரு','சூரியன்','செவ்வாய்'],
+ Punarvasu:['புதன்','சந்திரன்','சுக்கிரன்','குரு'],
+ Pushya:['சனி','சூரியன்','செவ்வாய்','சந்திரன்'],
+ Ashlesha:['புதன்','சுக்கிரன்','சனி','குரு'],
+ Magha:['செவ்வாய்','சுக்கிரன்','புதன்','சந்திரன்'],
+ 'Purva Phalguni':['சூரியன்','புதன்','செவ்வாய்','சனி'],
+ 'Uttara Phalguni':['குரு','சுக்கிரன்','சனி','சந்திரன்'],
+ Hasta:['புதன்','செவ்வாய்','சூரியன்','சுக்கிரன்'],
+ Chitra:['செவ்வாய்','குரு','புதன்','சுக்கிரன்'],
+ Swati:['சனி','குரு','சூரியன்','செவ்வாய்'],
+ Vishakha:['புதன்','சந்திரன்','சுக்கிரன்','குரு'],
+ Anuradha:['சனி','சூரியன்','செவ்வாய்','சந்திரன்'],
+ Jyeshtha:['புதன்','சுக்கிரன்','சனி','குரு'],
+ Mula:['செவ்வாய்','சுக்கிரன்','புதன்','சந்திரன்'],
+ 'Purva Ashadha':['சூரியன்','புதன்','செவ்வாய்','சனி'],
+ 'Uttara Ashadha':['குரு','சுக்கிரன்','சனி','சந்திரன்'],
+ Shravana:['புதன்','செவ்வாய்','சூரியன்','சுக்கிரன்'],
+ Dhanishtha:['செவ்வாய்','குரு','புதன்','சுக்கிரன்'],
+ Shatabhisha:['சனி','குரு','சூரியன்','செவ்வாய்'],
+ 'Purva Bhadrapada':['புதன்','சந்திரன்','சுக்கிரன்','குரு'],
+ 'Uttara Bhadrapada':['சனி','சூரியன்','செவ்வாய்','சந்திரன்'],
+ Revati:['புதன்','சுக்கிரன்','சனி','குரு'],
  Abhijit:['சுக்கிரன்','சுக்கிரன்','சுக்கிரன்','சுக்கிரன்']
 };
 const NAME_SYLLABLE_PLANET={
@@ -165,11 +165,20 @@ function findJanmaSoundMatch(janmaNak,janmaPada,name,lang){
  if(candidates.some(c=>syllableMatches(c,syllable,lang))) return {nakshatra:janmaNak,pada:janmaPada,syllable,initial:normalizeKotaInitial(name,lang)};
  return null;
 }
+function detectKotaNameLang(name){
+ const raw=String(name||'');
+ if(/[\u0B80-\u0BFF]/.test(raw)) return 'ta';
+ if(/[A-Za-z]/.test(raw)) return 'en';
+ return 'en';
+}
 function nameNakshatraFromName(name,lang,janmaNak='',janmaPada=null){
- const direct=findJanmaSoundMatch(janmaNak,janmaPada,name,lang);
- if(direct){direct.matchType='Janma Nakshatra Pada initial match';return direct;}
- const fallback=findNameSoundInTable(name,lang);
- if(fallback){fallback.matchType='Native-name initial match';return fallback;}
+ // Name-sound lookup is independent of horoscope UI language. This allows
+ // Tamil names in the English horoscope and English names in the Tamil horoscope.
+ const nameLang=detectKotaNameLang(name);
+ const direct=findJanmaSoundMatch(janmaNak,janmaPada,name,nameLang);
+ if(direct){direct.matchType='Janma Nakshatra Pada initial match';direct.nameLang=nameLang;return direct;}
+ const fallback=findNameSoundInTable(name,nameLang);
+ if(fallback){fallback.matchType='Native-name initial match';fallback.nameLang=nameLang;return fallback;}
  return null;
 }
 
@@ -331,17 +340,12 @@ function kota(chart,lang){
   const janmaPada=Number(moon?.pada||0)||((Math.floor(((((Number(moon?.longitude)||0)%13.333333333333334)+13.333333333333334)%13.333333333333334)/(13.333333333333334/4))+1));
   const name=chart.birthName||chart.name||'';
 
-  // FINAL NAME-AWARE KOTA PAALA RULE:
-  // 1) Take the native name's opening 1–3 characters/sound.
-  // 2) Compare it first with the Avakahada sound prescribed for the Janma Nakshatra Pada.
-  // 3) If it matches, use that Janma Nakshatra Pada directly.
-  // 4) If it does not match, locate the native name opening in the supplied 27×4
-  //    Avakahada table and use that matched Nakshatra/Pada.
-  // 5) The matched Pada's Kota Paala lord is taken from KOTA_PALA_BY_PADA.
+  // KOTA PAALA MUST BE BIRTH-CHART BASED ONLY.
+  // The native-name sound is calculated separately for display/comparison and must
+  // never change Kota Paala. Therefore Tamil/English/mixed-script names all return
+  // the same Kota Paala for the same Janma Nakshatra and Pada.
   const nameInfo=name?nameNakshatraFromName(name,lang,janmaNakEn,janmaPada):null;
-  const matchedNak=nameInfo?.nakshatra||'';
-  const matchedPada=Number(nameInfo?.pada||0)||0;
-  const kotaPalaName=(matchedNak && matchedPada)?(KOTA_PALA_BY_PADA[matchedNak]?.[matchedPada-1]||''):(KOTA_PALA_BY_PADA[janmaNakEn]?.[janmaPada-1]||'');
+  const kotaPalaName=KOTA_PALA_BY_PADA[janmaNakEn]?.[janmaPada-1]||'';
 
   const refIndex=Math.max(0,KOTA_28_EN.indexOf(janmaNakEn));
   const zoneOf={};
@@ -370,19 +374,21 @@ function kota(chart,lang){
     janmaNakshatraPada:janmaPada,
     janmaNakshatraSound:(NAME_NAK_TABLE[janmaNakEn]||[])[janmaPada-1]||'—',
     nativeName:name,
-    nameInitial:nameInfo?.initial||normalizeKotaInitial(name,lang)||'—',
+    nameInitial:nameInfo?.initial||normalizeKotaInitial(name,detectKotaNameLang(name))||'—',
+    nameInitialTA:nameInfo?.nameLang==='ta'?(nameInfo?.initial||'—'):'—',
+    nameInitialEN:nameInfo?.nameLang==='en'?(nameInfo?.initial||'—'):'—',
     nameNakshatra:nameInfo?(lang==='en'?nameInfo.nakshatra:(KOTA_28_TA[KOTA_28_EN.indexOf(nameInfo.nakshatra)]||nameInfo.nakshatra)):'—',
+    nameNakshatraTA:nameInfo?(KOTA_28_TA[KOTA_28_EN.indexOf(nameInfo.nakshatra)]||nameInfo.nakshatra):'—',
+    nameNakshatraEN:nameInfo?.nakshatra||'—',
     nameNakshatraPada:nameInfo?.pada||'—',
     nameSyllable:nameInfo?.syllable||'—',
+    nameSyllableTA:nameInfo?.nameLang==='ta'?(nameInfo?.syllable||'—'):'—',
+    nameSyllableEN:nameInfo?.nameLang==='en'?(nameInfo?.syllable||'—'):'—',
     nameMatchType:nameInfo?.matchType||'No native-name match',
     kotaSwami:{planet:lang==='en'?(englishPlanets[moonSignLord]||moonSignLord):moonSignLord,basis:lang==='en'?'Lord of the Rashi occupied by the natal Moon (Janma Rashi).':'ஜன்ம சந்திரன் இருக்கும் ராசியின் அதிபதி.'},
-    kotaPala:{planet:kpDisplay,basis:nameInfo?.matchType==='Janma Nakshatra Pada initial match'
-      ?(lang==='en'?'Native name opening sound matches the Janma Nakshatra Pada sound; that Pada directly determines Kota Paala.':'பெயரின் முதல் ஒலி ஜன்ம நட்சத்திர பாதத்தின் பெயரொலியுடன் பொருந்துகிறது; அதே பாதம் கோட்டா பாலாவை நிர்ணயிக்கிறது.')
-      :nameInfo?.matchType==='Native-name initial match'
-      ?(lang==='en'?'Native name opening 1–3 characters were matched to the supplied Avakahada Nakshatra/Pada table; the matched Pada determines Kota Paala.':'பெயரின் முதல் 1–3 எழுத்துகள் வழங்கப்பட்ட அவகஹடா நட்சத்திர/பாத அட்டவணையுடன் பொருத்தப்பட்டு, பொருந்திய பாதம் கோட்டா பாலாவை நிர்ணயிக்கிறது.')
-      :(lang==='en'?'No native name was supplied or matched; Janma Nakshatra Pada is used as fallback.':'பெயர் வழங்கப்படவில்லை அல்லது பொருத்தம் கிடைக்கவில்லை; ஜன்ம நட்சத்திர பாதம் மாற்று முறையாகப் பயன்படுத்தப்படுகிறது.')},
+    kotaPala:{planet:kpDisplay,basis:lang==='en'?'Determined only from the natal Moon Janma Nakshatra and Pada (Avakahada/Kota Paala matrix). The native name does not alter Kota Paala.':'ஜன்ம சந்திரனின் நட்சத்திரம் மற்றும் பாதம் (அவகஹடா/கோட்டா பாலா அட்டவணை) மட்டுமே கோட்டா பாலாவை நிர்ணயிக்கும். பெயர் கோட்டா பாலாவை மாற்றாது.'},
     sectors:[],nakshatras,entryPath:['NE','SE','SW','NW'],exitPath:['E','S','W','N'],planets,allPlanets:planets,
-    method:lang==='en'?'Final name-aware Kota Paala rule: compare the native name opening 1–3 characters with the Janma Nakshatra Pada sound first; if it matches, use that Pada. Otherwise match the native name opening in the supplied Avakahada table and use the matched Pada. Kota Swami remains the natal Moon sign lord.':'இறுதி பெயர்-அடிப்படையிலான கோட்டா பாலா விதி: முதலில் பெயரின் முதல் 1–3 எழுத்துகள் ஜன்ம நட்சத்திர பாதத்தின் பெயரொலியுடன் ஒப்பிடப்படும்; பொருந்தினால் அதே பாதம் பயன்படுத்தப்படும். பொருந்தவில்லை என்றால் பெயரின் ஆரம்ப ஒலி வழங்கப்பட்ட அவகஹடா அட்டவணையில் பொருத்தப்பட்டு, அந்தப் பாதம் பயன்படுத்தப்படும். கோட்டா சுவாமி ஜன்ம சந்திர ராசியின் அதிபதியே.'
+    method:lang==='en'?'Kota Paala = Janma Nakshatra + Pada only. Native-name Nakshatra is calculated separately for reference and may differ without changing Kota Paala.':'கோட்டா பாலா = ஜன்ம நட்சத்திரம் + பாதம் மட்டும். பெயர் நட்சத்திரம் தனியாக குறிப்புக்காக கணக்கிடப்படும்; அது வேறுபட்டாலும் கோட்டா பாலா மாறாது.'
   };
 }
 function sudarshana(chart,lang){const ps=chart.planets||[],asc=rasi(chart.lagna?.longitude||0),moon=rasi(planetMap(chart)['சந்திரன்']?.longitude||0),sun=rasi(planetMap(chart)['சூரியன்']?.longitude||0);const make=(name,base)=>({name,center:signName(base,lang),houses:Array.from({length:12},(_,i)=>{const si=norm(base+i),occ=ps.filter(p=>rasi(p.longitude)===si);return {house:i+1,rasi:signName(si,lang),planets:occ.map(p=>p.name),planetDetails:occ.map(p=>({planet:p.name,degree:p.degree,nakshatra:p.nakshatra,pada:p.pada}))};})});return {rings:[make('Lagna Chakra',asc),make('Chandra Chakra',moon),make('Surya Chakra',sun)],allPlanets:ps.map(p=>({planet:p.name,rasi:p.rasi,degree:p.degree,nakshatra:p.nakshatra,pada:p.pada})),method:'Three-reference Sudarshana Chakra detail'};}
