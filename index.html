@@ -216,6 +216,856 @@ document.addEventListener('DOMContentLoaded', function(){
   content-visibility:visible!important;
 }
 </style>
+
+<style id="smv-v8-3-numerology-full-width-fix">
+/* V8.3 — Numerology only.
+   Mobile: keep BOTH columns inside the card; no frozen/partial horizontal panel. */
+.numerology-module{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+  overflow:visible !important;
+}
+.numerology-module .adv-table-wrap{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow-x:visible !important;
+  overflow-y:visible !important;
+  box-sizing:border-box !important;
+}
+.numerology-module table.adv-wide{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  table-layout:fixed !important;
+  border-collapse:collapse !important;
+  box-sizing:border-box !important;
+}
+.numerology-module table.adv-wide th,
+.numerology-module table.adv-wide td{
+  position:static !important;
+  left:auto !important;
+  right:auto !important;
+  float:none !important;
+  box-sizing:border-box !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+  vertical-align:middle !important;
+}
+.numerology-module table.adv-wide th{
+  width:38% !important;
+  min-width:0 !important;
+  max-width:none !important;
+}
+.numerology-module table.adv-wide td{
+  width:62% !important;
+  min-width:0 !important;
+  max-width:none !important;
+}
+@media (max-width:640px){
+  .numerology-module{
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  .numerology-module .adv-table-wrap{
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding:0 !important;
+  }
+  .numerology-module table.adv-wide{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    table-layout:fixed !important;
+    font-size:14px !important;
+  }
+  .numerology-module table.adv-wide th{
+    width:43% !important;
+    min-width:0 !important;
+    max-width:43% !important;
+  }
+  .numerology-module table.adv-wide td{
+    width:57% !important;
+    min-width:0 !important;
+    max-width:57% !important;
+  }
+  .numerology-module table.adv-wide th,
+  .numerology-module table.adv-wide td{
+    padding:10px 8px !important;
+    line-height:1.4 !important;
+    font-size:14px !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+    word-break:break-word !important;
+  }
+}
+</style>
+
+<style id="smv-v8-4-birth-year-panchang">
+.smv-birth-prelude{margin:0 0 18px}
+.smv-birth-prelude .smv-invocation{text-align:center;font-weight:800;font-size:20px;line-height:1.5;padding:14px 12px;border:1px solid #d9c58b;border-radius:14px;background:#fffaf0;color:#8d1717;margin-bottom:14px}
+.smv-year-reckoning,.smv-birth-summary{border:1px solid #ddcfaa;border-radius:16px;background:#fff;padding:14px;margin:0 0 14px;box-sizing:border-box}
+.smv-year-reckoning h3,.smv-birth-summary h3{margin:0 0 10px}
+.smv-year-grid,.smv-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.smv-year-grid>div,.smv-summary-grid>div{border:1px solid #eadfca;border-radius:10px;padding:9px 10px;min-width:0;background:#fff}
+.smv-year-grid b,.smv-summary-grid b{display:block;font-size:13px;margin-bottom:3px}
+.smv-year-grid span,.smv-summary-grid span{display:block;font-weight:700;overflow-wrap:anywhere;word-break:break-word}
+.smv-panchang-sentence{margin:10px 0 0;padding:10px 12px;border-left:4px solid #b99439;background:#fffaf1;line-height:1.65}
+@media(max-width:640px){.smv-year-grid,.smv-summary-grid{grid-template-columns:1fr}.smv-birth-prelude .smv-invocation{font-size:18px}}
+</style>
+
+<style id="smv-v8-5-prayers">
+.smv-ganesha-prayer,.smv-navagraha-prayer{
+  margin:0 0 16px;
+  padding:16px 14px;
+  border:1px solid #ddcfaa;
+  border-radius:16px;
+  background:#fffaf0;
+  text-align:center;
+  box-sizing:border-box;
+}
+.smv-ganesha-img{
+  width:92px;
+  height:auto;
+  display:block;
+  margin:0 auto 8px;
+  border-radius:10px;
+}
+.smv-prayer-title{
+  margin:0 0 8px;
+  font-size:20px;
+  font-weight:800;
+  color:#9b1234;
+}
+.smv-prayer-mantra{
+  margin:0;
+  font-size:17px;
+  line-height:1.65;
+  font-weight:700;
+  color:#172d67;
+}
+.smv-prayer-meaning{
+  margin:10px auto 0;
+  max-width:760px;
+  font-size:14px;
+  line-height:1.6;
+  text-align:left;
+}
+.smv-navagraha-prayer{
+  margin-top:18px;
+  margin-bottom:12px;
+}
+@media(max-width:640px){
+  .smv-ganesha-prayer,.smv-navagraha-prayer{padding:14px 10px}
+  .smv-ganesha-img{width:78px}
+  .smv-prayer-title{font-size:18px}
+  .smv-prayer-mantra{font-size:15px;line-height:1.6}
+  .smv-prayer-meaning{font-size:13px}
+}
+</style>
+
+
+<style id="smv-v8-7-static-vii-viii-text">
+.smv-fixed-text-section{margin:0 0 16px;padding:14px;border:1px solid #dccb9d;border-radius:16px;background:#fffdf8;box-sizing:border-box}
+.smv-fixed-text-section h3{margin:0 0 12px;color:#9b1234;font-size:21px}
+.smv-fixed-text-section h4{margin:14px 0 7px;color:#6f2b10;font-size:17px}
+.smv-fixed-text-section p{margin:6px 0;line-height:1.65}
+.smv-mantra{padding:10px 12px;border-left:4px solid #b99439;background:#fff8e8;border-radius:8px;line-height:1.75;font-weight:700}
+.smv-ref-table{width:100%;border-collapse:collapse;margin:10px 0 14px;table-layout:fixed}
+.smv-ref-table th,.smv-ref-table td{border:1px solid #ddcfaa;padding:8px;vertical-align:top;white-space:normal;overflow-wrap:anywhere}
+.smv-ref-table th{background:#fff3d6}
+.smv-note-fixed{font-size:13px;opacity:.82;margin-top:10px}
+@media(max-width:640px){
+  .smv-fixed-text-section{padding:10px}
+  .smv-fixed-text-section h3{font-size:19px}
+  .smv-fixed-text-section h4{font-size:16px}
+  .smv-ref-table{font-size:13px}
+  .smv-ref-table th,.smv-ref-table td{padding:6px}
+}
+</style>
+
+
+<style id="smv-v8-9-karana-mobile">
+.smv-karana-source-table{table-layout:auto}
+@media(max-width:640px){
+  .smv-karana-source-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .smv-karana-source-table th,.smv-karana-source-table td{min-width:120px;white-space:normal}
+  .smv-karana-source-table th:last-child,.smv-karana-source-table td:last-child{min-width:240px}
+}
+</style>
+
+
+<style id="smv-v9-0-vii-viii-ui-fix">
+/* VII/VIII mobile table usability */
+.smv-viii-adhidevata .smv-ref-table,
+.smv-karana-source-table{
+  width:max-content;
+  min-width:100%;
+  table-layout:auto;
+}
+.smv-viii-adhidevata{
+  overflow:visible;
+}
+.smv-viii-adhidevata .smv-ref-table,
+.smv-karana-source-table{
+  display:block;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:auto;
+  scroll-behavior:smooth;
+}
+.smv-viii-adhidevata .smv-ref-table th,
+.smv-viii-adhidevata .smv-ref-table td,
+.smv-karana-source-table th,
+.smv-karana-source-table td{
+  white-space:normal !important;
+  word-break:normal !important;
+  overflow-wrap:break-word !important;
+  vertical-align:top;
+  line-height:1.45;
+  text-align:left;
+  min-width:150px;
+  max-width:none;
+}
+.smv-karana-source-table th:nth-child(1),
+.smv-karana-source-table td:nth-child(1){min-width:110px}
+.smv-karana-source-table th:nth-child(2),
+.smv-karana-source-table td:nth-child(2){min-width:140px}
+.smv-karana-source-table th:nth-child(3),
+.smv-karana-source-table td:nth-child(3){min-width:110px}
+.smv-karana-source-table th:nth-child(4),
+.smv-karana-source-table td:nth-child(4){min-width:150px}
+.smv-karana-source-table th:nth-child(5),
+.smv-karana-source-table td:nth-child(5){min-width:300px}
+@media(max-width:640px){
+  .smv-viii-adhidevata .smv-ref-table,
+  .smv-karana-source-table{
+    width:max-content !important;
+    min-width:100% !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+  .smv-viii-adhidevata .smv-ref-table th,
+  .smv-viii-adhidevata .smv-ref-table td,
+  .smv-karana-source-table th,
+  .smv-karana-source-table td{
+    font-size:14px !important;
+    padding:8px 10px !important;
+  }
+}
+/* subtle visual cue that horizontal scroll starts from the left */
+.smv-viii-adhidevata .smv-ref-table{scroll-snap-type:x proximity}
+</style>
+
+
+<style id="smv-v9-2-deities-css">
+.smv-d20-summary{margin:0 0 12px;padding:10px 12px;border:1px solid #ddd;border-radius:10px;background:#fff}
+.smv-deities-v92 .adv-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.smv-deities-v92 .smv-deities-table{width:max-content!important;min-width:1200px!important;table-layout:auto!important}
+.smv-deities-v92 .smv-deities-table th,.smv-deities-v92 .smv-deities-table td{
+  min-width:150px;max-width:340px;white-space:normal!important;vertical-align:top;text-align:left;line-height:1.45
+}
+.smv-deities-v92 .smv-deities-table th:first-child,.smv-deities-v92 .smv-deities-table td:first-child{min-width:165px}
+.smv-deities-v92 .smv-deities-table th:last-child,.smv-deities-v92 .smv-deities-table td:last-child{min-width:340px}
+</style>
+
+
+<style id="smv-v9-3-table-responsive-fix">
+/* VIII + IX: preserve readable column widths; scroll the whole table horizontally on phones. */
+.smv-fixed-text-section .adv-table-wrap,
+.smv-deities-v92 .adv-table-wrap{
+  width:100% !important;
+  max-width:100% !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+}
+
+/* VIII tables: use available desktop width instead of leaving a large blank right side. */
+#adhidevata-analysis .smv-fixed-text-section,
+#adhidevata-analysis .smv-viii-adhidevata{
+  width:100% !important;
+  max-width:none !important;
+}
+#adhidevata-analysis .smv-ref-table{
+  display:table !important;
+  width:100% !important;
+  min-width:720px !important;
+  max-width:none !important;
+  table-layout:auto !important;
+  margin:0 !important;
+}
+#adhidevata-analysis .smv-ref-table th,
+#adhidevata-analysis .smv-ref-table td{
+  min-width:0 !important;
+  max-width:none !important;
+  white-space:normal !important;
+  word-break:normal !important;
+  overflow-wrap:normal !important;
+  hyphens:none !important;
+  vertical-align:top !important;
+  text-align:left !important;
+  line-height:1.45 !important;
+}
+
+/* Karana: deliberate widths, especially the Temple column. */
+#adhidevata-analysis .smv-karana-source-table{
+  width:100% !important;
+  min-width:900px !important;
+}
+#adhidevata-analysis .smv-karana-source-table th:nth-child(1),
+#adhidevata-analysis .smv-karana-source-table td:nth-child(1){width:14%;min-width:110px!important}
+#adhidevata-analysis .smv-karana-source-table th:nth-child(2),
+#adhidevata-analysis .smv-karana-source-table td:nth-child(2){width:18%;min-width:145px!important}
+#adhidevata-analysis .smv-karana-source-table th:nth-child(3),
+#adhidevata-analysis .smv-karana-source-table td:nth-child(3){width:13%;min-width:110px!important}
+#adhidevata-analysis .smv-karana-source-table th:nth-child(4),
+#adhidevata-analysis .smv-karana-source-table td:nth-child(4){width:20%;min-width:165px!important}
+#adhidevata-analysis .smv-karana-source-table th:nth-child(5),
+#adhidevata-analysis .smv-karana-source-table td:nth-child(5){
+  width:35%;min-width:300px!important;
+  word-break:normal!important;overflow-wrap:normal!important;
+}
+
+/* IX Deities: never squeeze six columns into viewport. */
+#deities-analysis .smv-deities-v92{
+  width:100% !important;
+  max-width:none !important;
+}
+#deities-analysis .smv-deities-table{
+  display:table !important;
+  width:1350px !important;
+  min-width:1350px !important;
+  max-width:none !important;
+  table-layout:fixed !important;
+  margin:0 !important;
+}
+#deities-analysis .smv-deities-table th,
+#deities-analysis .smv-deities-table td{
+  min-width:0 !important;
+  max-width:none !important;
+  white-space:normal !important;
+  word-break:normal !important;
+  overflow-wrap:normal !important;
+  hyphens:none !important;
+  vertical-align:top !important;
+  text-align:left !important;
+  line-height:1.45 !important;
+}
+#deities-analysis .smv-deities-table th:nth-child(1),
+#deities-analysis .smv-deities-table td:nth-child(1){width:165px}
+#deities-analysis .smv-deities-table th:nth-child(2),
+#deities-analysis .smv-deities-table td:nth-child(2){width:240px}
+#deities-analysis .smv-deities-table th:nth-child(3),
+#deities-analysis .smv-deities-table td:nth-child(3){width:190px}
+#deities-analysis .smv-deities-table th:nth-child(4),
+#deities-analysis .smv-deities-table td:nth-child(4){width:190px}
+#deities-analysis .smv-deities-table th:nth-child(5),
+#deities-analysis .smv-deities-table td:nth-child(5){width:180px}
+#deities-analysis .smv-deities-table th:nth-child(6),
+#deities-analysis .smv-deities-table td:nth-child(6){width:385px}
+
+@media(max-width:640px){
+  /* Critical: scrolling belongs to a wrapper, not display:block on table itself. */
+  #adhidevata-analysis .smv-ref-table{
+    display:table !important;
+    width:720px !important;
+    min-width:720px !important;
+  }
+  #adhidevata-analysis .smv-karana-source-table{
+    width:900px !important;
+    min-width:900px !important;
+  }
+  #deities-analysis .smv-deities-table{
+    display:table !important;
+    width:1350px !important;
+    min-width:1350px !important;
+  }
+  #adhidevata-analysis .smv-ref-table th,
+  #adhidevata-analysis .smv-ref-table td,
+  #deities-analysis .smv-deities-table th,
+  #deities-analysis .smv-deities-table td{
+    font-size:14px !important;
+    padding:8px 10px !important;
+  }
+}
+
+/* Wide screens: VIII fills its card instead of clustering on the left. */
+@media(min-width:900px){
+  #adhidevata-analysis .smv-ref-table{width:100% !important}
+  #adhidevata-analysis .smv-karana-source-table{width:100% !important}
+}
+</style>
+
+
+<style id="smv-v9-4-mobile-table-fix">
+/*
+  Correct accordion IDs:
+  VIII = #smv-adhidevata-analysis-panel
+  IX   = #smv-deities-analysis-panel
+  Previous mobile override targeted non-existent IDs, so it could not win.
+*/
+#smv-adhidevata-analysis-panel,
+#smv-deities-analysis-panel,
+#smv-adhidevata-analysis-panel .smv-advanced-part-content,
+#smv-deities-analysis-panel .smv-advanced-part-content{
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow:visible !important;
+  box-sizing:border-box !important;
+}
+
+#smv-adhidevata-analysis-panel .smv-fixed-text-section,
+#smv-deities-analysis-panel .smv-fixed-text-section{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+
+/* The wrapper is the only element that scrolls horizontally. */
+#smv-adhidevata-analysis-panel .adv-table-wrap,
+#smv-deities-analysis-panel .adv-table-wrap,
+#smv-adhidevata-analysis-panel .smv-viii-table-scroll{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  touch-action:pan-x pan-y !important;
+  overscroll-behavior-x:contain;
+  box-sizing:border-box !important;
+  padding-bottom:6px;
+}
+
+/* VIII general reference tables */
+#smv-adhidevata-analysis-panel .smv-ref-table{
+  display:table !important;
+  border-collapse:collapse !important;
+  table-layout:auto !important;
+  width:100% !important;
+  min-width:720px !important;
+  max-width:none !important;
+  margin:0 !important;
+}
+
+/* VIII Karana table: keep all 5 columns readable. */
+#smv-adhidevata-analysis-panel .smv-karana-source-table{
+  display:table !important;
+  width:100% !important;
+  min-width:980px !important;
+  table-layout:fixed !important;
+}
+#smv-adhidevata-analysis-panel .smv-karana-source-table th:nth-child(1),
+#smv-adhidevata-analysis-panel .smv-karana-source-table td:nth-child(1){width:130px !important}
+#smv-adhidevata-analysis-panel .smv-karana-source-table th:nth-child(2),
+#smv-adhidevata-analysis-panel .smv-karana-source-table td:nth-child(2){width:170px !important}
+#smv-adhidevata-analysis-panel .smv-karana-source-table th:nth-child(3),
+#smv-adhidevata-analysis-panel .smv-karana-source-table td:nth-child(3){width:120px !important}
+#smv-adhidevata-analysis-panel .smv-karana-source-table th:nth-child(4),
+#smv-adhidevata-analysis-panel .smv-karana-source-table td:nth-child(4){width:190px !important}
+#smv-adhidevata-analysis-panel .smv-karana-source-table th:nth-child(5),
+#smv-adhidevata-analysis-panel .smv-karana-source-table td:nth-child(5){width:370px !important}
+
+/* IX Deities: six columns must not be compressed into phone width. */
+#smv-deities-analysis-panel .smv-deities-table{
+  display:table !important;
+  width:1420px !important;
+  min-width:1420px !important;
+  max-width:none !important;
+  table-layout:fixed !important;
+  margin:0 !important;
+}
+#smv-deities-analysis-panel .smv-deities-table th:nth-child(1),
+#smv-deities-analysis-panel .smv-deities-table td:nth-child(1){width:170px !important}
+#smv-deities-analysis-panel .smv-deities-table th:nth-child(2),
+#smv-deities-analysis-panel .smv-deities-table td:nth-child(2){width:250px !important}
+#smv-deities-analysis-panel .smv-deities-table th:nth-child(3),
+#smv-deities-analysis-panel .smv-deities-table td:nth-child(3){width:200px !important}
+#smv-deities-analysis-panel .smv-deities-table th:nth-child(4),
+#smv-deities-analysis-panel .smv-deities-table td:nth-child(4){width:200px !important}
+#smv-deities-analysis-panel .smv-deities-table th:nth-child(5),
+#smv-deities-analysis-panel .smv-deities-table td:nth-child(5){width:190px !important}
+#smv-deities-analysis-panel .smv-deities-table th:nth-child(6),
+#smv-deities-analysis-panel .smv-deities-table td:nth-child(6){width:410px !important}
+
+/* Never split normal words letter-by-letter in VIII/IX. */
+#smv-adhidevata-analysis-panel .smv-ref-table th,
+#smv-adhidevata-analysis-panel .smv-ref-table td,
+#smv-deities-analysis-panel .smv-deities-table th,
+#smv-deities-analysis-panel .smv-deities-table td{
+  white-space:normal !important;
+  word-break:normal !important;
+  overflow-wrap:normal !important;
+  hyphens:none !important;
+  vertical-align:top !important;
+  text-align:left !important;
+  line-height:1.45 !important;
+  box-sizing:border-box !important;
+}
+
+@media(max-width:640px){
+  #smv-adhidevata-analysis-panel .smv-ref-table{
+    width:720px !important;
+    min-width:720px !important;
+  }
+  #smv-adhidevata-analysis-panel .smv-karana-source-table{
+    width:980px !important;
+    min-width:980px !important;
+  }
+  #smv-deities-analysis-panel .smv-deities-table{
+    width:1420px !important;
+    min-width:1420px !important;
+  }
+
+  #smv-adhidevata-analysis-panel .smv-ref-table th,
+  #smv-adhidevata-analysis-panel .smv-ref-table td,
+  #smv-deities-analysis-panel .smv-deities-table th,
+  #smv-deities-analysis-panel .smv-deities-table td{
+    font-size:14px !important;
+    padding:8px 10px !important;
+  }
+
+  /* Keep the viewport card width normal while the inner table scrolls. */
+  #smv-adhidevata-analysis-panel .smv-advanced-part-content,
+  #smv-deities-analysis-panel .smv-advanced-part-content{
+    width:100% !important;
+  }
+}
+
+@media(min-width:641px){
+  #smv-adhidevata-analysis-panel .smv-ref-table{
+    width:100% !important;
+  }
+  #smv-adhidevata-analysis-panel .smv-karana-source-table{
+    width:100% !important;
+    min-width:900px !important;
+  }
+}
+</style>
+
+
+<style id="smv-v9-5-tithi-mobile-scroll-fix">
+/* VIII Tithi tables: real horizontal scroll wrapper on mobile. */
+#smv-adhidevata-analysis-panel .smv-tithi-table-scroll{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  touch-action:pan-x pan-y !important;
+  overscroll-behavior-x:contain;
+  box-sizing:border-box !important;
+  padding-bottom:6px;
+}
+#smv-adhidevata-analysis-panel .smv-tithi-table{
+  display:table !important;
+  border-collapse:collapse !important;
+  table-layout:fixed !important;
+  width:100% !important;
+  min-width:620px !important;
+  max-width:none !important;
+  margin:0 !important;
+}
+#smv-adhidevata-analysis-panel .smv-tithi-table th,
+#smv-adhidevata-analysis-panel .smv-tithi-table td{
+  white-space:normal !important;
+  word-break:normal !important;
+  overflow-wrap:normal !important;
+  hyphens:none !important;
+  vertical-align:top !important;
+  text-align:left !important;
+  line-height:1.45 !important;
+}
+#smv-adhidevata-analysis-panel .smv-tithi-table th:nth-child(1),
+#smv-adhidevata-analysis-panel .smv-tithi-table td:nth-child(1){
+  width:220px !important;
+  min-width:220px !important;
+}
+#smv-adhidevata-analysis-panel .smv-tithi-table th:nth-child(2),
+#smv-adhidevata-analysis-panel .smv-tithi-table td:nth-child(2){
+  width:400px !important;
+  min-width:400px !important;
+}
+
+@media(max-width:640px){
+  #smv-adhidevata-analysis-panel .smv-tithi-table{
+    width:620px !important;
+    min-width:620px !important;
+  }
+  #smv-adhidevata-analysis-panel .smv-tithi-table th,
+  #smv-adhidevata-analysis-panel .smv-tithi-table td{
+    font-size:14px !important;
+    padding:8px 10px !important;
+  }
+}
+
+@media(min-width:641px){
+  #smv-adhidevata-analysis-panel .smv-tithi-table{
+    width:100% !important;
+    min-width:0 !important;
+  }
+  #smv-adhidevata-analysis-panel .smv-tithi-table th:nth-child(1),
+  #smv-adhidevata-analysis-panel .smv-tithi-table td:nth-child(1){width:35% !important}
+  #smv-adhidevata-analysis-panel .smv-tithi-table th:nth-child(2),
+  #smv-adhidevata-analysis-panel .smv-tithi-table td:nth-child(2){width:65% !important}
+}
+</style>
+
+
+<style id="smv-v9-6-daily-panchang-desktop-fix">
+/* Desktop only: make Daily Panchang use the full available row width. */
+@media(min-width:641px){
+  .transit-panchang-grid{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+  }
+  .transit-panchang-grid > .panchang-card{
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+  .transit-panchang-grid > .panchang-card .panchang-compact-grid{
+    width:100% !important;
+    max-width:100% !important;
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  }
+  .transit-panchang-grid > .transit-card{
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    margin-top:12px !important;
+  }
+}
+</style>
+
+
+<style id="smv-v9-7-desktop-home-width-fix">
+/* Desktop only:
+   Match Hero, Ask Now and all Horoscope sections to the same full content width
+   used by Approved Astrologers, Blogs & Media and FAQ.
+*/
+@media(min-width:641px){
+
+  /* Outer sections */
+  #home.hero,
+  #askNowSection.smv-new-asknow,
+  #horoscope-tools.feature-section,
+  #tamil-horoscope.feature-section,
+  #english-horoscope.feature-section{
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Ask Now previously used a narrower inner wrapper. */
+  #askNowSection .smv-new-asknow-inner{
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Horoscope sections had inline max-width:980px cards.
+     Override only on desktop, leaving mobile unchanged. */
+  #horoscope-tools > .card,
+  #tamil-horoscope > .card,
+  #english-horoscope > .card{
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Keep generated horoscope output using the same enlarged card width. */
+  #tamilHoroscopeResult,
+  #englishHoroscopeResult{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+}
+</style>
+
+
+<style id="smv-v9-8-mobile-spacing-fix">
+/* Mobile-only comfort pass:
+   reduce excessive nested side gutters without changing desktop or app logic. */
+@media(max-width:640px){
+
+  html,body{
+    max-width:100% !important;
+    overflow-x:hidden !important;
+  }
+
+  main.container{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding-left:8px !important;
+    padding-right:8px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Home page sections should use the phone width naturally. */
+  main.container > section,
+  #home.hero,
+  #askNowSection,
+  #approved-astrologers,
+  #smv-content-hub,
+  #horoscope-tools,
+  #tamil-horoscope,
+  #english-horoscope,
+  #faq,
+  #contact{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Remove the "box inside box inside box" effect on mobile. */
+  .hero,
+  .feature-section,
+  .smv-new-asknow{
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+
+  .smv-new-asknow-inner,
+  .feature-shell,
+  .card{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:12px !important;
+    padding-right:12px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Horoscope form/result cards */
+  #horoscope-tools > .card,
+  #tamil-horoscope > .card,
+  #english-horoscope > .card{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+    box-sizing:border-box !important;
+  }
+
+  #tamilHoroscopeResult,
+  #englishHoroscopeResult{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Advanced horoscope: keep one useful outer gutter, not several nested gutters. */
+  .smv-advanced-shell,
+  .smv-advanced-wrapper,
+  .advanced-analysis,
+  .smv-advanced-part,
+  .smv-advanced-part-content{
+    max-width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  .smv-advanced-shell,
+  .smv-advanced-wrapper,
+  .advanced-analysis{
+    width:100% !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:4px !important;
+    padding-right:4px !important;
+  }
+
+  .smv-advanced-part{
+    width:100% !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+
+  .smv-advanced-part-content{
+    width:100% !important;
+    padding-left:8px !important;
+    padding-right:8px !important;
+  }
+
+  /* Static/reference blocks in VII/VIII/IX */
+  .smv-fixed-text-section{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:6px !important;
+    padding-right:6px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Common grids/cards: keep comfortable gaps without wasting horizontal space. */
+  .grid,
+  .form-grid,
+  .panchang-compact-grid{
+    column-gap:8px !important;
+    row-gap:8px !important;
+  }
+
+  .home-rule{
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+
+  /* Preserve intended horizontal scrolling for wide VIII/IX tables. */
+  #smv-adhidevata-analysis-panel .adv-table-wrap,
+  #smv-deities-analysis-panel .adv-table-wrap,
+  #smv-adhidevata-analysis-panel .smv-viii-table-scroll,
+  #smv-adhidevata-analysis-panel .smv-tithi-table-scroll{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    overflow-x:auto !important;
+  }
+}
+</style>
+
 </head>
 <body class="lang-tamil">
 <header>
@@ -295,7 +1145,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </section>
 <section class="feature-section" id="tamil-horoscope">
 <div class="home-rule"><span>✦</span><span>தமிழ் ஜோதிட வழிகாட்டி</span><span>✦</span></div>
-<div class="card" style="max-width:980px;margin:0 auto">
+<div class="card" style="width:100%!important;max-width:none!important;margin:0!important;box-sizing:border-box!important">
 <h2>தமிழில் ஜாதகம் உருவாக்குக</h2>
 <p class="small">பிறந்த தேதி, நேரம் மற்றும் பிறந்த இடத்தைத் தேர்வு செய்து சைடியரியல் / வேத ஜாதகத்தை உருவாக்கலாம்.</p>
 <div class="grid">
@@ -1025,6 +1875,10 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       <div id="birthTimePanchangSlot" class="birth-panchang-before-rasi"></div>
       <div id="tamilDailyTransitPanchangSlot" class="daily-transit-panchang-slot"></div>
+      <div class="smv-navagraha-prayer">
+        <div class="smv-prayer-title">🕉️ நவக்கிரக ஸ்தோத்திரம்</div>
+        <div class="smv-prayer-mantra">ஓம் நம: ஸூர்யாய சந்த்ராய<br/>மங்களாய புதாய ச ।<br/>குரு சுக்ர சனிப்யச்ச<br/>ராஹவே கேதவே நம: ॥</div>
+      </div>
       <h3 style="margin-top:22px">🗺️ ராசி கட்டம் (D-1)</h3>
       <div id="rasiChart" class="south-indian-chart" aria-label="ராசி கட்டம்"></div>
       <h3 style="margin-top:22px">🪷 நவாம்ச கட்டம் ( D-9)</h3>
@@ -1403,7 +2257,75 @@ document.addEventListener('DOMContentLoaded', function(){
     finally{btn.disabled=false;btn.textContent=lang==='en'?'🔮 Generate AI Future Insights':'🔮 AI எதிர்கால பலன் உருவாக்குக';}
   }
 
+
+/* SMV V8 NUMEROLOGY — source: user-provided Numerology.pdf (pp. 1–8).
+   Body Number = birth-day digit total; Life Number = full DOB digit total;
+   Name Number = source A–Z value table. Source pair matrix is keyed by Body-Life. */
+(function(){
+  const MATRIX={"1-1":[["1,10,19,28","6,15,24","4,13,22,31"],["மஞ்சள்","இளம் நீலம்"],["கனகபுஷ்பராகம்","மாணிக்கம்","தங்கபுஷ்பராகம்"],["கருப்பு","சிகப்பு","காப்பிகலர்"],["8,17,26"]],"1-2":[["1,10,19,28","6,15,24","7,16,25"],["இளம்மஞ்சள்","லேசான நீலம்","இளம்பச்சை"],["கனகபுஷ்பராகம்","முத்து","வைடுரியம்"],["கருப்பு","சிகப்பு"],["8,17,26","9,18,27"]],"1-3":[["1,10,19,28","3,12,21,30","5,14,23"],["இளம்மஞ்சள்","இளம்நீலம்","ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ நிறம்"],["கனகபுஷ்பராகம்","எமிதிஸ்ட்"],["கருப்பு","பச்சை"],["8,17,26"]],"1-4":[["1,10,19,28","6,15,24"],["மஞ்சள்","இளம்நீலம்"],["கனகபுஷ்பராகம்","இளம்நீலக்கல்"],["கருப்பு","சிவப்பு"],["8,17,26"]],"1-5":[["1,10,19,28","5,14,23","6,15,24"],["மஞ்சள்","இளம்நீலம்","சாம்பல்நிறம்"],["மாணிக்கம்","வைரம்","கனகபுஷ்பராகம்"],["கருப்பு","காப்பிகலர்"],["8,17,26"]],"1-6":[["1,10,19,28","6,15,24","9,18,27"],["மஞ்சள்","இளம்நீலம்","பச்சை"],["கனகபுஷ்பராகம்","மாணிக்கம்","மரகதம்"],["கருப்பு","ஆரஞ்சு","கத்தரிப்பூ"],["3,12,21,30","8,17,26"]],"1-7":[["1,10,19,28","2,11,20,29","6,15,24"],["மஞ்சள்","இளம்நீலம்","இளம்பச்சை"],["கனகபுஷ்பராகம்","தங்கபுஷ்பராகம்","வைடுரியம்","முத்து"],["கருப்பு","சிவப்பு"],["9,18,27","8,17,26"]],"1-8":[["1,10,19,28","5,14,23","6,15,24"],["மஞ்சள்","நீலம்"],["தங்கபுஷ்பராகம்","கனகபுஷ்பராகம்"],["கருப்பு","சிவப்பு"],["8,17,26"]],"1-9":[["1,10,19,28","9,18,27","6,15,24"],["மஞ்சள்","நீலம்"],["கனகபுஷ்பராகம்","மாணிக்கம்","தங்கபுஷ்பராகம்"],["கருப்பு","பச்சை"],["7,16,25","8,17,26"]],"2-1":[["7,16,25","6,15,24","1,10,19,28"],["மஞ்சள்","வெளிர்நீலம்","இளம்பச்சை"],["தங்கபுஷ்பராகம்","வைடுரியம்","முத்து"],["கருப்பு","சிவப்பு"],["9,18,27","8,17,26"]],"2-2":[["7,16,25","6,15,24"],["பச்சை","இளநீலம்"],["வைடுரியம்","முத்து"],["சிகப்பு"],["9,18,27"]],"2-3":[["7,16,25","3,12,21,30","5,14,23"],["இளம்மஞ்சள்","இளநீலம்"],["வைடுரியம்","முத்து"],["சிகப்பு"],["9,18,27","6,15,24"]],"2-4":[["6,15,24","2,11,20,29","1,10,19,28"],["இளம்மஞ்சள்","இளநீலம்","பச்சை"],["வைடுரியம்","முத்து"],["கருப்பு","சிவப்பு"],["9,18,27","8,17,26"]],"2-5":[["7,16,25","5,14,23","6,15,24"],["பச்சை","சாம்பல்நிறம்"],["வைடுரியம்","முத்து","சந்திரகாந்தக்கல்"],["சிவப்பு"],["9,18,27"]],"2-6":[["7,16,25","6,15,24"],["இளநீலம்","பச்சை"],["வைடுரியம்","சந்திரகாந்தக்கல்","ஜேட்"],["சிவப்பு","ஆரஞ்சு","ரோஸ்","கத்தரிப்பூ"],["9,18,27"]],"2-7":[["6,15,24","7,16,25"],["இளம்மஞ்சள்","வெளிர்நீலம்","பச்சை"],["வைடுரியம்","முத்து","சந்திரகாந்தக்கல்","ஜேட்"],["சிவப்பு"],["9,18,27"]],"2-8":[["7,16,25","5,14,23","6,15,24"],["பச்சை","கருநீலம்","மஞ்சள்"],["வைடுரியம்","முத்து","சந்திரகாந்தக்கல்"],["கருப்பு","சிவப்பு"],["9,18,27"]],"2-9":[["6,15,24","5,14,23"],["இளநீலம்","இளம்மஞ்சள்"],["வைடுரியம்","முத்து","சந்திரகாந்தக்கல்"],["சிவப்பு"],["9,18,27"]],"3-1":[["3,12,21,30","9,18,27","1,10,19,28"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ","நீலம்","மஞ்சள்"],["தங்கபுஷ்பராகம்","கனகபுஷ்பராகம்","எமிதிஸ்ட்"],["கருப்பு","பச்சை"],["6,15,24"]],"3-2":[["3,12,21,30","7,16,25","5,14,23"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ"],["எமிதிஸ்ட்","சந்திரகாந்தக்கல்","டைகர்ஸ் ஐ"],["பச்சை","சிகப்பு"],["6,15,24","9,18,27"]],"3-3":[["3,12,21,30","9,18,27","5,14,23"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ"],["எமிதிஸ்ட்"],["பச்சை"],["6,15,24"]],"3-4":[["3,12,21,30","1,10,19,28"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ","இளம்மஞ்சள்","இளம்நீலம்"],["கனகபுஷ்பராகம்","எமிதிஸ்ட்"],["பச்சை"],["6,15,24"]],"3-5":[["3,12,21,30","5,14,23","9,18,27"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ","சாம்பல்நிறம்","இளம்நீலம்"],["எமிதிஸ்ட்","வைரம்","சிர்கான்"],["பச்சை"],["6,15,24"]],"3-6":[["1,10,19,28","9,18,27"],["இளநீலம்","இளமஞ்சள்"],["தங்கபுஷ்பராகம்","கனகபுஷ்பராகம்","வெண்புஷ்பராகம்"],[],[]],"3-7":[["2,11,20,29","3,12,21,30"],["இளநீலம்","ஆரஞ்சு","கத்தரிப்பூ","மஞ்சள்"],["எமிதிஸ்ட்","வைடுரியம்"],["சிகப்பு"],["6,15,24"]],"3-8":[["3,12,21,30","5,14,23","1,10,19"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ","மஞ்சள்"],["எமிதிஸ்ட்","நீலக்கல்"],["சிகப்பு","கருப்பு","பச்சை"],["6,15,24","8,17,26"]],"3-9":[["3,12,21,30","5,14,23","1,10,19"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ","சிகப்பு"],["எமிதிஸ்ட்","பவளம்","நவரத்தினம்"],["பச்சை"],["6,15,24","2,11,20,29","7,16,25"]],"4-1":[["1,10,19,28","6,15,24"],["மஞ்சள்","நீலம்"],["கோமேதகம்","இளம்நீலக்கல்"],["கருப்பு","சிகப்பு"],["8,17,26"]],"4-2":[["6,15,24","1,10,19,28"],["மஞ்சள்","இளம்நீலம்","சந்தனகலர்","வெளிர்பச்சை"],["கோமேதகம்","இளம்நீலக்கல்"],["கருப்பு","சிகப்பு","காபிகலர்"],["8,17,26"]],"4-3":[["1,10,19,28","3,12,21,30"],["மஞ்சள்","இளம்நீலம்","கத்தரிப்பூ","ரோஸ்","ஆரஞ்சு"],["கோமேதகம்","இளம்நீலக்கல்"],["கருப்பு","சிகப்பு","பச்சை"],["8,17,26","6,15,24"]],"4-4":[["1,10,19,28","6,15,24"],["மஞ்சள்","இளம்நீலம்","சந்தனகலர்"],["கோமேதகம்","வெளிர்நீலக்கல்"],["கருப்பு","சிகப்பு","காபிகலர்"],["8,17,26"]],"4-5":[["1,10,19,28","6,15,24","5,14,23"],["மஞ்சள்","இளம்நீலம்","சந்தனகலர்","சாம்பல்நிறம்"],["கோமேதகம்","வைரம்","இளம்நீலக்கல்"],["கருப்பு","சிகப்பு","காபிகலர்"],["8,17,26"]],"4-6":[["1,10,19,28","6,15,24"],["மஞ்சள்","இளம்நீலம்","இளம்பச்சை"],["கோமேதகம்","இளம்நீலக்கல்"],["கருப்பு","சிகப்பு","கத்தரிப்பூ"],["8,17,26","3,12,21,30"]],"4-7":[["6,15,24","1,10,19,28"],["மஞ்சள்","இளம்நீலம்","இளம்பச்சை"],["கோமேதகம்","இளம்நீலக்கல்"],["கருப்பு","சிகப்பு","காபிகலர்"],["8,17,26","9,18,27"]],"4-8":[["1,10,19,28","6,15,24","5,14,23"],["மஞ்சள்","நீலம்","இளம்நீலம்"],["கோமேதகம்","நீலக்கல்"],["கருப்பு","சிகப்பு","காபிகலர்"],["8,17,26"]],"4-9":[["6,15,24","1,10,19,28","5,14,23"],["மஞ்சள்","நீலம்","சிவப்பு"],["கோமேதகம்","இளம்நீலக்கல்"],["கருப்பு","காபிகலர்"],["8,17,26","2,11,20,29","7,16,25"]],"5-1":[["5,14,23","1,10,19,28","6,15,24"],["சாம்பல்நிறம்","மஞ்சள்","இளநீலம்"],["வைரம்","ஜிர்கான்","கனகபுஷ்பராகம்"],["கருப்பு"],[]],"5-2":[["5,14,23","7,16,25"],["சாம்பல்நிறம்","இளம்பச்சை","இளநீலம்"],["வைரம்","ஜிர்கான்","டைகர்ஸ் ஐ","மூன்ஸ்டோன்"],["சிகப்பு"],["9,18,27"]],"5-3":[["5,14,23","3,12,21,30","9,18,27"],["இளநீலம்","சாம்பல்நிறம்","ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ"],["வைரம்","ஜிர்கான்","எமிதிஸ்ட்"],["பச்சை"],["6,15,24"]],"5-4":[["5,14,23","1,10,19,28","6,15,24"],["இளமஞ்சள்","இளநீலம்","சாம்பல்நிறம்"],["வைரம்","ஜிர்கான்","கோமேதகம்"],["கருப்பு"],[]],"5-5":[["5,14,23","9,18,27","3,12,21,30"],["சாம்பல்நிறம்"],["வைரம்","ஜிர்கான்"],[],[]],"5-6":[["5,14,23","6,15,24","1,10,19,28"],["சாம்பல்நிறம்","இளம்பச்சை","இளநீலம்"],["வைரம்","ஜிர்கான்","மரகதம்"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ"],["3,12,21,30"]],"5-7":[["5,14,23","2,11,20,29","6,15,24"],["சாம்பல்நிறம்","பச்சை","இளநீலம்","இளமஞ்சள்"],["வைரம்","ஜிர்கான்"],["சிகப்பு"],["9,18,27"]],"5-8":[["5,14,23","6,15,24","1,10,19,28"],["நீலம்","சாம்பல்நிறம்"],["வைரம்","ஜிர்கான்"],["கருப்பு","சிகப்பு"],[]],"5-9":[["5,14,23","9,18,27","6,15,24","3,12,21,30"],["சிகப்பு","சாம்பல்நிறம்"],["வைரம்","ஜிர்கான்","பவளம்"],["பச்சை"],["2,11,20,29","7,16,25"]],"6-1":[["1,10,19,28","6,15,24","9,18,27"],["மஞ்சள்","பச்சை"],["எமரால்ட் (மரகதம்)"],["ஆரஞ்சு","ரோஸ்"],["3,12,21,30"]],"6-2":[["6,15,24","7,16,25","1,10,19,28"],["பச்சை","இளநீலம்"],["மரகதம்","ஜேட்","டைகர்ஸ் ஐ","மூன்ஸ்டோன்"],["சிகப்பு","ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ"],["3,12,21,30"]],"6-3":[["1,10,19,28","9,18,27"],["இளம்மஞ்சள்","இளநீலம்"],["தங்கபுஷ்பராகம்","கனகபுஷ்பராகம்"],[],[]],"6-4":[["6,15,24","1,10,19,28"],["பச்சை","இளநீலம்","மஞ்சள்"],["மரகதம்","கோமேதகம்"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ","கருப்பு","சிவப்பு"],["3,12,21,30"]],"6-5":[["6,15,24","1,10,19,28","5,14,23"],["பச்சை","நீலம்","சாம்பல்நிறம்","மஞ்சள்"],["மரகதம்"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ"],["3,12,21,30"]],"6-6":[["1,10,19,28","6,15,24","9,18,27"],["பச்சை","வெளிர்நீலம்"],["மரகதம்"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ"],["3,12,21,30"]],"6-7":[["6,15,24","2,11,20,29"],["பச்சை","இளநீலம்","இளம்மஞ்சள்"],["மரகதம்","ஜேட்"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ","சிவப்பு"],["3,12,21,30","9,18,27"]],"6-8":[["6,15,24","5,14,23"],["நீலம்","பச்சை","மஞ்சள்"],["மரகதம்","நீலக்கல்"],["கருப்பு","சிவப்பு","ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ"],["3,12,21,30"]],"6-9":[["6,15,24","9,18,27"],["இளம்பச்சை","சிகப்பு","இளநீலம்"],["மரகதம்","பவளம்"],["ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ"],["3,12,21,30"]],"7-1":[["6,15,24","1,10,19,28","2,11,20,29"],["பச்சை","மஞ்சள்","நீலம்","சந்தனநிறம்"],["மூன்ஸ்டோன்","முத்து","வைடுரியம்","தங்கபுஷ்பராகம்","கனகபுஷ்பராகம்"],["கருப்பு","சிகப்பு"],["9,18,27","8,17,26"]],"7-2":[["6,15,24","2,11,20,29"],["பச்சை","இளநீலம்","மஞ்சள்"],["வைடுரியம்","சந்திரகாந்தக்கல்","டைகர்ஸ் ஐ"],["சிகப்பு"],["9,18,27"]],"7-3":[["2,11,20,29","5,14,23","3,12,21,30"],["இளநீலம்","இளம்மஞ்சள்"],["வைடுரியம்","முத்து","மூன்ஸ்டோன்","டைகர்ஸ் ஐ"],["சிகப்பு"],["9,18,27","6,15,24"]],"7-4":[["6,15,24","1,10,19,28","2,11,20,29"],["பச்சை","மஞ்சள்","நீலம்"],["வைடுரியம்","மூன்ஸ்டோன்","கோமேதகம்","டைகர்ஸ் ஐ"],["சிகப்பு","கருப்பு"],["9,18,27","8,17,26"]],"7-5":[["2,11,20,29","5,14,23","6,15,24"],["பச்சை","மஞ்சள்","சாம்பல்நிறம்","லேசானநீலம்"],["வைடுரியம்","டைகர்ஸ் ஐ","மூன்ஸ்டோன்","வைரம்"],["சிகப்பு","கருப்பு"],["9,18,27"]],"7-6":[["2,11,20,29","6,15,24","1,10,19,28"],["பச்சை","இளநீலம்","இளம்மஞ்சள்"],["வைடுரியம்","மூன்ஸ்டோன்","டைகர்ஸ் ஐ"],["ரோஸ்","ஆரஞ்சு","சிகப்பு","கத்தரிப்பூ"],["9,18,27","3,12,21,30"]],"7-7":[["2,11,20,29","6,15,24","5,14,23"],["பச்சை","இளநீலம்","இளம்மஞ்சள்"],["வைடுரியம்","முத்து","மூன்ஸ்டோன்","டைகர்ஸ் ஐ"],["சிகப்பு"],["9,18,27"]],"7-8":[["2,11,20,29","5,14,23","6,15,24"],["பச்சை","நீலம்","மஞ்சள்"],["வைடுரியம்","மூன்ஸ்டோன்","டைகர்ஸ் ஐ"],["சிகப்பு"],["9,18,27","8,17,26"]],"7-9":[["6,15,24","5,14,23"],["இளநீலம்","இளம்மஞ்சள்","மஞ்சள்"],["வைடுரியம்","மூன்ஸ்டோன்","டைகர்ஸ் ஐ"],[],[]],"8-1":[["5,14,23","6,15,24","1,10,19,28"],["நீலம்","மஞ்சள்"],["நீலக்கல்","கனகபுஷ்பராகம்","நீல அக்வாமரின்"],["கருப்பு","சிகப்பு"],["8,17,26"]],"8-2":[["5,14,23","6,15,24","7,16,25"],["நீலம்","பச்சை","மஞ்சள்"],["நீலக்கல்","வைடுரியம்","சந்திரகாந்தக்கல்","டைகர்ஸ் ஐ"],["கருப்பு","சிகப்பு"],["9,18,27","8,17,26"]],"8-3":[["5,14,23","3,12,21,30","1,10,19,28"],["நீலம்","மஞ்சள்","கத்தரிப்பூ"],["நீலக்கல்","எமிதிஸ்ட்"],["கருப்பு","சிகப்பு","பச்சை"],["8,17,26","6,15,24"]],"8-4":[["5,14,23","6,15,24","1,10,19,28"],["நீலம்","மஞ்சள்"],["நீலக்கல்","இளம்நீலக்கல்","கோமேதகம்"],["கருப்பு","சிகப்பு"],["9,18,27"]],"8-5":[["5,14,23","6,15,24","1,10,19,28"],["நீலம்","மஞ்சள்","சாம்பல்நிறம்"],["நீலக்கல்","வைரம்"],["கருப்பு","சிகப்பு"],["8,17,26"]],"8-6":[["5,14,23","6,15,24","1,10,19,28"],["நீலம்","பச்சை","மஞ்சள்"],["நீலக்கல்","மரகதம்"],["கருப்பு","சிகப்பு"],["3,12,21,30","8,17,26"]],"8-7":[["5,14,23","6,15,24"],["நீலம்","மஞ்சள்","பச்சை"],["முத்து","நீலக்கல்","வைடுரியம்","மூன்ஸ்டோன்"],["கருப்பு","சிகப்பு"],["8,17,26"]],"8-8":[["5,14,23","6,15,24","1,10,19,28"],["நீலம்","மஞ்சள்"],["நீலக்கல்"],["கருப்பு","சிகப்பு"],["9,18,27"]],"8-9":[["5,14,23","6,15,24","9,18,27","1,10,19,28"],["நீலம்","மஞ்சள்"],["நீலக்கல்","நீல அக்வாமரின்"],["கருப்பு","பச்சை"],["8,17,26","7,16,25","2,11,20,29"]],"9-1":[["5,14,23","6,15,24","9,18,27","1,10,19,28"],["இளநீலம்","மஞ்சள்","சிகப்பு"],["பவளம்","மாணிக்கம்","கனகபுஷ்பராகம்","தங்கபுஷ்பராகம்","நவரத்தினம்"],["கருப்பு","பச்சை"],["2,11,20,29","7,16,25"]],"9-2":[["6,15,24","5,14,23"],["இளநீலம்","மஞ்சள்","நீலம்"],["மூன்ஸ்டோன்","வைடுரியம்","டைகர்ஸ் ஐ"],[],[]],"9-3":[["9,18,27","5,14,23","3,12,21,30"],["இளநீலம்","மஞ்சள்","சிகப்பு","கத்தரிப்பூ","ரோஸ்","ஆரஞ்சு"],["பவளம்","எமிதிஸ்ட்","நவரத்தினம்"],["பச்சை"],["2,11,20,29","7,16,25"]],"9-4":[["9,18,27","5,14,23","1,10,19,28","6,15,24"],["இளநீலம்","சிகப்பு","இளம்மஞ்சள்"],["பவளம்","கோமேதகம்","இளம்நீலக்கல்","நவரத்தினம்"],["பச்சை","கருப்பு"],["2,11,20,29","7,16,25"]],"9-5":[["9,18,27","5,14,23","6,15,24"],["இளநீலம்","சிகப்பு","சாம்பல்நிறம்"],["பவளம்","வைரம்","நவரத்தினம்"],["பச்சை"],["2,11,20,29","7,16,25"]],"9-6":[["9,18,27","1,10,19,28","6,15,24"],["இளநீலம்","சிகப்பு","இளம்மஞ்சள்"],["பவளம்"],["கரும்பச்சை","ரோஸ்","ஆரஞ்சு","கத்தரிப்பூ"],["2,11,20,29","7,16,25"]],"9-7":[["6,15,24"],["இளநீலம்","மஞ்சள்"],["மூன்ஸ்டோன்","வைடுரியம்"],[],[]],"9-8":[["6,15,24","5,14,23","9,18,27"],["சிகப்பு","நீலம்","மஞ்சள்"],["பவளம்","நீலக்கல்"],["கருப்பு","காப்பிகலர்","பச்சை"],["2,11,20,29","7,16,25","8,17,26"]],"9-9":[["6,15,24","5,14,23","9,18,27"],["சிகப்பு","நீலம்","மஞ்சள்"],["பவளம்"],["பச்சை"],["2,11,20,29","7,16,25"]]};
+  const PLANETS={1:['Sun','சூரியன்'],2:['Moon','சந்திரன்'],3:['Jupiter','குரு'],4:['Rahu','ராகு'],5:['Mercury','புதன்'],6:['Venus','சுக்கிரன்'],7:['Ketu','கேது'],8:['Saturn','சனி'],9:['Mars','செவ்வாய்']};
+  const LETTER={A:1,J:1,I:1,Y:1,Q:1,B:2,K:2,R:2,C:3,G:3,L:3,S:3,D:4,M:4,T:4,E:5,H:5,N:5,X:5,U:6,V:6,W:6,O:7,Z:7,F:8,P:8};
+  const COLOR_EN={'மஞ்சள்':'Yellow','இளம் நீலம்':'Light Blue','இளநீலம்':'Light Blue','இளம்மஞ்சள்':'Light Yellow','இளமஞ்சள்':'Light Yellow','லேசான நீலம்':'Pale Blue','லேசானநீலம்':'Pale Blue','வெளிர்நீலம்':'Pale Blue','பச்சை':'Green','இளம்பச்சை':'Light Green','வெளிர்பச்சை':'Pale Green','நீலம்':'Blue','கருநீலம்':'Dark Blue','சாம்பல்நிறம்':'Grey','ரோஸ்':'Rose / Pink','ஆரஞ்சு':'Orange','கத்தரிப்பூ':'Violet','கத்தரிப்பூ நிறம்':'Violet','சிகப்பு':'Red','சிவப்பு':'Red','சந்தனகலர்':'Sandal','சந்தனநிறம்':'Sandal','கருப்பு':'Black','காப்பிகலர்':'Coffee / Brown','கரும்பச்சை':'Dark Green'};
+  const GEM_EN={'கனகபுஷ்பராகம்':'Kanaka Pushparagam','மாணிக்கம்':'Ruby','தங்கபுஷ்பராகம்':'Thanga Pushparagam','முத்து':'Pearl','வைடுரியம்':"Cat's Eye",'எமிதிஸ்ட்':'Amethyst','இளம்நீலக்கல்':'Light Blue Stone','வெளிர்நீலக்கல்':'Pale Blue Stone','மரகதம்':'Emerald','எமரால்ட் (மரகதம்)':'Emerald','சந்திரகாந்தக்கல்':'Moonstone','மூன்ஸ்டோன்':'Moonstone','ஜேட்':'Jade','டைகர்ஸ் ஐ':"Tiger's Eye",'கோமேதகம்':'Hessonite','வைரம்':'Diamond','சிர்கான்':'Zircon','ஜிர்கான்':'Zircon','பவளம்':'Coral','நவரத்தினம்':'Navaratna','நீலக்கல்':'Blue Sapphire','நீல அக்வாமரின்':'Blue Aquamarine','வெண்புஷ்பராகம்':'White Pushparagam'};
+  const reduce=n=>{n=Math.abs(Number(n)||0); while(n>9)n=String(n).split('').reduce((a,c)=>a+(+c||0),0); return n||0;};
+  const tamilToLatin=(src)=>{
+    let s=String(src||'').normalize('NFC');
+    const indep={'அ':'A','ஆ':'A','இ':'I','ஈ':'I','உ':'U','ஊ':'U','எ':'E','ஏ':'E','ஐ':'AI','ஒ':'O','ஓ':'O','ஔ':'AU'};
+    const cons={'க':'K','ங':'N','ச':'S','ஞ':'N','ட':'T','ண':'N','த':'T','ந':'N','ப':'P','ம':'M','ய':'Y','ர':'R','ல':'L','வ':'V','ழ':'L','ள':'L','ற':'R','ன':'N','ஜ':'J','ஷ':'S','ஸ':'S','ஹ':'H'};
+    const vowel={'ா':'A','ி':'I','ீ':'I','ு':'U','ூ':'U','ெ':'E','ே':'E','ை':'AI','ொ':'O','ோ':'O','ௌ':'AU'};
+    let out='';
+    for(let i=0;i<s.length;i++){
+      const ch=s[i];
+      if(indep[ch]){out+=indep[ch];continue;}
+      if(cons[ch]){
+        const nx=s[i+1]||''; out+=cons[ch];
+        if(nx==='்'){i++;continue;}
+        if(vowel[nx]){out+=vowel[nx];i++;continue;}
+        out+='A'; continue;
+      }
+      if(/[A-Za-z]/.test(ch))out+=ch.toUpperCase();
+    }
+    return out;
+  };
+  const calc=(name,dob)=>{
+    const parts=String(dob||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!parts)return null;
+    const y=parts[1],m=parts[2],d=parts[3];
+    const body=reduce(Number(d));
+    const life=reduce((y+m+d).split('').reduce((a,c)=>a+(+c||0),0));
+    const latin=/[\u0B80-\u0BFF]/.test(String(name||''))?tamilToLatin(name):String(name||'').toUpperCase();
+    const nameTotal=[...latin].reduce((a,c)=>a+(LETTER[c]||0),0);
+    const nameNumber=nameTotal?reduce(nameTotal):0;
+    return {body,life,nameNumber,nameTotal,latin,profile:MATRIX[body+'-'+life]||null};
+  };
+  const esc=v=>String(v??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const list=(arr,lang,kind)=>{if(!arr||!arr.length)return lang==='ta'?'இல்லை':'None'; return arr.map(x=>lang==='ta'?x:(kind==='color'?(COLOR_EN[x]||x):kind==='gem'?(GEM_EN[x]||x):x)).join(', ');};
+  window.__smvRenderNumerologyModule=function(name,dob,lang){
+    const ta=lang==='ta', r=calc(name,dob);
+    if(!r)return `<div class="adv-section numerology-module"><p class="small">${ta?'எண் கணிதத்திற்கு பிறந்த தேதி தேவை.':'Date of birth is required for Numerology.'}</p></div>`;
+    const p=r.profile||[[],[],[],[],[]];
+    const planet=n=>n?(ta?PLANETS[n][1]:PLANETS[n][0]):'—';
+    const num=n=>n?`${n} (${planet(n)})`:'—';
+    const rows=[
+      [ta?'பிறந்த தேதி':'Date of Birth',dob],
+      [ta?'பெயர்':'Name',name||'—'],
+      [ta?'உடல் எண்':'Body Number',num(r.body)],
+      [ta?'உயிர் எண்':'Life Number',num(r.life)],
+      [ta?'பெயர் எண்':'Name Number',num(r.nameNumber)],
+      [ta?'யோகமான தேதிகள்':'Lucky Dates',list(p[0],lang)],
+      [ta?'யோகமான நிறங்கள்':'Lucky Colors',list(p[1],lang,'color')],
+      [ta?'யோகமான மோதிரக்கல்':'Lucky Gemstones',list(p[2],lang,'gem')],
+      [ta?'ஆகாத நிறங்கள்':'Unfavourable Colors',list(p[3],lang,'color')],
+      [ta?'ஆகாத தேதிகள்':'Unfavourable Dates',list(p[4],lang)]
+    ];
+    const trs=rows.map(x=>`<tr><th style="text-align:left;white-space:normal">${esc(x[0])}</th><td>${esc(x[1])}</td></tr>`).join('');
+    const translit='';
+    return `<div class="adv-section numerology-module"><h3>🔢 ${ta?'எண் கணித முடிவு':'Numerology Result'}</h3><div class="adv-table-wrap"><table class="adv-wide"><tbody>${trs}</tbody></table></div>${translit}</div>`;
+  };
+})();
+
   function renderAdvancedAstrology(data, lang, rootId){
+    window.__smvDeitiesData=data;
     const box=document.getElementById(rootId); if(!box)return;
     const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     // Shared rendering helpers must be initialized before any Phase 1/2/3 section uses them.
@@ -2085,6 +3007,14 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // V166: Preserve the single பாவம் Special Features node created by the
     // core renderer, then place it into the correct Advanced Analysis part.
+
+    /* SMV V8 NUMEROLOGY MODULE APPEND */
+    try{
+      const __numName=(lang==='ta'?document.getElementById('tamilAstroName')?.value:document.getElementById('englishAstroName')?.value)||'';
+      const __numDob=(lang==='ta'?document.getElementById('tamilDob')?.value:document.getElementById('englishDob')?.value)||data?.birthDate||data?.date||'';
+      if(typeof window.__smvRenderNumerologyModule==='function') h+=window.__smvRenderNumerologyModule(__numName,__numDob,lang);
+    }catch(__numErr){console.warn('Numerology section failed:',__numErr);}
+
     const pendingBhavaSpecial=box.querySelector('.bhava-special-features');
     box.innerHTML=ta?__smvRenderTamilHtml(h):h;
     if(pendingBhavaSpecial) box.appendChild(pendingBhavaSpecial);
@@ -2102,7 +3032,7 @@ document.addEventListener('DOMContentLoaded', function(){
       const shell=document.createElement('div');
       shell.className='smv-advanced-shell';
       shell.setAttribute('data-scope','advanced-analysis');
-      shell.setAttribute('data-version','V11-full-five-part-accordion');
+      shell.setAttribute('data-version','V12-six-part-with-numerology');
 
       const quickNav=document.createElement('div');
       quickNav.className='smv-advanced-quick-nav';
@@ -2137,9 +3067,14 @@ document.addEventListener('DOMContentLoaded', function(){
       const tajakaPart=makePart('tajaka-analysis','III. தாஜக பகுப்பாய்வு','III. தாஜக பகுப்பாய்வு','III');
       const transitPart=makePart('transit-analysis','IV. கோச்சார பகுப்பாய்வு','IV. கோச்சார பகுப்பாய்வு','IV');
       const remedyPart=makePart('remedial-analysis','V. பரிகார நடவடிக்கைகள்','V. பரிகார நடவடிக்கைகள்','V');
-      [chartPart,dasaPart,tajakaPart,transitPart,remedyPart].forEach(p=>shell.appendChild(p));
-      const accordionParts=[chartPart,dasaPart,tajakaPart,transitPart,remedyPart];
-      const parts={chart:chartPart,dasa:dasaPart,tajaka:tajakaPart,transit:transitPart,remedy:remedyPart};
+      const numerologyPart=makePart('numerology-analysis','VI. எண் கணிதம்','VI. எண் கணிதம்','VI');
+      const mantraPart=makePart('daily-mantras-analysis','VII. தினசரி வாழ்க்கையில் சொல்ல வேண்டிய மந்திரங்கள்','VII. தினசரி வாழ்க்கையில் சொல்ல வேண்டிய மந்திரங்கள்','VII');
+      const adhidevataPart=makePart('adhidevata-analysis','VIII. அதிதேவதைகள்','VIII. அதிதேவதைகள்','VIII');
+      const deitiesPart=makePart('deities-analysis','IX. தெய்வங்கள்','IX. தெய்வங்கள்','IX');
+      [chartPart,dasaPart,tajakaPart,transitPart,remedyPart,numerologyPart,mantraPart,adhidevataPart,deitiesPart].forEach(p=>shell.appendChild(p));
+      const accordionParts=[chartPart,dasaPart,tajakaPart,transitPart,remedyPart,numerologyPart,mantraPart,adhidevataPart,deitiesPart];
+      const parts={chart:chartPart,dasa:dasaPart,tajaka:tajakaPart,transit:transitPart,remedy:remedyPart,numerology:numerologyPart,mantras:mantraPart,adhidevata:adhidevataPart,deities:deitiesPart};
+      setTimeout(()=>window.__smvRenderDeitiesV92?.(deitiesPart,'ta',data),0);
 
       const textOf=n=>String(n.querySelector?.('h2,h3,h4,h5')?.textContent || n.textContent || '').toLowerCase();
       const classify=(node)=>{
@@ -2149,9 +3084,90 @@ document.addEventListener('DOMContentLoaded', function(){
         if(node.classList.contains('tajaka-module') || /tajaka analysis|tajaka aspects|tajaka yogas|harsha bala|pratyayini|patyayini/.test(txt)) return tajakaPart;
         if(node.classList.contains('book-transit-analysis') || node.classList.contains('topic26-special') || /kota chakra|கோட்டா சக்கரம்|sudarshana|sudharsana|sarvatobhadra|சுதர்சன|சர்வதோபத்ர|planetary transit|transit analysis|special nakshatra transit/.test(txt)) return transitPart;
         if(node.classList.contains('remedial-module') || /remedial measures|பரிகார|remedial/.test(txt)) return remedyPart;
+        if(node.classList.contains('numerology-module') || /numerology|எண் கணித/.test(txt)) return numerologyPart;
         return chartPart;
       };
       direct.forEach(n=>{const target=classify(n); if(target) (target.__smvContent||target).appendChild(n);});
+      (mantraPart.__smvContent||mantraPart).insertAdjacentHTML('beforeend', `
+<div class="smv-fixed-text-section smv-vii-text">
+<h3>🙏 தினசரி வாழ்க்கையில் சொல்ல வேண்டிய மந்திரங்கள்</h3>
+
+<h4>நோய்கள் விரைவில் குணமடைய</h4>
+<div class="smv-mantra">ஓம் நமோ பகவதே வாஸுதேவாய தன்வந்த்ரயே அம்ருத கலச ஹஸ்தாய<br>
+ஸர்வ ஆமய நாசனாய த்ரைலோக்ய நாதாய ஸ்ரீ மஹா விஷ்ணவே நம: ।</div>
+
+<h4>சகல காரிய சித்தி தரும் ஸ்ரீ சுதர்சன மாலா மந்திரம்</h4>
+<div class="smv-mantra">ஓம் ஸ்ரீம் ஹ்ரீம் க்லீம் க்ருஷ்ணாய கோவிந்தாய கோபீஜன வல்லபாய பராய பரமபுருஷாய பரமாத்மனே பரகர்ம மந்த்ர யந்த்ர தந்த்ர ஔஷத அஸ்த்ர சஸ்த்ராணி ஸம்ஹர ஸம்ஹர ம்ருத்யோர் மோசய மோசய ஓம் நமோ பகவதே மஹா சுதர்சனாய தீப்த்ரே ஜ்வாலா பரீதாய ஸர்வ திக்ஷோபணகராய ஹூம் பட் ப்ரஹ்மணே பரஞ்ஜோதிஷே ஸ்வாஹா ।</div>
+
+<h4>குழந்தை செல்வம் பெற ஸ்ரீ சந்தான கோபால மந்திரம்</h4>
+<div class="smv-mantra">ஓம் தேவகீ ஸுத கோவிந்த வாஸுதேவ ஜகத்பதே ।<br>
+தேஹிமே தனயம் கிருஷ்ண த்வாமஹம் சரணம் கத: ॥<br>
+தேவ தேவ ஜகந்நாத கோத்ர விருத்தி கரோ ப்ரபு: ।<br>
+தேஹிமே தனயம் சீக்ரம் ஆயுஷ்மந்தம் யசஸ்வினம் ॥</div>
+
+<h4>ஸ்ரீ அஷ்ட லக்ஷ்மி மாலா மந்திரம்</h4>
+<div class="smv-mantra">ஓம் நமோ பகவதே லோக வசீகர மோஹினி, ஓம் ஸ்ரீம் ஹ்ரீம் க்லீம், ஸ்ரீ ஆதிலக்ஷ்மி, ஸந்தான லக்ஷ்மி, கஜலக்ஷ்மி, தனலக்ஷ்மி, தான்யலக்ஷ்மி, விஜயலக்ஷ்மி, வீரலக்ஷ்மி, ஐஸ்வர்யலக்ஷ்மி, அஷ்டலக்ஷ்மி, யோகதாய மம ஹ்ருதயே திருடயா ஸ்திதிதா, ஸர்வலோக வசகராய, ஸர்வஜன வசகராய, ஸர்வ கார்ய சித்திதே குரு குரு, ஓம் நமோ பகவதே ஸ்ரீ மஹாலக்ஷ்மி ஹ்ரீம் பட் ஸ்வாஹா ।</div>
+
+<h4>குழந்தைகள் கல்வி அறிவு பெற – ஸ்ரீ லக்ஷ்மி ஹயக்ரீவ மந்திரம்</h4>
+<div class="smv-mantra">ஞானானந்த மயம் தேவம் நிர்மல ஸ்படிகாக்ருதிம் ।<br>
+ஆதாரம் ஸர்வ வித்யானாம் ஹயக்ரீவம் உபாஸ்மஹே ॥</div>
+
+<h4>விரைவில் திருமணம் நடக்க – ஸ்ரீ சுயம்வரா பார்வதி மந்திரம்</h4>
+<div class="smv-mantra">ஓம் ஹ்ரீம் யோகினி யோகினி யோகேஸ்வரி யோக பயங்கரி ।<br>
+ஸகல ஸ்தாவர ஜங்கமஸ்ய முகஹ்ருதயம் மமவசம் ஆகர்ஷய ஸ்வாஹா ॥</div>
+
+<h4>ஸ்ரீ லக்ஷ்மி நாராயணன் அருள் பெற – மஹாலக்ஷ்மி மூல மந்திரம்</h4>
+<div class="smv-mantra">ஓம் ஸ்ரீம் ஹ்ரீம் ஸ்ரீம் கமலே கமலாலயே ।<br>
+ப்ரஸீத ப்ரஸீத ஸ்ரீம் ஹ்ரீம் ஸ்ரீம் ஓம் மஹாலக்ஷ்ம்யை நம: ॥</div>
+
+<h4>மஹாலக்ஷ்மி காயத்ரி மந்திரம்</h4>
+<div class="smv-mantra">ஓம் மஹாதேவ்யை ச வித்மஹே விஷ்ணுபத்ந்யை ச தீமஹி ।<br>
+தந்நோ லக்ஷ்மி: ப்ரசோதயாத் ॥</div>
+
+<h4>ஸ்ரீ ஆஞ்சநேயர் பரிபூரண கடாக்ஷம் பெற – பஞ்சமுக ஆஞ்சநேயர் மாலா மந்திரம்</h4>
+<div class="smv-mantra">ஓம் ராமதூதாய ஆஞ்சநேயாய வாயு புத்ராய மஹா பலாய<br>
+ஸீதா சோக நிவாரணாய, லங்கா விதாஹநாய,<br>
+மஹா பலப்ரசண்டாய பல்குணஸகாய,<br>
+கோலாஹல ஸகல ப்ரஹ்மாண்ட நாயகாய,<br>
+ஸப்த ஸமுத்ர நிராலங்க்ருதாய,<br>
+பிங்கல நயனாய அமித விக்ரமாய,<br>
+ஸூர்ய பிம்ப பலசேவகாய, துஷ்ட நிவாரணகராய,<br>
+ஸஞ்ஜீவினி ஸமாநய மஹாருத்ராய அங்கத லக்ஷ்மண<br>
+கபி ஸைந்ய ப்ராண நிர்வாஹகாய,<br>
+தசகண்ட வித்வம்ஸனாய ராமேஷ்டாய பல்குணஸகாய<br>
+ஸீதா ஹனுமத் ராமசந்த்ர பரமாத்மனே ஓம் ப்ரயோகாங்க<br>
+பஞ்ச முகி ஹனுமதே நம: ।</div>
+
+<h4>பிறவிக் கடன் தீர்க்கும் ஸ்ரீ நரசிம்ம மஹா மந்திரம்</h4>
+<div class="smv-mantra">ஓம் உக்ரம் வீரம் மஹா விஷ்ணும் ஜ்வலந்தம் ஸர்வதோ முகம் ।<br>
+ந்ருஸிம்ஹம் பீஷணம் பத்ரம் ம்ருத்யும் ம்ருத்யும் நமாம்யஹம் ॥</div>
+
+<h4>யம பயம் போக்கும் மஹா ம்ருத்யுஞ்ஜய ஸ்தோத்திரம்</h4>
+<div class="smv-mantra">ஓம் த்ரியம்பகம் யஜாமஹே ஸுகந்திம் புஷ்டிவர்த்தனம் ।<br>
+உர்வாருகமிவ பந்தனான் ம்ருத்யோர் முக்ஷீய மாம்ருதாத் ॥</div>
+
+<p class="smv-note-fixed">இந்த VII பகுதி அனைத்து ஜாதகங்களுக்கும் ஒரே மாதிரியாக காண்பிக்கப்படும் நிரந்தர பகுதி.</p>
+</div>
+`);
+      (adhidevataPart.__smvContent||adhidevataPart).insertAdjacentHTML('beforeend', `
+<div class="smv-fixed-text-section smv-viii-adhidevata">
+<h3>🕉️ அதிதேவதைகள்</h3>
+<p>நட்சத்திரம், திதி, யோகம், கரணம் ஆகியவற்றிற்கு உரிய அதிதேவதைகள் கீழே நிரந்தர reference ஆக வழங்கப்பட்டுள்ளன.</p>
+
+<h4>27 நட்சத்திரங்கள் – அதிதேவதைகள்</h4>
+<div class="adv-table-wrap smv-viii-table-scroll"><table class="smv-ref-table"><tr><th>நட்சத்திரம்</th><th>அதிதேவதை / வழிபாட்டு தெய்வம்</th></tr><tr><td>அஸ்வினி</td><td>ஸ்ரீ சரஸ்வதி தேவி</td></tr><tr><td>பரணி</td><td>ஸ்ரீ துர்காதேவி (அஷ்டபுஜம்)</td></tr><tr><td>கார்த்திகை</td><td>ஸ்ரீ சரஹணபவன் / முருகப்பெருமான்</td></tr><tr><td>ரோகிணி</td><td>ஸ்ரீ கிருஷ்ணர் / விஷ்ணு</td></tr><tr><td>மிருகசீரிடம்</td><td>ஸ்ரீ சந்திர சூடேஸ்வரர் / சிவபெருமான்</td></tr><tr><td>திருவாதிரை</td><td>ஸ்ரீ சிவபெருமான்</td></tr><tr><td>புனர்பூசம்</td><td>ஸ்ரீ ராமர் / விஷ்ணு</td></tr><tr><td>பூசம்</td><td>ஸ்ரீ தட்சிணாமூர்த்தி / சிவபெருமான்</td></tr><tr><td>ஆயில்யம்</td><td>ஸ்ரீ ஆதிசேஷன் / நாகம்மாள்</td></tr><tr><td>மகம்</td><td>ஸ்ரீ சூரிய பகவான் / சூரிய நாராயணர்</td></tr><tr><td>பூரம்</td><td>ஸ்ரீ ஆண்டாள் தேவி</td></tr><tr><td>உத்திரம்</td><td>ஸ்ரீ மகாலட்சுமி தேவி</td></tr><tr><td>ஹஸ்தம்</td><td>ஸ்ரீ காயத்திரி தேவி</td></tr><tr><td>சித்திரை</td><td>ஸ்ரீ சக்கரத்தாழ்வார்</td></tr><tr><td>சுவாதி</td><td>ஸ்ரீ நரசிம்மமூர்த்தி</td></tr><tr><td>விசாகம்</td><td>ஸ்ரீ முருகப்பெருமான்</td></tr><tr><td>அனுசம்</td><td>ஸ்ரீ லட்சுமி நாராயணர்</td></tr><tr><td>கேட்டை</td><td>ஸ்ரீ வராஹ பெருமாள் / ஹயக்ரீவர்</td></tr><tr><td>மூலம்</td><td>ஸ்ரீ ஆஞ்சநேயர்</td></tr><tr><td>பூராடம்</td><td>ஸ்ரீ ஜம்புகேஸ்வரர் / சிவபெருமான்</td></tr><tr><td>உத்திராடம்</td><td>ஸ்ரீ விநாயகப் பெருமான்</td></tr><tr><td>திருவோணம்</td><td>ஸ்ரீ ஹயக்ரீவர் / விஷ்ணு</td></tr><tr><td>அவிட்டம்</td><td>ஸ்ரீ அனந்த சயனப் பெருமாள் / விஷ்ணு</td></tr><tr><td>சதயம்</td><td>ஸ்ரீ மிருத்யுஞ்ஜேஸ்வரர் / சிவபெருமான்</td></tr><tr><td>பூரட்டாதி</td><td>ஸ்ரீ ஏகபாதர் / சிவபெருமான்</td></tr><tr><td>உத்திரட்டாதி</td><td>ஸ்ரீ மகா ஈஸ்வரர் / சிவபெருமான்</td></tr><tr><td>ரேவதி</td><td>ஸ்ரீ அரங்கநாதன்</td></tr></table></div>
+
+<h4>திதிகள் – அதிதேவதைகள்</h4><h4>வளர்பிறை</h4><div class="adv-table-wrap smv-tithi-table-scroll"><table class='smv-ref-table smv-tithi-table'><tr><th>திதி</th><th>அதிதேவதை</th></tr><tr><td>பிரதமை</td><td>குபேரன் மற்றும் பிரம்மா</td></tr><tr><td>துவிதியை</td><td>பிரம்மா</td></tr><tr><td>திரிதியை</td><td>சிவன் மற்றும் கௌரி மாதா</td></tr><tr><td>சதுர்த்தி</td><td>எமன் மற்றும் விநாயகர்</td></tr><tr><td>பஞ்சமி</td><td>திரிபுரசுந்தரி</td></tr><tr><td>சஷ்டி</td><td>செவ்வாய்</td></tr><tr><td>சப்தமி</td><td>ரிஷி மற்றும் இந்திரன்</td></tr><tr><td>அஷ்டமி</td><td>காலபைரவர்</td></tr><tr><td>நவமி</td><td>சரஸ்வதி</td></tr><tr><td>தசமி</td><td>வீரபத்திரர் மற்றும் தர்மராஜன்</td></tr><tr><td>ஏகாதசி</td><td>மகா ருத்ரன் மற்றும் மகாவிஷ்ணு</td></tr><tr><td>துவாதசி</td><td>மகாவிஷ்ணு</td></tr><tr><td>திரயோதசி</td><td>மன்மதன்</td></tr><tr><td>சதுர்த்தசி</td><td>காளி</td></tr><tr><td>பௌர்ணமி</td><td>லலிதாம்பிகை</td></tr></table></div><h4>தேய்பிறை</h4><div class="adv-table-wrap smv-tithi-table-scroll"><table class='smv-ref-table smv-tithi-table'><tr><th>திதி</th><th>அதிதேவதை</th></tr><tr><td>பிரதமை</td><td>துர்க்கை</td></tr><tr><td>துவிதியை</td><td>வாயு</td></tr><tr><td>திரிதியை</td><td>அக்னி</td></tr><tr><td>சதுர்த்தி</td><td>எமன் மற்றும் விநாயகர்</td></tr><tr><td>பஞ்சமி</td><td>நாகதேவதை</td></tr><tr><td>சஷ்டி</td><td>முருகன்</td></tr><tr><td>சப்தமி</td><td>சூரியன்</td></tr><tr><td>அஷ்டமி</td><td>மகா ருத்ரன் மற்றும் துர்க்கை</td></tr><tr><td>நவமி</td><td>சரஸ்வதி</td></tr><tr><td>தசமி</td><td>எமன் மற்றும் துர்க்கை</td></tr><tr><td>ஏகாதசி</td><td>மகா ருத்ரன் மற்றும் மகாவிஷ்ணு</td></tr><tr><td>துவாதசி</td><td>சுக்ரன்</td></tr><tr><td>திரயோதசி</td><td>நந்தி</td></tr><tr><td>சதுர்த்தசி</td><td>ருத்ரர்</td></tr><tr><td>அமாவாசை</td><td>பித்ருக்கள் மற்றும் காளி</td></tr></table></div>
+
+<h4>27 யோகங்கள் – அதிதேவதைகள்</h4>
+<div class="adv-table-wrap smv-viii-table-scroll"><table class="smv-ref-table"><tr><th>யோகம்</th><th>அதிதேவதை</th></tr><tr><td>விஷ்கம்பம்</td><td>எமன்</td></tr><tr><td>ப்ரீதி</td><td>விஷ்ணு</td></tr><tr><td>ஆயுஷ்மான்</td><td>சந்திரன்</td></tr><tr><td>சௌபாக்யம்</td><td>பிரம்மா</td></tr><tr><td>சோபனம்</td><td>பிருஹஸ்பதி</td></tr><tr><td>அதிகண்டம்</td><td>சந்திரன்</td></tr><tr><td>சுகர்மம்</td><td>இந்திரன்</td></tr><tr><td>திருதி</td><td>ஜலம்</td></tr><tr><td>சூலம்</td><td>நாகதேவதை</td></tr><tr><td>கண்டம்</td><td>அக்னி</td></tr><tr><td>விருத்தி</td><td>சூரியன்</td></tr><tr><td>துருவம்</td><td>பூமி தேவதை</td></tr><tr><td>வியாகாதம்</td><td>வாயு</td></tr><tr><td>ஹர்ஷணம்</td><td>பக தேவதை</td></tr><tr><td>வஜ்ரம்</td><td>வருணன்</td></tr><tr><td>சித்தி</td><td>விநாயகர்</td></tr><tr><td>வியதீபாதம்</td><td>ருத்ரர்</td></tr><tr><td>வரியான்</td><td>குபேரன்</td></tr><tr><td>பரிகம்</td><td>விஸ்வகர்மா</td></tr><tr><td>சிவம்</td><td>மித்திர தேவதை</td></tr><tr><td>சித்தம்</td><td>கார்த்திகேயன்</td></tr><tr><td>சாத்தியம்</td><td>சாவித்திரி</td></tr><tr><td>சுபம்</td><td>லக்ஷ்மி</td></tr><tr><td>சுக்லம்</td><td>பார்வதி</td></tr><tr><td>பிரம்மம்</td><td>அஸ்வினி தேவர்கள்</td></tr><tr><td>ஐந்திரம்</td><td>பித்ருக்கள்</td></tr><tr><td>வைதிருதி</td><td>திருதி</td></tr></table></div>
+
+<h4>11 கரணங்கள் – கரணநாதன், விலங்கு, அதிதேவதை, கோவில்</h4>
+<div class="adv-table-wrap smv-viii-table-scroll"><table class="smv-ref-table smv-karana-source-table"><tr><th>கரணம்</th><th>கிரகம் / கரணநாதன்</th><th>விலங்கு</th><th>அதிதேவதை</th><th>வழிபட வேண்டிய கோவில்</th></tr><tr><td>பவம்</td><td>செவ்வாய்</td><td>சிங்கம்</td><td>நரசிம்மர்</td><td>நாமக்கல் லட்சுமி நரசிம்மர் கோவில்</td></tr><tr><td>பாலவம்</td><td>ராகு</td><td>புலி</td><td>ஐயப்பன்</td><td>சபரிமலை ஐயப்பன் கோவில் / கிராம தேவதைகள்</td></tr><tr><td>கௌலவம்</td><td>சனி</td><td>பன்றி</td><td>ஸ்ரீ வராகமூர்த்தி</td><td>கடலூர் மாவட்டம் ஸ்ரீமுஷ்ணம் ஸ்ரீ வராகமூர்த்தி கோவில்</td></tr><tr><td>தைதுலம்</td><td>சுக்கிரன்</td><td>கழுதை</td><td>ஜேஷ்டாதேவி</td><td>காஞ்சிபுரம் மாவட்டம் பெருநகரில் உள்ள பிரம்மபுரீஸ்வரர் கோவிலில் உள்ள ஜேஷ்டாதேவி</td></tr><tr><td>கரசை</td><td>சந்திரன்</td><td>யானை</td><td>விநாயகர்</td><td>பிள்ளையார்பட்டி விநாயகர் கோவில்</td></tr><tr><td>வணிசை</td><td>சூரியன்</td><td>காளைமாடு</td><td>நந்தி</td><td>அரியலூர் மாவட்டம் திருமழபாடி சிவன் கோவிலில் உள்ள நந்தி பகவான்</td></tr><tr><td>பத்திரை</td><td>கேது</td><td>கோழி</td><td>முருகன்</td><td>திருச்செந்தூர் முருகன் கோவில்</td></tr><tr><td>சகுனி</td><td>சனி</td><td>காகம்</td><td>சனீஸ்வரன்</td><td>திருநள்ளாறு சனீஸ்வரன் கோவில்</td></tr><tr><td>சதுஷ்பாதம்</td><td>குரு</td><td>நாய்</td><td>பைரவர்</td><td>கும்பகோணம்–குத்தாலம், க்ஷேத்திரபாலபுரத்தில் உள்ள காலபைரவர்</td></tr><tr><td>நாகவம்</td><td>ராகு</td><td>பாம்பு</td><td>நாகராஜா</td><td>நாகர்கோவில் நாகராஜா கோவில்</td></tr><tr><td>கிம்ஸ்துக்னம்</td><td>புதன்</td><td>புழு / அட்டை</td><td>ஸ்ரீரங்கம் ரங்கநாதர் அல்லது தன்வந்திரி</td><td>ஸ்ரீரங்கம் ரங்கநாதர் கோவில் அல்லது வைத்தீஸ்வரன் கோவிலில் உள்ள தன்வந்திரி ஜீவசமாதி</td></tr></table></div>
+
+
+</div>
+`);
 
       const lagnaSlot=rootHost?.querySelector?.('#specialLagnasNextToNavamsa');
       if(lagnaSlot && lagnaSlot.parentElement!==chartPart.__smvContent){const wrap=document.createElement('div');wrap.className='adv-section phase1-module special-lagnas-moved';wrap.appendChild(lagnaSlot);chartPart.__smvContent.appendChild(wrap);}
@@ -2530,22 +3546,138 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   
 function renderBirthTimePanchang(p,lang,fallbackDate='',fallbackTime=''){
-    const ta=lang==='ta', enM=['January','February','March','April','May','June','July','August','September','October','November','December'],taM=['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
-    const date=String(p?.requested?.date||fallbackDate||''),tm=String(p?.requested?.time||fallbackTime||''); let text=date,dm=date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const ta=lang==='ta',
+      enM=['January','February','March','April','May','June','July','August','September','October','November','December'],
+      taM=['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
+
+    const date=String(p?.requested?.date||fallbackDate||''),
+          tm=String(p?.requested?.time||fallbackTime||'');
+    let text=date,dm=date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+    const e=v=>String(v??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const f=v=>{if(v&&typeof v==='object')v=v.name??v.label??v.value??'';return e(v)};
+    const valueOf=v=>{if(v&&typeof v==='object')return v.name??v.label??v.value??'';return v??''};
+
+    let gy=null,gm=null,gd=null;
     if(dm){
-      const y=+dm[1],m=+dm[2],d=+dm[3],ts=p?.tamilSolar;
+      gy=+dm[1]; gm=+dm[2]; gd=+dm[3];
+      const ts=p?.tamilSolar;
       if(ts && ts.monthTa && Number.isFinite(Number(ts.day))){
-        text=`${ta?ts.monthTa:ts.monthEn} - ${ts.day}, ${ta?taM[m-1]:enM[m-1]} ${d}, ${y}`;
+        text=`${ta?ts.monthTa:ts.monthEn} - ${ts.day}, ${ta?taM[gm-1]:enM[gm-1]} ${gd}, ${gy}`;
       } else {
-        // Never fabricate a historical Tamil month. Show the Gregorian date until the backend calculation is available.
-        text=`${ta?'தமிழ் தேதி':'Tamil date'}, ${ta?taM[m-1]:enM[m-1]} ${d}, ${y}`;
+        text=`${ta?'தமிழ் தேதி':'Tamil date'}, ${ta?taM[gm-1]:enM[gm-1]} ${gd}, ${gy}`;
       }
     }
-    const e=v=>String(v??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const f=v=>{if(v&&typeof v==='object')v=v.name??v.label??v.value??'';return e(v)}; const horaNames=ta?{Sun:'சூரியன்',Moon:'சந்திரன்',Mars:'செவ்வாய்',Mercury:'புதன்',Jupiter:'குரு',Venus:'சுக்கிரன்',Saturn:'சனி'}:{Sun:'Sun',Moon:'Moon',Mars:'Mars',Mercury:'Mercury',Jupiter:'Jupiter',Venus:'Venus',Saturn:'Saturn'};
-    const birthTimeMinutes=(()=>{const m=tm.match(/^(\d{1,2}):(\d{2})$/);if(!m)return null;const hh=Number(m[1]),mm=Number(m[2]);return hh>=0&&hh<24&&mm>=0&&mm<60?hh*60+mm:null;})();
-    const horaForBirth=Array.isArray(p?.hora)&&birthTimeMinutes!=null?p.hora.find(h=>{const st=Number(h?.start),en=Number(h?.end);if(!Number.isFinite(st)||!Number.isFinite(en))return false;return st<=en?birthTimeMinutes>=st&&birthTimeMinutes<en:birthTimeMinutes>=st||birthTimeMinutes<en;}):null;
+
+    const traditionalStart=(gy==null)?null:((gm>4||(gm===4&&gd>=14))?gy:gy-1);
+    const delta=(traditionalStart==null)?0:traditionalStart-2026;
+    const range=(n)=>`${n}\u2013${n+1}`;
+
+    const cycleEn=[
+      'Prabhava','Vibhava','Shukla','Pramodoota','Prajotpatti','Angirasa','Srimukha','Bhava','Yuva','Dhata',
+      'Ishvara','Bahudhanya','Pramadi','Vikrama','Vrisha','Chitrabhanu','Svabhanu','Tarana','Parthiva','Vyaya',
+      'Sarvajit','Sarvadhari','Virodhi','Vikruti','Khara','Nandana','Vijaya','Jaya','Manmatha','Durmukhi',
+      'Hevilambi','Vilambi','Vikari','Sharvari','Plava','Shubhakrit','Shobhakrit','Krodhi','Vishvavasu','Parabhava',
+      'Plavanga','Kilaka','Saumya','Sadharana','Virodhikrit','Paridhavi','Pramadicha','Ananda','Rakshasa','Nala',
+      'Pingala','Kalayukti','Siddharthi','Raudri','Durmati','Dundubhi','Rudhirodgari','Raktakshi','Krodhana','Akshaya'
+    ];
+    const cycleTa=[
+      'பிரபவ','விபவ','சுக்ல','பிரமோதூத','பிரசோற்பத்தி','ஆங்கீரச','ஸ்ரீமுக','பவ','யுவ','தாது',
+      'ஈஸ்வர','வெகுதானிய','பிரமாதி','விக்கிரம','விஷு','சித்திரபானு','சுபானு','தாரண','பார்த்திப','விய',
+      'சர்வஜித்','சர்வதாரி','விரோதி','விகிருதி','கர','நந்தன','விஜய','ஜய','மன்மத','துன்முகி',
+      'ஹேவிளம்பி','விளம்பி','விகாரி','சார்வரி','பிலவ','சுபகிருது','சோபகிருது','குரோதி','விசுவாவசு','பராபவ',
+      'பிலவங்க','கீலக','சௌமிய','சாதாரண','விரோதிகிருது','பரிதாபி','பிரமாதீச','ஆனந்த','ராட்சச','நள',
+      'பிங்கள','காளயுக்தி','சித்தார்த்தி','ரௌத்திரி','துன்மதி','துந்துபி','ருத்ரோத்காரி','ரக்தாட்சி','குரோதன','அட்சய'
+    ];
+    const mod=(n,m)=>((n%m)+m)%m;
+    const southIndex=traditionalStart==null?39:mod(traditionalStart-1987,60);
+    const northIndex=traditionalStart==null?50:mod(50+delta,60);
+
+    const eraRows=[
+      [ta?'கலியுகாதி':'Kali Yuga', 5128+delta],
+      [ta?'சாலிவாகன':'Salivahana (Shaka)', 1948+delta],
+      [ta?'கொல்லமாண்டு':'Kollam Era', range(1201+delta)],
+      [ta?'திருவள்ளுவர்':'Thiruvalluvar Year', range(2057+delta)],
+      [ta?'விக்கிரம சகாப்தம்':'Vikrama Sakabda', range(2083+delta)],
+      [ta?'தென்னிந்திய ஆண்டு':'South Indian Year', ta?cycleTa[southIndex]:cycleEn[southIndex]],
+      [ta?'சௌராஷ்டிர விஜயம்':'Saurashtra Vijaya', 714+delta],
+      [ta?'ஸ்ரீராமானுஜப்தம்':'Sri Ramanujabdam', 1010+delta],
+      [ta?'ஆங்கில ஆண்டு':'English Year', range(2026+delta)],
+      [ta?'பசலி':'Fasli', range(1435+delta)],
+      [ta?'பிரபவாதி':'Prabhavadi', `${southIndex+1}${ta?'வது':'th'}`],
+      [ta?'வட இந்திய ஆண்டு':'North Indian Year', ta?cycleTa[northIndex]:cycleEn[northIndex]]
+    ];
+
+    const horaNames=ta
+      ?{Sun:'சூரியன்',Moon:'சந்திரன்',Mars:'செவ்வாய்',Mercury:'புதன்',Jupiter:'குரு',Venus:'சுக்கிரன்',Saturn:'சனி'}
+      :{Sun:'Sun',Moon:'Moon',Mars:'Mars',Mercury:'Mercury',Jupiter:'Jupiter',Venus:'Venus',Saturn:'Saturn'};
+    const birthTimeMinutes=(()=>{
+      const m=tm.match(/^(\d{1,2}):(\d{2})$/);
+      if(!m)return null;
+      const hh=Number(m[1]),mm=Number(m[2]);
+      return hh>=0&&hh<24&&mm>=0&&mm<60?hh*60+mm:null;
+    })();
+    const horaForBirth=Array.isArray(p?.hora)&&birthTimeMinutes!=null
+      ?p.hora.find(h=>{
+        const st=Number(h?.start),en=Number(h?.end);
+        if(!Number.isFinite(st)||!Number.isFinite(en))return false;
+        return st<=en?birthTimeMinutes>=st&&birthTimeMinutes<en:birthTimeMinutes>=st||birthTimeMinutes<en;
+      }):null;
     const horaHtml=`<div class="birth-hora-single"><span>${e(horaNames[horaForBirth?.planetEn]||horaForBirth?.planetEn||'—')}</span></div>`;
-    return `<div class="card birth-time-panchang" style="margin:0 0 18px"><h3>📅 ${ta?'பிறந்த பஞ்சாங்கம்':'Birth Panchang'}</h3><div class="small">${ta?'திருக்கணித பஞ்சாங்க கணிப்பு':'Thirukanitha Panchang calculation'}</div><div class="birth-panchang-grid"><div><b>${ta?'தமிழ் தேதி + ஆங்கில தேதி':'Tamil Date + Gregorian Date'}</b><span>${e(text)}</span></div><div><b>${ta?'பிறந்த நேரம்':'Birth Time'}</b><span>${e(tm)}</span></div><div><b>${ta?'வாரம்':'Vara'}</b><span>${f(p?.vara)}</span></div><div><b>${ta?'சூரிய ராசி':'Sun Sign'}</b><span>${f(p?.solarSign)}</span></div><div><b>${ta?'சந்திர ராசி':'Moon Sign'}</b><span>${f(p?.moonSign)}</span></div><div><b>${ta?'திதி':'Tithi'}</b><span>${f(p?.tithi?.name||p?.tithi?.group)} · ${f(p?.tithi?.half)}<small>${ta?'தொடக்கம்':'Start'}: ${e(p?.tithi?.start)} · ${ta?'முடிவு':'End'}: ${e(p?.tithi?.end)}</small></span></div><div><b>${ta?'நட்சத்திரம்':'Nakshatra'}</b><span>${f(p?.nakshatra?.name)} · ${e(p?.nakshatra?.pada||'')}<small>${ta?'தொடக்கம்':'Start'}: ${e(p?.nakshatra?.start)} · ${ta?'முடிவு':'End'}: ${e(p?.nakshatra?.end)}</small></span></div><div><b>${ta?'யோகம்':'Yoga'}</b><span>${f(p?.yoga?.name)}<small>${ta?'தொடக்கம்':'Start'}: ${e(p?.yoga?.start)} · ${ta?'முடிவு':'End'}: ${e(p?.yoga?.end)}</small></span></div><div><b>${ta?'கரணம்':'Karana'}</b><span>${f(p?.karana?.name)}<small>${ta?'தொடக்கம்':'Start'}: ${e(p?.karana?.start)} · ${ta?'முடிவு':'End'}: ${e(p?.karana?.end)}</small></span></div><div><b>${ta?'சூரிய உதயம்':'Sunrise'}</b><span>${e(p?.sunrise)}</span></div><div><b>${ta?'சூரிய அஸ்தமனம்':'Sunset'}</b><span>${e(p?.sunset)}</span></div><div><b>${ta?'அயனாம்சம்':'Ayanamsa'}</b><span>${e(p?.ayanamsa)}</span></div><div><b>${ta?'ராகு காலம்':'Rahu Kalam'}</b><span>${e(p?.rahuKalam)}</span></div><div><b>${ta?'எமகண்டம்':'Yamagandam'}</b><span>${e(p?.yamagandam)}</span></div><div><b>${ta?'குளிகை':'Gulikai'}</b><span>${e(p?.gulikai)}</span></div><div><b>${ta?'நல்ல நேரம்':'Nalla Neram'}</b><span>${Array.isArray(p?.nallaNeram)?p.nallaNeram.map(e).join(' · '):e(p?.nallaNeram)}</span></div></div><div class="hora-section"><b>${ta?'ஹோரா':'Hora'}</b>${horaHtml}</div></div>`;
+
+    const ts=p?.tamilSolar||{};
+    const tamilDate=(ts?.monthTa&&Number.isFinite(Number(ts?.day)))
+      ?`${ta?ts.monthTa:(ts.monthEn||ts.monthTa)} ${ts.day}`:'—';
+    const vara=valueOf(p?.vara)||'—',
+          tithi=valueOf(p?.tithi?.name||p?.tithi?.group)||'—',
+          paksha=valueOf(p?.tithi?.half)||'—',
+          nak=valueOf(p?.nakshatra?.name)||'—',
+          pada=p?.nakshatra?.pada||'—',
+          yoga=valueOf(p?.yoga?.name)||'—',
+          karana=valueOf(p?.karana?.name)||'—',
+          sunSign=valueOf(p?.solarSign)||'—',
+          moonSign=valueOf(p?.moonSign)||'—';
+
+    const invocation=ta?'ஓம் ஸ்ரீ மதுரை வீரன் துணை':'Om Sri Madurai Veeran Thunai';
+
+    const summarySentence=ta
+      ?`${e(tamilDate)} (${e(text)}) அன்று ${e(tm||'—')} மணிக்கு, ${e(vara)} வாரத்தில், ${e(tithi)} ${e(paksha)} திதி, ${e(nak)} நட்சத்திரம் ${e(pada)}-ஆம் பாதம், ${e(yoga)} யோகம், ${e(karana)} கரணம், ${e(sunSign)} சூரிய ராசி மற்றும் ${e(moonSign)} சந்திர ராசி நிலையில் பிறப்பு பஞ்சாங்கம் அமைந்துள்ளது.`
+      :`For ${e(tamilDate)} (${e(text)}) at ${e(tm||'—')}, the birth Panchang falls on ${e(vara)}, with ${e(tithi)} ${e(paksha)} Tithi, ${e(nak)} Nakshatra Pada ${e(pada)}, ${e(yoga)} Yoga, ${e(karana)} Karana, Sun in ${e(sunSign)} and Moon in ${e(moonSign)}.`;
+
+    const prelude=`<div class="smv-birth-prelude">
+      <div class="smv-ganesha-prayer">
+        <img class="smv-ganesha-img" src="data:image/png;base64,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" alt="விநாயகர்"/>
+        <div class="smv-prayer-title">🕉️ விநாயகர் துதி</div>
+        <div class="smv-prayer-mantra">ஓம் கம் கணபதயே நம:</div>
+        <div class="smv-prayer-mantra">வக்ரதுண்ட மகாகாய<br/>சூர்யகோடி சமப்ரப<br/>நிர்விக்னம் குருமே தேவ<br/>சர்வ கார்யேஷு சர்வதா</div>
+        <div class="smv-prayer-meaning"><b>பொருள்:</b> வளைந்த தும்பிக்கையையும் பெரும் திருவுருவையும் உடைய, கோடி சூரியர்களைப் போன்ற ஒளி வீசும் விநாயகப் பெருமானே! எங்கள் எல்லா காரியங்களிலும் உள்ள தடைகளை நீக்கி எப்போதும் வெற்றி பெற அருள் புரிவாயாக.</div>
+      </div>
+      <div class="smv-invocation">${e(invocation)}</div>
+      <div class="smv-year-reckoning">
+        <h3>📜 ${ta?'வருட-வர்த்தமானங்கள்':'Traditional Year Reckoning'}</h3>
+        <div class="smv-year-grid">${eraRows.map(r=>`<div><b>${e(r[0])}</b><span>${e(r[1])}</span></div>`).join('')}</div>
+      </div>
+      <div class="smv-birth-summary">
+        <h3>🕉️ ${ta?'பிறப்பு பஞ்சாங்கச் சுருக்கம்':'Birth Panchang Summary'}</h3>
+        <div class="smv-summary-grid">
+          <div><b>${ta?'தமிழ் நாள்':'Tamil Date'}</b><span>${e(tamilDate)}</span></div>
+          <div><b>${ta?'பிறந்த நேரம்':'Birth Time'}</b><span>${e(tm||'—')}</span></div>
+          <div><b>${ta?'வாரம்':'Vara'}</b><span>${e(vara)}</span></div>
+          <div><b>${ta?'திதி / பக்ஷம்':'Tithi / Paksha'}</b><span>${e(tithi)} · ${e(paksha)}</span></div>
+          <div><b>${ta?'நட்சத்திரம் / பாதம்':'Nakshatra / Pada'}</b><span>${e(nak)} · ${e(pada)}</span></div>
+          <div><b>${ta?'யோகம்':'Yoga'}</b><span>${e(yoga)}</span></div>
+          <div><b>${ta?'கரணம்':'Karana'}</b><span>${e(karana)}</span></div>
+          <div><b>${ta?'சூரிய ராசி':'Sun Sign'}</b><span>${e(sunSign)}</span></div>
+          <div><b>${ta?'சந்திர ராசி':'Moon Sign'}</b><span>${e(moonSign)}</span></div>
+          <div><b>${ta?'சூரிய உதயம்':'Sunrise'}</b><span>${e(p?.sunrise)}</span></div>
+          <div><b>${ta?'சூரிய அஸ்தமனம்':'Sunset'}</b><span>${e(p?.sunset)}</span></div>
+          <div><b>${ta?'அயனாம்சம்':'Ayanamsa'}</b><span>${e(p?.ayanamsa)}</span></div>
+        </div>
+        <p class="smv-panchang-sentence">${summarySentence}</p>
+      </div>
+    </div>`;
+
+    return `${prelude}<div class="card birth-time-panchang" style="margin:0 0 18px"><h3>📅 ${ta?'பிறந்த பஞ்சாங்கம்':'Birth Panchang'}</h3><div class="small">${ta?'திருக்கணித பஞ்சாங்க கணிப்பு':'Thirukanitha Panchang calculation'}</div><div class="birth-panchang-grid"><div><b>${ta?'தமிழ் தேதி + ஆங்கில தேதி':'Tamil Date + Gregorian Date'}</b><span>${e(text)}</span></div><div><b>${ta?'பிறந்த நேரம்':'Birth Time'}</b><span>${e(tm)}</span></div><div><b>${ta?'வாரம்':'Vara'}</b><span>${f(p?.vara)}</span></div><div><b>${ta?'சூரிய ராசி':'Sun Sign'}</b><span>${f(p?.solarSign)}</span></div><div><b>${ta?'சந்திர ராசி':'Moon Sign'}</b><span>${f(p?.moonSign)}</span></div><div><b>${ta?'திதி':'Tithi'}</b><span>${f(p?.tithi?.name||p?.tithi?.group)} · ${f(p?.tithi?.half)}<small>${ta?'தொடக்கம்':'Start'}: ${e(p?.tithi?.start)} · ${ta?'முடிவு':'End'}: ${e(p?.tithi?.end)}</small></span></div><div><b>${ta?'நட்சத்திரம்':'Nakshatra'}</b><span>${f(p?.nakshatra?.name)} · ${e(p?.nakshatra?.pada||'')}<small>${ta?'தொடக்கம்':'Start'}: ${e(p?.nakshatra?.start)} · ${ta?'முடிவு':'End'}: ${e(p?.nakshatra?.end)}</small></span></div><div><b>${ta?'யோகம்':'Yoga'}</b><span>${f(p?.yoga?.name)}<small>${ta?'தொடக்கம்':'Start'}: ${e(p?.yoga?.start)} · ${ta?'முடிவு':'End'}: ${e(p?.yoga?.end)}</small></span></div><div><b>${ta?'கரணம்':'Karana'}</b><span>${f(p?.karana?.name)}<small>${ta?'தொடக்கம்':'Start'}: ${e(p?.karana?.start)} · ${ta?'முடிவு':'End'}: ${e(p?.karana?.end)}</small></span></div><div><b>${ta?'சூரிய உதயம்':'Sunrise'}</b><span>${e(p?.sunrise)}</span></div><div><b>${ta?'சூரிய அஸ்தமனம்':'Sunset'}</b><span>${e(p?.sunset)}</span></div><div><b>${ta?'அயனாம்சம்':'Ayanamsa'}</b><span>${e(p?.ayanamsa)}</span></div><div><b>${ta?'ராகு காலம்':'Rahu Kalam'}</b><span>${e(p?.rahuKalam)}</span></div><div><b>${ta?'எமகண்டம்':'Yamagandam'}</b><span>${e(p?.yamagandam)}</span></div><div><b>${ta?'குளிகை':'Gulikai'}</b><span>${e(p?.gulikai)}</span></div><div><b>${ta?'நல்ல நேரம்':'Nalla Neram'}</b><span>${Array.isArray(p?.nallaNeram)?p.nallaNeram.map(e).join(' · '):e(p?.nallaNeram)}</span></div></div><div class="hora-section"><b>${ta?'ஹோரா':'Hora'}</b>${horaHtml}</div></div>`;
   }
 
 function renderTransitPanchang(t,p,lang,rootId){
@@ -4011,6 +5143,483 @@ document.addEventListener('DOMContentLoaded', function(){
   setTimeout(start,800);
 })();
 </script>
+
+
+
+<script id="smv-v9-2-deities-engine">
+(function(){
+  const DEITY={
+    Sun:["Shiva","Rama"], Moon:["Parvati / Gauri","Krishna"],
+    Mars:["Subramanya / Kartikeya","Narasimha"], Mercury:["Vishnu","Buddha"],
+    Jupiter:["Guru / Samba Shiva","Vamana"], Venus:["Lakshmi","Parashurama"],
+    Saturn:["Narayana","Kurma"], Rahu:["Durga","Varaha"], Ketu:["Ganesha","Matsya"]
+  };
+  const SIGNS=["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const LORD={Aries:"Mars",Taurus:"Venus",Gemini:"Mercury",Cancer:"Moon",Leo:"Sun",Virgo:"Mercury",Libra:"Venus",Scorpio:"Mars",Sagittarius:"Jupiter",Capricorn:"Saturn",Aquarius:"Saturn",Pisces:"Jupiter"};
+  const PMAP={சூரியன்:"Sun",சந்திரன்:"Moon",செவ்வாய்:"Mars",புதன்:"Mercury",குரு:"Jupiter",சுக்கிரன்:"Venus",சனி:"Saturn",ராகு:"Rahu",கேது:"Ketu",
+              Sun:"Sun",Moon:"Moon",Mars:"Mars",Mercury:"Mercury",Jupiter:"Jupiter",Venus:"Venus",Saturn:"Saturn",Rahu:"Rahu",Ketu:"Ketu"};
+  const RMAP={மேஷம்:"Aries",ரிஷபம்:"Taurus",மிதுனம்:"Gemini",கடகம்:"Cancer",சிம்மம்:"Leo",கன்னி:"Virgo",துலாம்:"Libra",விருச்சிகம்:"Scorpio",தனுசு:"Sagittarius",மகரம்:"Capricorn",கும்பம்:"Aquarius",மீனம்:"Pisces"};
+
+  const norm=x=>String(x??"").trim();
+  const esc=x=>String(x??"—").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const pkey=x=>PMAP[norm(x)]||norm(x);
+  const skey=x=>RMAP[norm(x)]||norm(x);
+  const sidx=x=>SIGNS.findIndex(s=>s.toLowerCase()===skey(x).toLowerCase());
+  const nth=(s,n)=>{const i=sidx(s);return i<0?"":SIGNS[(i+n-1)%12]};
+
+  function longitudeOf(obj){
+    const x=Number(obj?.longitude ?? obj?.lon ?? obj?.degreeLongitude);
+    if(Number.isFinite(x)) return ((x%360)+360)%360;
+    const si=sidx(obj?.rasi ?? obj?.sign);
+    const d=Number(obj?.degreeInSign ?? obj?.degree);
+    if(si>=0 && Number.isFinite(d)) return si*30+((d%30)+30)%30;
+    return NaN;
+  }
+
+  // Classical BPHS D20 / Vimsamsa:
+  // 20 divisions of 1°30′. Movable signs count from Aries,
+  // fixed signs from Sagittarius, dual/common signs from Leo.
+  function d20FromLongitude(lon){
+    if(!Number.isFinite(lon)) return null;
+    lon=((lon%360)+360)%360;
+    const natalIndex=Math.floor(lon/30);
+    const deg=lon%30;
+    const segment=Math.min(19,Math.floor(deg/1.5)); // 0..19
+    const movable=[0,3,6,9].includes(natalIndex);
+    const fixed=[1,4,7,10].includes(natalIndex);
+    const start=movable?0:(fixed?8:4);
+    const d20Index=(start+segment)%12;
+    return {
+      natalSign:SIGNS[natalIndex], segment:segment+1,
+      sign:SIGNS[d20Index], signIndex:d20Index,
+      degreeInNatalSign:deg
+    };
+  }
+
+  function d9SignOf(data,planet){
+    planet=pkey(planet);
+    const ps=Array.isArray(data?.planets)?data.planets:[];
+    const p=ps.find(x=>pkey(x?.name)===planet);
+    const direct=skey(p?.navamsa?.rasi ?? p?.navamsa?.sign ?? p?.d9?.rasi ?? p?.d9?.sign);
+    if(sidx(direct)>=0)return direct;
+    const pools=[data?.navamsa?.planets,data?.navamsa,data?.d9?.planets,data?.d9];
+    for(const pool of pools){
+      if(Array.isArray(pool)){
+        const r=pool.find(x=>pkey(x?.planet??x?.name)===planet);
+        const sg=skey(r?.rasi??r?.sign);
+        if(sidx(sg)>=0)return sg;
+      }
+    }
+    return "";
+  }
+
+  function karakaPlanet(data,key){
+    const arr=Array.isArray(data?.phase2?.charaKarakas)?data.phase2.charaKarakas:
+              Array.isArray(data?.charaKarakas)?data.charaKarakas:[];
+    const target=key.toLowerCase().replace(/\s/g,"");
+    const r=arr.find(x=>norm(x?.karaka).toLowerCase().replace(/\s/g,"").includes(target));
+    return pkey(r?.planet);
+  }
+
+  function d20Chart(data){
+    const planets=(Array.isArray(data?.planets)?data.planets:[]).map(p=>{
+      const planet=pkey(p?.name);
+      const d20=d20FromLongitude(longitudeOf(p));
+      const score=Number(p?.strength3?.totalVirupa);
+      return d20?{planet,d20,score:Number.isFinite(score)?score:null}:null;
+    }).filter(Boolean);
+
+    let lagnaObj=data?.lagna||data?.ascendant||data?.asc||data?.rasiLagna;
+    let lagnaLon=longitudeOf(lagnaObj);
+    if(!Number.isFinite(lagnaLon)){
+      const special=Array.isArray(data?.phase1?.specialLagnas?.items)?data.phase1.specialLagnas.items:[];
+      const l=special.find(x=>/^(lagna|ascendant)$/i.test(norm(x?.name)));
+      lagnaLon=longitudeOf(l);
+    }
+    const lagna=d20FromLongitude(lagnaLon);
+    return {lagna,planets};
+  }
+
+  function houseSign(lagnaSign,house){
+    const i=sidx(lagnaSign); return i<0?"":SIGNS[(i+house-1)%12];
+  }
+
+  function resolveD20House(data,chart,house){
+    if(!chart?.lagna)return null;
+    const sign=houseSign(chart.lagna.sign,house);
+    const occ=chart.planets.filter(x=>x.d20.sign===sign);
+    let chosen=null, mode="";
+    if(occ.length){
+      const withScore=occ.filter(x=>Number.isFinite(x.score));
+      if(withScore.length) chosen=[...withScore].sort((a,b)=>b.score-a.score)[0];
+      else chosen=occ[0];
+      mode=occ.length>1?"occupant-highest-shadbala":"occupant";
+    }else{
+      chosen={planet:LORD[sign],d20:{sign},score:null};
+      mode="sign-lord";
+    }
+    return {sign,occupants:occ,chosen,mode};
+  }
+
+  function deityPair(planet){
+    return DEITY[pkey(planet)]||["—","—"];
+  }
+
+  function row(type,basis,planet,sign,path,lang){
+    const map=deityPair(planet);
+    const indicator=[planet,sign].filter(Boolean).join(" / ")||"—";
+    return `<tr><td><b>${esc(type)}</b></td><td>${esc(basis)}</td><td>${esc(indicator)}</td><td>${esc(map[0])}</td><td>${esc(map[1])}</td><td>${esc(path)}</td></tr>`;
+  }
+
+  function render(part,lang,dataArg){
+    if(!part)return;
+    const data=dataArg||window.__smvDeitiesData||{};
+    const ta=lang==="ta";
+    const d20=d20Chart(data);
+
+    const d20Label=x=>ta?({
+      Aries:"மேஷம்",Taurus:"ரிஷபம்",Gemini:"மிதுனம்",Cancer:"கடகம்",Leo:"சிம்மம்",Virgo:"கன்னி",
+      Libra:"துலாம்",Scorpio:"விருச்சிகம்",Sagittarius:"தனுசு",Capricorn:"மகரம்",Aquarius:"கும்பம்",Pisces:"மீனம்"
+    }[x]||x):x;
+
+    const d20Result=(house,typeEn,typeTa,basisEn,basisTa)=>{
+      const r=resolveD20House(data,d20,house);
+      if(!r){
+        return `<tr><td><b>${ta?typeTa:typeEn}</b></td><td>${ta?basisTa:basisEn}</td><td>—</td><td>—</td><td>—</td><td>${ta?"D20 Lagna கணக்கிட தேவையான exact Lagna longitude கிடைக்கவில்லை.":"Exact Lagna longitude required for D20 Lagna was unavailable."}</td></tr>`;
+      }
+      const pl=r.chosen?.planet||"";
+      const pair=deityPair(pl);
+      const occ=r.occupants.map(x=>x.planet).join(", ");
+      const why=r.mode==="sign-lord"
+        ? (ta?`${house}ஆம் D20 வீடு ${d20Label(r.sign)} காலியாக உள்ளது → அதன் அதிபதி ${pl} எடுத்துக்கொள்ளப்பட்டது.`:`D20 house ${house} (${r.sign}) is empty → its sign lord ${pl} is used.`)
+        : (r.mode==="occupant-highest-shadbala"
+          ? (ta?`${house}ஆம் D20 வீடு ${d20Label(r.sign)}-ல் ${occ}; பல கிரகங்களில் existing Shadbala அதிகமான ${pl} தேர்வு செய்யப்பட்டது.`:`D20 house ${house} (${r.sign}) contains ${occ}; ${pl} is selected by highest available existing Shadbala among the occupants.`)
+          : (ta?`${house}ஆம் D20 வீடு ${d20Label(r.sign)}-ல் ${pl} உள்ளது; occupant முன்னுரிமை.`:`D20 house ${house} (${r.sign}) contains ${pl}; occupant takes priority.`));
+      return `<tr><td><b>${ta?typeTa:typeEn}</b></td><td>${ta?basisTa:basisEn}</td><td>${esc(pl+" / "+d20Label(r.sign))}</td><td>${esc(pair[0])}</td><td>${esc(pair[1])}</td><td>${esc((ta?`D20 Lagna ${d20Label(d20.lagna.sign)}. `:`D20 Lagna ${d20.lagna.sign}. `)+why)}</td></tr>`;
+    };
+
+    const phase2=data?.phase2||{};
+    const ka=skey(phase2?.karakamsha||data?.karakamsha||"");
+    const ak=karakaPlanet(data,"atmakaraka")||karakaPlanet(data,"ak");
+    const amk=karakaPlanet(data,"amatya")||karakaPlanet(data,"amk");
+    const bk=karakaPlanet(data,"bhratru")||karakaPlanet(data,"bhratri")||karakaPlanet(data,"bk");
+
+    const ishtaSign=ka?nth(ka,12):"";
+    const dharmaSign=ka?nth(ka,9):"";
+    const ishtaPlanet=ishtaSign?LORD[ishtaSign]:"";
+    const dharmaPlanet=dharmaSign?LORD[dharmaSign]:"";
+
+    const amkD9=d9SignOf(data,amk);
+    const palanaSign=amkD9?nth(amkD9,6):"";
+    const palanaPlanet=palanaSign?LORD[palanaSign]:"";
+    const bkD9=d9SignOf(data,bk);
+
+    const rows=[
+      d20Result(2,"Kula Devata","குல தெய்வம்","D20 → 2nd house → strongest graha / lord","D20 → 2ஆம் வீடு → வலுவான கிரகம் / அதிபதி"),
+      d20Result(4,"Grama Devata","கிராம தெய்வம்","D20 → 4th house → strongest influence","D20 → 4ஆம் வீடு → வலுவான தாக்கம்"),
+      row(ta?"இஷ்ட தெய்வம்":"Ishta Devata",ta?"ஆத்மகாரக → D9 காரகாம்சம் → 12ஆம் வீடு":"Atmakaraka → D9 Karakamsha → 12th house",ishtaPlanet,ishtaSign,ka?(ta?`ஆத்மகாரக ${ak||"—"}; காரகாம்சம் ${d20Label(ka)} → 12ஆம் ராசி ${d20Label(ishtaSign)} → தற்போதைய engine-ல் occupant/aspect data தெளிவாக இல்லாததால் ராசி அதிபதி ${ishtaPlanet} பயன்படுத்தப்பட்டது.`:`Atmakaraka ${ak||"—"}; Karakamsha ${ka} → 12th sign ${ishtaSign} → current engine does not expose a reliable occupant/aspect resolver here, so sign lord ${ishtaPlanet} is used.`):(ta?"காரகாம்ச data கிடைக்கவில்லை.":"Karakamsha data unavailable."),lang),
+      row(ta?"தர்ம தெய்வம்":"Dharma Devata",ta?"ஆத்மகாரக → D9 காரகாம்சம் → 9ஆம் வீடு":"Atmakaraka → D9 Karakamsha → 9th house",dharmaPlanet,dharmaSign,ka?(ta?`காரகாம்சம் ${d20Label(ka)} → 9ஆம் ராசி ${d20Label(dharmaSign)} → ராசி அதிபதி ${dharmaPlanet}.`:`Karakamsha ${ka} → 9th sign ${dharmaSign} → sign lord ${dharmaPlanet}.`):(ta?"காரகாம்ச data கிடைக்கவில்லை.":"Karakamsha data unavailable."),lang),
+      row(ta?"பாலன தெய்வம்":"Palana Devata",ta?"அமாத்யகாரக → D9 → அதிலிருந்து 6ஆம் வீடு":"Amatyakaraka → D9 → 6th from Amatyakaraka",palanaPlanet,palanaSign,amkD9?(ta?`${amk} D9-ல் ${d20Label(amkD9)} → 6ஆம் ராசி ${d20Label(palanaSign)} → அதிபதி ${palanaPlanet}.`:`${amk} in D9 ${amkD9} → 6th sign ${palanaSign} → lord ${palanaPlanet}.`):(ta?"அமாத்யகாரக D9 placement data கிடைக்கவில்லை.":"Amatyakaraka D9 placement unavailable."),lang),
+      `<tr><td><b>${ta?"குரு தெய்வம்":"Guru Devata"}</b></td><td>${ta?"பிராத்ரிகாரக → நவாம்ச ராசி + BK தாக்கங்கள்":"Bhratrikaraka → Navamsa sign + BK influences"}</td><td>${esc([bk,bkD9?d20Label(bkD9):""].filter(Boolean).join(" / ")||"—")}</td><td>${ta?"BK/Navamsa அடிப்படையிலான குரு சுட்டு":"BK/Navamsa-based Guru indication"}</td><td>—</td><td>${bkD9?esc((ta?`${bk} D9-ல் ${d20Label(bkD9)}; Guru Devata-க்கு Primary Deity mapping கட்டாயப்படுத்தப்படவில்லை.`:`${bk} is in ${bkD9} in D9; Primary Deity mapping is intentionally not forced for Guru Devata.`)):esc(ta?"BK Navamsa data கிடைக்கவில்லை.":"BK Navamsa data unavailable.")}</td></tr>`,
+      d20Result(5,"Upasana Devata Indication","உபாசனா தெய்வ சுட்டு","D20 → 5th house devotional indication","D20 → 5ஆம் வீடு devotional indication")
+    ].join("");
+
+    const h=ta?["தெய்வ வகை","கணக்கீட்டு அடிப்படை","சுட்டும் கிரகம் / ராசி","முதன்மை தெய்வம்","தசாவதார வடிவம்","கணக்கீட்டு பாதை"]:["Deity Type","Calculation Basis","Indicator Planet / Sign","Primary Deity","Dashavatara Form","Calculation Path"];
+    const d20Summary=d20.lagna?`<div class="smv-d20-summary"><b>${ta?"D20 / விம்சாம்ச லக்னம்":"D20 / Vimsamsa Lagna"}:</b> ${esc(d20Label(d20.lagna.sign))} <span class="small">(${ta?"1°30′ division; movable→Aries, fixed→Sagittarius, dual→Leo":"1°30′ divisions; movable→Aries, fixed→Sagittarius, dual→Leo"})</span></div>`:"";
+    (part.__smvContent||part).innerHTML=`<div class="smv-fixed-text-section smv-deities-v92">${d20Summary}<div class="adv-table-wrap"><table class="smv-ref-table smv-deities-table"><thead><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }
+
+  window.__smvRenderDeitiesV91=render;
+  window.__smvRenderDeitiesV92=render;
+})();
+</script>
+
+
+
+
+<style id="smv-v9-9-width-spacing-final">
+/*
+  FINAL width override.
+  This style is intentionally placed at the END of <body>, after legacy.css/interface.css,
+  so those later-loaded styles cannot shrink these sections again.
+*/
+
+/* ---------- DESKTOP / TABLET ---------- */
+@media (min-width:641px){
+  /* Horoscope area must match Approved Astrologers / Blogs / FAQ width */
+  #horoscope-tools,
+  #tamil-horoscope,
+  #english-horoscope{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  #horoscope-tools > .card,
+  #tamil-horoscope > .card,
+  #english-horoscope > .card{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  #tamilHoroscopeResult,
+  #englishHoroscopeResult{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width:640px){
+  html,body{
+    width:100% !important;
+    max-width:100% !important;
+    overflow-x:hidden !important;
+  }
+
+  /* Only one small outer gutter for the whole page */
+  main.container{
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding-left:4px !important;
+    padding-right:4px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Main home sections use almost the full phone width */
+  main.container > section,
+  #home,
+  #askNowSection,
+  #approved-astrologers,
+  #smv-content-hub,
+  #horoscope-tools,
+  #tamil-horoscope,
+  #english-horoscope,
+  #faq,
+  #contact{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Avoid repeated horizontal padding at section level */
+  #home.hero,
+  #askNowSection.smv-new-asknow,
+  .feature-section{
+    padding-left:4px !important;
+    padding-right:4px !important;
+  }
+
+  /* One useful card padding only */
+  #askNowSection .smv-new-asknow-inner,
+  #smv-content-hub .feature-shell,
+  #horoscope-tools > .card,
+  #tamil-horoscope > .card,
+  #english-horoscope > .card,
+  #faq > .card,
+  #contact > .card{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Horoscope result gets the same usable width as the form */
+  #tamilHoroscopeResult,
+  #englishHoroscopeResult{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Remove extra nesting-width loss in the generated horoscope */
+  #tamilHoroscopeResult .smv-advanced-shell,
+  #englishHoroscopeResult .smv-advanced-shell,
+  #tamilHoroscopeResult .smv-advanced-wrapper,
+  #englishHoroscopeResult .smv-advanced-wrapper,
+  #tamilHoroscopeResult .advanced-analysis,
+  #englishHoroscopeResult .advanced-analysis{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  #tamilHoroscopeResult .smv-advanced-part,
+  #englishHoroscopeResult .smv-advanced-part{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  #tamilHoroscopeResult .smv-advanced-part-content,
+  #englishHoroscopeResult .smv-advanced-part-content{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    padding-left:4px !important;
+    padding-right:4px !important;
+    box-sizing:border-box !important;
+  }
+
+  #tamilHoroscopeResult .smv-fixed-text-section,
+  #englishHoroscopeResult .smv-fixed-text-section{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:2px !important;
+    padding-right:2px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Keep intentional wide-table scrolling from VIII / IX */
+  #smv-adhidevata-analysis-panel .adv-table-wrap,
+  #smv-deities-analysis-panel .adv-table-wrap,
+  #smv-adhidevata-analysis-panel .smv-viii-table-scroll,
+  #smv-adhidevata-analysis-panel .smv-tithi-table-scroll{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+}
+</style>
+
+
+<style id="smv-v10-width-layer-fix">
+/* Force horoscope cards to exactly follow their section width on desktop/tablet. */
+@media (min-width:641px){
+  #horoscope-tools,
+  #tamil-horoscope,
+  #english-horoscope{
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  #horoscope-tools > .card,
+  #tamil-horoscope > .card,
+  #english-horoscope > .card{
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+  }
+}
+
+/* Mobile: remove unnecessary nested visual layers while preserving content/cards. */
+@media (max-width:640px){
+  main.container{
+    padding-left:2px !important;
+    padding-right:2px !important;
+  }
+
+  #tamil-horoscope,
+  #english-horoscope,
+  #horoscope-tools{
+    padding-left:2px !important;
+    padding-right:2px !important;
+  }
+
+  #tamil-horoscope > .card,
+  #english-horoscope > .card,
+  #horoscope-tools > .card{
+    padding-left:6px !important;
+    padding-right:6px !important;
+    border-radius:10px !important;
+  }
+
+  #tamilHoroscopeResult,
+  #englishHoroscopeResult{
+    padding:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+
+  #tamilHoroscopeResult .smv-advanced-shell,
+  #englishHoroscopeResult .smv-advanced-shell,
+  #tamilHoroscopeResult .smv-advanced-wrapper,
+  #englishHoroscopeResult .smv-advanced-wrapper,
+  #tamilHoroscopeResult .advanced-analysis,
+  #englishHoroscopeResult .advanced-analysis{
+    padding-left:0 !important;
+    padding-right:0 !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    border-left:0 !important;
+    border-right:0 !important;
+    box-shadow:none !important;
+    background:transparent !important;
+  }
+
+  #tamilHoroscopeResult .smv-advanced-part,
+  #englishHoroscopeResult .smv-advanced-part{
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+
+  #tamilHoroscopeResult .smv-advanced-part-content,
+  #englishHoroscopeResult .smv-advanced-part-content{
+    padding-left:2px !important;
+    padding-right:2px !important;
+  }
+
+  /* Keep individual analysis modules readable but stop repeated side insets. */
+  #tamilHoroscopeResult .adv-section,
+  #englishHoroscopeResult .adv-section{
+    width:100% !important;
+    max-width:100% !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Do not disturb existing horizontal-scroll fixes. */
+  #smv-adhidevata-analysis-panel .adv-table-wrap,
+  #smv-deities-analysis-panel .adv-table-wrap,
+  #smv-adhidevata-analysis-panel .smv-viii-table-scroll,
+  #smv-adhidevata-analysis-panel .smv-tithi-table-scroll{
+    overflow-x:auto !important;
+    max-width:100% !important;
+  }
+}
+</style>
 
 </body>
 
