@@ -195,6 +195,27 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <link rel="stylesheet" href="./legacy.css?v=20260911c">
 <link rel="stylesheet" href="./interface.css?v=20260911c">
+
+<style id="smv-v72-single-release-prelayout">
+/* V7.2 display-only fix: fully lay out the Tamil horoscope off-screen while
+   the loading UI is visible, then reveal it in one paint. No astrology
+   calculation or returned value is changed. */
+#tamilHoroscopeResult.smv-result-preparing{
+  display:block!important;
+  visibility:hidden!important;
+  position:absolute!important;
+  left:-100000px!important;
+  top:0!important;
+  width:min(1200px,calc(100vw - 24px))!important;
+  max-width:calc(100vw - 24px)!important;
+  pointer-events:none!important;
+  opacity:0!important;
+  overflow:visible!important;
+}
+#tamilHoroscopeResult.smv-result-preparing *{
+  content-visibility:visible!important;
+}
+</style>
 </head>
 <body class="lang-tamil">
 <header>
@@ -2564,6 +2585,27 @@ function renderTransitPanchang(t,p,lang,rootId){
   window.__smvLoadAdvancedAstrology=loadAdvancedAstrology;
 
 
+
+    // V7.2 DISPLAY BARRIER: the Tamil report is rendered off-screen first.
+    // Wait until fonts and browser layout have settled before the one-time reveal.
+    // This changes only display timing; horoscope calculations remain untouched.
+    async function smvWaitForTamilResultLayout(el){
+      if(!el) return;
+      try{ if(document.fonts?.ready) await document.fonts.ready; }catch(_e){}
+      const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()));
+      await nextFrame();
+      // Force a complete layout pass while the report is still invisible/off-screen.
+      void el.offsetHeight;
+      let previousHeight=-1, stableFrames=0, frames=0;
+      while(stableFrames<3 && frames<12){
+        await nextFrame();
+        void el.offsetHeight;
+        const h=el.scrollHeight;
+        if(h===previousHeight) stableFrames++; else { previousHeight=h; stableFrames=0; }
+        frames++;
+      }
+      await nextFrame();
+    }
   async function generate(loadAdvanced=true){
     const date=$('tamilDob')?.value||'', time=$('tamilTob')?.value||'';
     const lat=$('tamilLat')?.value||'', lon=$('tamilLon')?.value||'';
@@ -2594,12 +2636,17 @@ if(lat===''||lon===''){
     // button shows the loading state. Nothing is revealed until every calculation
     // in the advanced batch has completed.
     if(resultBox){
-     // resultBox.classList.add('hidden');
+      // V7.2: render/layout the complete report off-screen while loading.
+      // Unlike display:none, this lets the mobile browser finish the heavy Tamil
+      // layout before the user sees the result, preventing partial/blank sections.
+      resultBox.classList.remove('hidden');
+      resultBox.classList.add('smv-result-preparing');
       resultBox.setAttribute('aria-busy','true');
+      resultBox.setAttribute('aria-hidden','true');
       resultBox.innerHTML='';
     }
     if(btn){btn.disabled=true;btn.textContent='⏳ ஜாதகம் உருவாக்கப்படுகிறது…';}
-    let progress=$('tamilHoroscopeProgress'); if(!progress&&btn){progress=document.createElement('div');progress.id='tamilHoroscopeProgress';progress.className='smv-horoscope-progress';progress.innerHTML='<span class="spin"></span><span>ஜாதகம் கணக்கிடப்படுகிறது…<br>பிறப்பு விவரங்கள் சரிபார்க்கப்படுகின்றன…</span>';btn.insertAdjacentElement('afterend',progress);}
+    let progress=$('tamilHoroscopeProgress'); if(!progress&&btn){progress=document.createElement('div');progress.id='tamilHoroscopeProgress';progress.className='smv-horoscope-progress';progress.innerHTML='<span class="spin"></span><span>ஜாதகம் உருவாக்கப்படுகிறது…<br>அனைத்து கணக்கீடுகளும் தயார் செய்யப்படுகின்றன…</span>';btn.insertAdjacentElement('afterend',progress);}
     try{
       // Native mobile time inputs normally return HH:mm (for example 22:05 for 10:05 PM).
       // Normalize common 12-hour text values too, so the API always receives HH:mm.
@@ -2635,25 +2682,9 @@ if(lat===''||lon===''){
       normalizeRasi(d.lagna);
       const moon=(d.planets||[]).find(p=>String(p?.name||'').trim()==='சந்திரன்'||String(p?.name||'').trim()==='Moon');
       if(moon){ d.moonRasi=rasiFromLongitude(moon.longitude)||rasiAlias[String(d.moonRasi||'').trim()]||d.moonRasi||''; }
-      // Render the verified core horoscope first. IMPORTANT: do not keep the
-      // entire horoscope page hidden while the heavy Advanced batch is running.
-      // This was the reason the user could see an endless loading state with no
-      // horoscope opening. The core chart is safe to show immediately; Advanced
-      // features continue loading into their own hidden container and are revealed
-      // when ready. No calculation/data engine is changed here.
+      // Build the verified core horoscope inside the hidden result container.
+      // Do not reveal partial Tamil results while Advanced calculations are running.
       render(d);
-      if(resultBox){
-        const smvHtml=document.documentElement;
-        const smvOldAnchor=smvHtml.style.overflowAnchor;
-        smvHtml.style.overflowAnchor='none';
-        resultBox.classList.remove('hidden');
-        resultBox.setAttribute('aria-busy',loadAdvanced?'true':'false');
-        window.scrollTo(smvSavedScrollX,smvSavedScrollY);
-        requestAnimationFrame(()=>{
-          window.scrollTo(smvSavedScrollX,smvSavedScrollY);
-          smvHtml.style.overflowAnchor=smvOldAnchor;
-        });
-      }
       const advRoot=$('tamilAdvancedAstrology');
       if(loadAdvanced && advRoot && typeof window.__smvLoadAdvancedAstrology==='function'){
         try{
@@ -2664,9 +2695,34 @@ if(lat===''||lon===''){
           if(advRoot && !advRoot.querySelector('.error')) advRoot.insertAdjacentHTML('beforeend',`<div class="error"><b>மேம்பட்ட ஜோதிட அம்சங்களை ஏற்ற முடியவில்லை.</b><p class="small">${esc(String(_advErr?.message||_advErr))}</p></div>`);
         }
       }
-      if(resultBox) resultBox.setAttribute('aria-busy','false');
+      // V7.2 SINGLE RELEASE: advanced rendering is complete; now also wait
+      // for the browser's Tamil DOM/font/layout work to settle while off-screen.
+      // Then reveal the already-laid-out report in one step.
+      if(resultBox){
+        await smvWaitForTamilResultLayout(resultBox);
+        const smvHtml=document.documentElement;
+        const smvOldAnchor=smvHtml.style.overflowAnchor;
+        smvHtml.style.overflowAnchor='none';
+        resultBox.setAttribute('aria-busy','false');
+        resultBox.setAttribute('aria-hidden','false');
+        resultBox.classList.remove('smv-result-preparing');
+        resultBox.classList.remove('hidden');
+        // Force the final in-flow layout before scrolling to the completed report.
+        void resultBox.offsetHeight;
+        window.scrollTo(smvSavedScrollX,smvSavedScrollY);
+        requestAnimationFrame(()=>{
+          window.scrollTo(smvSavedScrollX,smvSavedScrollY);
+          smvHtml.style.overflowAnchor=smvOldAnchor;
+          try{ resultBox.scrollIntoView({behavior:'smooth',block:'start'}); }catch(_e){}
+        });
+      }
       return d;
     }catch(e){
+      if(resultBox){
+        resultBox.classList.remove('smv-result-preparing');
+        resultBox.classList.add('hidden');
+        resultBox.setAttribute('aria-hidden','true');
+      }
       if(e?.name==='AbortError') alert('Horoscope calculation timed out after 120 seconds. Please check the Render server and try again.');
       else alert(e?.message||String(e));
     }
