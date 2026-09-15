@@ -1742,14 +1742,23 @@ async function showDashboardPaymentSuccess(){
 }
 
 let smvQuestionWatch=null,smvWatchUid=null;
+let smvDashboardDirty=false;
 function smvWatchQuestions(role){
  const uid=currentUser?.uid;if(!uid||smvWatchUid===uid)return;
  smvQuestionWatch?.();smvWatchUid=uid;let first=true;
  smvQuestionWatch=onSnapshot(query(collection(db,'smv_questions'),where(role==='astrologer'?'astrologerId':'customerId','==',uid)),()=>{
-   if(first){first=false;return;} dashboardReadyAt=0;
+   if(first){first=false;return;}
+   dashboardReadyAt=0;
+   smvDashboardDirty=true;
    if(currentUser?.uid!==uid)return;
    const button=document.getElementById('smvRefreshDashboard');
-   if(smvInternalView==='dashboard' && !document.querySelector('#dashboard [data-smv-dirty],#dashboard input:focus,#dashboard textarea:focus'))setTimeout(()=>loadDashboard(role,true),200);
+   if(smvInternalView==='dashboard' && !document.querySelector('#dashboard [data-smv-dirty],#dashboard input:focus,#dashboard textarea:focus')){
+     setTimeout(()=>{
+       if(currentUser?.uid===uid && smvInternalView==='dashboard'){
+         loadDashboard(role,true).then(()=>{smvDashboardDirty=false;}).catch(err=>console.warn('Live dashboard refresh skipped:',err));
+       }
+     },120);
+   }
    if(button)button.textContent="\u0baa\u0bc1\u0ba4\u0bbf\u0baf \u0ba4\u0b95\u0bb5\u0bb2\u0bcd \u0b89\u0bb3\u0bcd\u0bb3\u0ba4\u0bc1 \u2014 \u0baa\u0bc1\u0ba4\u0bc1\u0baa\u0bcd\u0baa\u0bbf";
  },e=>console.warn('Live dashboard updates unavailable:',e));
 }
@@ -1771,7 +1780,7 @@ async function loadDashboard(expectedRole=null,force=false){
  // the கேள்வி Form Back button was pressed, which could create a repeated
  // Loading -> open -> Loading cycle. Explicit data-changing actions can pass
  // force=true when a fresh render is actually required.
- if(!force && Date.now()-dashboardReadyAt<15000 && dashboardReadyUid===loadUid && (!requestedRole || dashboardReadyRole===requestedRole) && smvInternalView==='dashboard' && box && !box.querySelector('.error')){
+ if(!force && !smvDashboardDirty && Date.now()-dashboardReadyAt<15000 && dashboardReadyUid===loadUid && (!requestedRole || dashboardReadyRole===requestedRole) && smvInternalView==='dashboard' && box && !box.querySelector('.error')){
    show('dashboard');
    touchSession();
    armIdleTimer();
@@ -2589,7 +2598,7 @@ ${ad.status === 'rejected' && ad.rejectionReason
   // Mark the dashboard ready before loading optional notifications. A slow
   // notifications query must never keep the main dashboard in a loading state.
   show('dashboard');
-  dashboardReadyUid=loadUid; dashboardReadyAt=Date.now();
+  dashboardReadyUid=loadUid; dashboardReadyAt=Date.now(); smvDashboardDirty=false;
   dashboardReadyRole=role; smvWatchQuestions(role);
   touchSession();
   armIdleTimer();
