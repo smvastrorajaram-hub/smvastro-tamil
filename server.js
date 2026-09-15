@@ -704,8 +704,8 @@ app.post("/submit-answer", async (req, res) => {
       astrologerCommissionAmount: commissionAmount,
       commissionPercent,
       commissionRate: commissionPercent,
-      commissionStatus: bypassApproval ? "credited" : "pending_admin_approval",
-      commissionCreditedAt: bypassApproval ? FieldValue.serverTimestamp() : FieldValue.delete(),
+      commissionStatus: bypassApproval ? "pending_customer_view" : "pending_admin_approval",
+      commissionCreditedAt: FieldValue.delete(),
       answerEmailStatus: {
         state: "pending",
         updatedAt: FieldValue.serverTimestamp()
@@ -1596,14 +1596,44 @@ app.post("/customer/mark-answer-viewed", express.json({limit:"10kb"}), async (re
   try{
     const questionId=String(req.body?.questionId||'').trim();
     if(!questionId) return res.status(400).json({error:"Question ID is required."});
-    const ref=db.collection("smv_questions").doc(questionId); const snap=await ref.get();
+    const ref=db.collection("smv_questions").doc(questionId);
+    const snap=await ref.get();
     if(!snap.exists) return res.status(404).json({error:"Question not found."});
     const q=snap.data()||{};
     if(String(q.customerId||'')!==String(user.uid)) return res.status(403).json({error:"You do not own this question."});
-    if(String(q.status||'')!=='answered') return res.status(409).json({error:"Answer is not ready yet."});
-    if(!q.customerAnswerViewedAt) await ref.update({customerAnswerViewedAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()});
-    return res.json({success:true,questionId});
-  }catch(e){console.error("Mark answer viewed failed:",e);return res.status(500).json({error:e?.message||"Unable to update answer view status."});}
+    if(String(q.status||'')!=="answered" || !String(q.answer||'').trim()) return res.status(409).json({error:"Answer is not ready yet."});
+
+    // Explicit VIEW ANSWER is the earning-unlock point. Never credit merely
+    // because the dashboard rendered the consultation.
+    if(q.customerAnswerViewedAt && String(q.commissionStatus||'')==="credited") {
+      return res.json({success:true,questionId,already:true,credited:true});
+    }
+
+    let astrologerPaymentId=String(q.astrologerPaymentId||'');
+    const amount=Number(q.astrologerCommissionAmount||q.commissionAmount||0);
+    const shouldCredit=!!q.astrologerId && Number.isFinite(amount) && amount>=0 && String(q.commissionStatus||'')!=="credited";
+    if(shouldCredit && !astrologerPaymentId){
+      const paymentId=await nextPaymentId();
+      astrologerPaymentId=paymentId.replace(/^SMV-PAY-/,"SMV-PAT-");
+      await db.collection("smv_payments").doc(astrologerPaymentId).set({
+        paymentId:astrologerPaymentId,type:"astrologer_earning",customerId:q.customerId||null,
+        astrologerId:q.astrologerId,questionId,bookingId:q.bookingId||null,
+        grossAmount:Number(q.amount||0),commissionPercent:Number(q.commissionPercent||q.commissionRate||0),
+        commissionAmount:amount,earningAmount:amount,status:"credited",paymentStatus:"pending_withdrawal",
+        source:"customer_answer_view",createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()
+      },{merge:false});
+    }
+    const patch={customerAnswerViewedAt:q.customerAnswerViewedAt||FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()};
+    if(shouldCredit){
+      patch.commissionStatus="credited"; patch.commissionCreditedAt=FieldValue.serverTimestamp();
+      patch.commissionAmount=amount; patch.astrologerCommissionAmount=amount; patch.astrologerPaymentId=astrologerPaymentId;
+    }
+    await ref.update(patch);
+    if(shouldCredit){
+      await db.collection("smv_notifications").add({userId:q.astrologerId,type:"earning_credited",title:"Earning Credited",message:`Customer viewed your answer. ₹${amount.toFixed(2)} is now available in your earnings.`,questionId,commissionAmount:amount,createdAt:FieldValue.serverTimestamp(),read:false});
+    }
+    return res.json({success:true,questionId,credited:shouldCredit,commissionAmount:shouldCredit?amount:0});
+  }catch(e){console.error("Mark answer viewed failed:",e);return res.status(500).json({error:e?.message||"Unable to open answer right now."});}
 });
 
 app.get("/admin-data", async (req, res) => {
@@ -1953,7 +1983,7 @@ app.post("/admin/approve-answer", express.json({limit:"20kb"}), async (req, res)
     if (!Number.isFinite(amount) || amount < 0) return res.status(400).json({ error: "Invalid astrologer commission amount." });
 
     let astrologerPaymentId = q.astrologerPaymentId || "";
-    if (!alreadyApproved && (!astrologerPaymentId || String(q.commissionStatus || "") !== "credited")) {
+    if (false && !alreadyApproved && (!astrologerPaymentId || String(q.commissionStatus || "") !== "credited")) {
       const paymentId = await nextPaymentId();
       astrologerPaymentId = paymentId.replace(/^SMV-PAY-/, "SMV-PAT-");
       await db.collection("smv_payments").doc(astrologerPaymentId).set({
@@ -1969,11 +1999,11 @@ app.post("/admin/approve-answer", express.json({limit:"20kb"}), async (req, res)
       await qRef.update({
         status:"answered",
         astrologerAnswerStatus:"approved",
-        commissionStatus:"credited",
+        commissionStatus:"pending_customer_view",
         answerApprovedAt:FieldValue.serverTimestamp(),
         adminAnswerApprovedAt:FieldValue.serverTimestamp(),
         answerApprovedBy:user.uid,
-        commissionCreditedAt:q.commissionCreditedAt || FieldValue.serverTimestamp(),
+        commissionCreditedAt:FieldValue.delete(),
         commissionAmount:amount,
         astrologerCommissionAmount:amount,
         astrologerPaymentId,
@@ -1983,7 +2013,7 @@ app.post("/admin/approve-answer", express.json({limit:"20kb"}), async (req, res)
 
       await db.collection("smv_notifications").add({
         userId:q.astrologerId,type:"answer_approved",title:"Answer Approved",
-        message:`Your answer has been approved. Commission credited: ₹${amount.toFixed(2)}`,
+        message:`Your answer has been approved. Earnings will become available after the customer opens the answer.`,
         questionId,commissionAmount:amount,createdAt:FieldValue.serverTimestamp(),read:false
       });
       await writeAdminAudit("ANSWER_APPROVED", questionId, user.uid, {
@@ -2573,7 +2603,7 @@ app.post("/astrologer/withdrawal-request", async (req, res) => {
     let totalEarnings = 0;
     questionSnap.docs.forEach(d => {
       const q = d.data() || {};
-      if (q.status === "answered" && q.commissionStatus === "credited") {
+      if (q.status === "answered" && q.commissionStatus === "credited" && q.customerAnswerViewedAt) {
         totalEarnings += Number(q.astrologerCommissionAmount || q.commissionAmount || 0);
       }
     });
