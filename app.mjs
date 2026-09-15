@@ -948,48 +948,24 @@ async function submitAuth(mode){
   let cred=null;
   let createdNewAuthUser=false;
   let profileResponse=null;
-  try{localStorage.setItem("smv_customer_registration_draft",JSON.stringify({email,name,phone,at:Date.now()}));}catch(_e){}
   try{
     try{
       cred=await withTimeout(createUserWithEmailAndPassword(auth,email,password),20000);
       createdNewAuthUser=true;
     }catch(authErr){
-      // Never silently sign in or repair an existing account from the
-      // registration form.  Firebase Authentication has already confirmed
-      // that this email belongs to an existing account, so stop registration
-      // and give the user a clear next step.
+      // Recovery path: an earlier registration may have created Firebase Auth
+      // but failed before smv_users / Customer ID was committed. Re-authenticate
+      // the SAME email with the supplied password and let the trusted backend
+      // create/recover the missing profile. This never creates a second Auth user.
       if(authErr?.code==="auth/email-already-in-use") {
-        // V10.1 PROFILE RECOVERY: an earlier registration may have created the
-        // Firebase Auth user before smv_users profile creation completed.
-        // Authenticate the owner with the password they just entered, then let
-        // the trusted backend create/return the customer profile while keeping
-        // the existing one-phone-one-account transaction unchanged.
-        try{
-          const existingCred=await withTimeout(signInWithEmailAndPassword(auth,email,password),20000);
-          cred=existingCred;
-          currentUser=existingCred.user;
-          profileResponse=await renderApi("/register-customer-profile",{
-            method:"POST",body:JSON.stringify({name,phone,language:"ta"})
-          },existingCred.user);
-          if(!profileResponse?.ok) throw new Error(profileResponse?.error||"Customer profile recovery failed.");
-          try{await updateProfile(existingCred.user,{displayName:name});}catch(_e){}
-          if(!existingCred.user.emailVerified){try{await withTimeout(sendEmailVerification(existingCred.user),15000);}catch(_e){}}
-          msg.innerHTML='<span class="success"><b>Existing account recovered ✓</b><br>Your customer profile has been restored. '+(existingCred.user.emailVerified?'You can login normally now.':'Verification email has been sent again.')+'</span>';
-          try{localStorage.removeItem("smv_customer_registration_draft");}catch(_e){}
-          await signOut(auth).catch(()=>{}); currentUser=null;
-          return;
-        }catch(recoverErr){
-          if(recoverErr?.code==="auth/wrong-password"||recoverErr?.code==="auth/invalid-credential"){
-            msg.innerHTML='<span class="error"><b>This email is already registered.</b><br>Please use the correct existing password, then retry registration once to restore any missing customer profile.</span>';
-            return;
-          }
-          throw recoverErr;
-        }
+        cred=await withTimeout(signInWithEmailAndPassword(auth,email,password),20000);
+        createdNewAuthUser=false;
       }
       throw authErr;
     }
 
     currentUser=cred.user;
+    try{ if(name && cred.user.displayName!==name) await withTimeout(updateProfile(cred.user,{displayName:name}),10000); }catch(profileNameErr){ console.warn("Auth displayName update skipped",profileNameErr); }
     msg.innerHTML='<span class="small">Account created. Setting up your Customer ID...</span>';
     btn.textContent="CREATING CUSTOMER ID...";
 
@@ -1002,8 +978,6 @@ async function submitAuth(mode){
       body:JSON.stringify({name,phone,language:"ta"})
     },cred.user);
     if(!profileResponse?.ok) throw new Error(profileResponse?.error||"Customer profile setup failed.");
-    try{await updateProfile(cred.user,{displayName:name});}catch(_e){}
-    try{localStorage.removeItem("smv_customer_registration_draft");}catch(_e){}
     try{await withTimeout(sendEmailVerification(cred.user),15000);}catch(ve){console.warn("Verification email could not be sent immediately",ve);}
   }catch(profileErr){
     console.error("Customer registration/profile save failed",profileErr);
@@ -1356,7 +1330,19 @@ $("astroRegistrationForm")?.addEventListener("submit",async e=>{
  btn.disabled=true;btn.textContent="கணக்கு உருவாக்கப்படுகிறது...";message("astroRegMsg",'<span class="small">உங்கள் கணக்கு உருவாக்கப்படுகிறது...</span>');
  try{
   const photoData=await compressPhoto(photoFile);
-  const cred=await withTimeout(createUserWithEmailAndPassword(auth,email,password));const uid=cred.user.uid;
+  let cred=null, createdNewAstroAuth=false;
+  try{
+    cred=await withTimeout(createUserWithEmailAndPassword(auth,email,password),20000);
+    createdNewAstroAuth=true;
+  }catch(authErr){
+    if(authErr?.code==="auth/email-already-in-use"){
+      // Recover an orphaned Auth account from an earlier failed astrologer
+      // registration, then create the missing smv_users/smv_astrologers records.
+      cred=await withTimeout(signInWithEmailAndPassword(auth,email,password),20000);
+    }else throw authErr;
+  }
+  const uid=cred.user.uid;
+  try{ if(name && cred.user.displayName!==name) await withTimeout(updateProfile(cred.user,{displayName:name}),10000); }catch(profileNameErr){ console.warn("Astrologer displayName update skipped",profileNameErr); }
   let profileResponse;
   try {
     profileResponse=await withTimeout(renderApi("/register-astrologer-profile",{
@@ -1374,7 +1360,7 @@ $("astroRegistrationForm")?.addEventListener("submit",async e=>{
   try{await withTimeout(sendEmailVerification(cred.user));}catch(ve){}
   btn.textContent="SAVING PROFILE...";
   form.reset();btn.disabled=false;btn.textContent="SUBMITTED ✓";await signOut(auth);currentUser=null;selectedAstro=null;hide("astro-register-form");hide("register-flow");hide("astro-flow");window.scrollTo({top:0,behavior:"smooth"});openModal('<h2>Registration Complete ✓</h2><p class="success"><b>Your astrologer application has been submitted successfully.</b></p><p><b>Your Astrologer ID: '+escapeHtml(profileResponse.publicId||'')+'</b></p><p>Keep this ID safe for future Astrologer ID login.</p><p>Your verification email has been sent.</p><p><b>நிர்வாகி ஒப்புதலுக்காக காத்திருக்கிறது.</b></p><button class="btn gray" id="astroRegistrationClose">Close</button>');$("astroRegistrationClose").onclick=closeModal;
- }catch(err){let text=err?.message||String(err);if(err?.code==="auth/invalid-email")text="Please enter a correct email ID.";else if(err?.code==="auth/email-already-in-use")text="This email is already registered. Please use Login instead.";else if(err?.code==="auth/operation-not-allowed")text="Email/Password registration is disabled in Firebase Authentication.";else if(err?.code==="auth/network-request-failed")text="Firebase network connection failed. Check your internet connection.";else if(err?.code==="permission-denied")text="Firestore permission denied. Check Firestore Rules.";message("astroRegMsg",'<span class="error"><b>Registration failed:</b> '+escapeHtml(text)+'</span>');btn.disabled=false;btn.textContent="பதிவைச் சமர்ப்பிக்கவும்";}
+ }catch(err){let text=err?.message||String(err);if(err?.code==="auth/invalid-email")text="Please enter a correct email ID.";else if(err?.code==="auth/invalid-credential"||err?.code==="auth/wrong-password")text="This email already exists, but the password does not match. Enter the password originally used for this email to recover the pending registration.";else if(err?.code==="auth/email-already-in-use")text="This email already exists. Enter its original password to recover the pending registration.";else if(err?.code==="auth/operation-not-allowed")text="Email/Password registration is disabled in Firebase Authentication.";else if(err?.code==="auth/network-request-failed")text="Firebase network connection failed. Check your internet connection.";else if(err?.code==="permission-denied")text="Firestore permission denied. Check Firestore Rules.";message("astroRegMsg",'<span class="error"><b>Registration failed:</b> '+escapeHtml(text)+'</span>');btn.disabled=false;btn.textContent="பதிவைச் சமர்ப்பிக்கவும்";}
 });
 // ---------- Dashboard / admin / session ----------
 const SESSION_IDLE_MS = 30 * 60 * 1000;
