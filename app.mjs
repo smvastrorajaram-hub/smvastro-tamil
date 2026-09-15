@@ -1,7 +1,7 @@
 
 import { renderAdminWorkflows } from "./admin-workflows.mjs?v=20260911c";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, deleteUser, setPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, deleteUser, updateProfile, setPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 import { getFirestore, collection, query, where, getDocs, getDocsFromServer, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 window.__SMV_BUILD="V120-UI";
@@ -948,6 +948,7 @@ async function submitAuth(mode){
   let cred=null;
   let createdNewAuthUser=false;
   let profileResponse=null;
+  try{localStorage.setItem("smv_customer_registration_draft",JSON.stringify({email,name,phone,at:Date.now()}));}catch(_e){}
   try{
     try{
       cred=await withTimeout(createUserWithEmailAndPassword(auth,email,password),20000);
@@ -958,9 +959,32 @@ async function submitAuth(mode){
       // that this email belongs to an existing account, so stop registration
       // and give the user a clear next step.
       if(authErr?.code==="auth/email-already-in-use") {
-        const existingMsg = '<span class="error"><b>This email is already registered.</b><br>If you have not verified your email, please use <b>Login</b> and choose <b>Resend Verification Email</b>. If you have already verified it, please use Login normally.</span>';
-        msg.innerHTML=existingMsg;
-        return;
+        // V10.1 PROFILE RECOVERY: an earlier registration may have created the
+        // Firebase Auth user before smv_users profile creation completed.
+        // Authenticate the owner with the password they just entered, then let
+        // the trusted backend create/return the customer profile while keeping
+        // the existing one-phone-one-account transaction unchanged.
+        try{
+          const existingCred=await withTimeout(signInWithEmailAndPassword(auth,email,password),20000);
+          cred=existingCred;
+          currentUser=existingCred.user;
+          profileResponse=await renderApi("/register-customer-profile",{
+            method:"POST",body:JSON.stringify({name,phone,language:"ta"})
+          },existingCred.user);
+          if(!profileResponse?.ok) throw new Error(profileResponse?.error||"Customer profile recovery failed.");
+          try{await updateProfile(existingCred.user,{displayName:name});}catch(_e){}
+          if(!existingCred.user.emailVerified){try{await withTimeout(sendEmailVerification(existingCred.user),15000);}catch(_e){}}
+          msg.innerHTML='<span class="success"><b>Existing account recovered ✓</b><br>Your customer profile has been restored. '+(existingCred.user.emailVerified?'You can login normally now.':'Verification email has been sent again.')+'</span>';
+          try{localStorage.removeItem("smv_customer_registration_draft");}catch(_e){}
+          await signOut(auth).catch(()=>{}); currentUser=null;
+          return;
+        }catch(recoverErr){
+          if(recoverErr?.code==="auth/wrong-password"||recoverErr?.code==="auth/invalid-credential"){
+            msg.innerHTML='<span class="error"><b>This email is already registered.</b><br>Please use the correct existing password, then retry registration once to restore any missing customer profile.</span>';
+            return;
+          }
+          throw recoverErr;
+        }
       }
       throw authErr;
     }
@@ -978,6 +1002,8 @@ async function submitAuth(mode){
       body:JSON.stringify({name,phone,language:"ta"})
     },cred.user);
     if(!profileResponse?.ok) throw new Error(profileResponse?.error||"Customer profile setup failed.");
+    try{await updateProfile(cred.user,{displayName:name});}catch(_e){}
+    try{localStorage.removeItem("smv_customer_registration_draft");}catch(_e){}
     try{await withTimeout(sendEmailVerification(cred.user),15000);}catch(ve){console.warn("Verification email could not be sent immediately",ve);}
   }catch(profileErr){
     console.error("Customer registration/profile save failed",profileErr);
