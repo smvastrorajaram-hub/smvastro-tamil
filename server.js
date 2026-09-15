@@ -1651,8 +1651,9 @@ app.get("/admin-data", async (req, res) => {
 });
 
 app.post("/create-order", express.json(), async (req, res) => {
-  if(!/^rzp_live_[A-Za-z0-9]+$/.test(RAZORPAY_KEY_ID)){
-    return res.status(503).json({error:'Live payments are required, but this deployed backend is not configured with a Live Razorpay key.',code:'LIVE_KEY_REQUIRED',mode:RAZORPAY_KEY_ID.startsWith('rzp_test_')?'test':'invalid'});
+  const razorpayMode = RAZORPAY_KEY_ID.startsWith('rzp_test_') ? 'test' : (RAZORPAY_KEY_ID.startsWith('rzp_live_') ? 'live' : 'invalid');
+  if(razorpayMode === 'invalid'){
+    return res.status(503).json({error:'Razorpay is not configured with a valid Test or Live key.',code:'RAZORPAY_KEY_INVALID',mode:'invalid'});
   }
 
   const user = await requireUser(req, res);

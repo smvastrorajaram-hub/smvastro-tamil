@@ -78,7 +78,8 @@ async function ensureRazorpayCheckout(){
  return razorpayCheckoutPromise;
 }
 function smvAssertLiveCheckout(key){
- if(!/^rzp_live_[A-Za-z0-9]+$/.test(String(key||'')))throw new Error('Payment blocked: this backend returned a Test or invalid Razorpay key. Live payment is required. Backend: '+RAZORPAY_BACKEND_URL);
+ const value=String(key||'').trim();
+ if(!/^rzp_(?:test|live)_[A-Za-z0-9]+$/.test(value))throw new Error('Payment blocked: this backend returned an invalid Razorpay key. Configure a matching Test or Live Razorpay key in the backend. Backend: '+RAZORPAY_BACKEND_URL);
 }
 async function renderPublicApi(path, options={}){
   const headers={"Content-Type":"application/json",...(options.headers||{})};
