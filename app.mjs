@@ -953,19 +953,25 @@ async function submitAuth(mode){
       cred=await withTimeout(createUserWithEmailAndPassword(auth,email,password),20000);
       createdNewAuthUser=true;
     }catch(authErr){
-      // Recovery path: an earlier registration may have created Firebase Auth
-      // but failed before smv_users / Customer ID was committed. Re-authenticate
-      // the SAME email with the supplied password and let the trusted backend
-      // create/recover the missing profile. This never creates a second Auth user.
+      // Recovery path: a previous attempt may have created Firebase Auth
+      // before the unique-phone/profile transaction failed. Re-authenticate the
+      // SAME email with the submitted password, then let the trusted backend
+      // create the missing profile/ID using the newly corrected mobile number.
       if(authErr?.code==="auth/email-already-in-use") {
-        cred=await withTimeout(signInWithEmailAndPassword(auth,email,password),20000);
-        createdNewAuthUser=false;
+        try {
+          cred=await withTimeout(signInWithEmailAndPassword(auth,email,password),20000);
+          createdNewAuthUser=false;
+        } catch(recoveryAuthErr) {
+          recoveryAuthErr.smvRecovery=true;
+          throw recoveryAuthErr;
+        }
+      } else {
+        throw authErr;
       }
-      throw authErr;
     }
 
     currentUser=cred.user;
-    try{ if(name && cred.user.displayName!==name) await withTimeout(updateProfile(cred.user,{displayName:name}),10000); }catch(profileNameErr){ console.warn("Auth displayName update skipped",profileNameErr); }
+    try{if(name && cred.user.displayName!==name) await updateProfile(cred.user,{displayName:name});}catch(profileNameErr){console.warn("Display name update skipped",profileNameErr);}
     msg.innerHTML='<span class="small">Account created. Setting up your Customer ID...</span>';
     btn.textContent="CREATING CUSTOMER ID...";
 
@@ -1330,25 +1336,24 @@ $("astroRegistrationForm")?.addEventListener("submit",async e=>{
  btn.disabled=true;btn.textContent="கணக்கு உருவாக்கப்படுகிறது...";message("astroRegMsg",'<span class="small">உங்கள் கணக்கு உருவாக்கப்படுகிறது...</span>');
  try{
   const photoData=await compressPhoto(photoFile);
-  let cred=null, createdNewAstroAuth=false;
+  let cred=null, createdNewAstroAuthUser=false, profileResponse=null;
   try{
     cred=await withTimeout(createUserWithEmailAndPassword(auth,email,password),20000);
-    createdNewAstroAuth=true;
+    createdNewAstroAuthUser=true;
   }catch(authErr){
     if(authErr?.code==="auth/email-already-in-use"){
-      // Recover an orphaned Auth account from an earlier failed astrologer
-      // registration, then create the missing smv_users/smv_astrologers records.
+      // Recover an orphan Auth account created by an earlier failed mobile/profile attempt.
       cred=await withTimeout(signInWithEmailAndPassword(auth,email,password),20000);
     }else throw authErr;
   }
   const uid=cred.user.uid;
-  try{ if(name && cred.user.displayName!==name) await withTimeout(updateProfile(cred.user,{displayName:name}),10000); }catch(profileNameErr){ console.warn("Astrologer displayName update skipped",profileNameErr); }
-  let profileResponse;
+  currentUser=cred.user;
+  try{if(name && cred.user.displayName!==name) await updateProfile(cred.user,{displayName:name});}catch(profileNameErr){console.warn("Astrologer display name update skipped",profileNameErr);}
   try {
     profileResponse=await withTimeout(renderApi("/register-astrologer-profile",{
       method:"POST",
       body:JSON.stringify({name,mobile,specialization,experience,bio,bankName,accountName,accountNumber,ifsc,upi,photoData,language:"ta"})
-    }),30000);
+    },cred.user),30000);
   } catch(networkErr) {
     const raw=String(networkErr?.message||networkErr||"");
     if(/failed to fetch|networkerror|load failed|cors/i.test(raw)) {
@@ -1360,7 +1365,12 @@ $("astroRegistrationForm")?.addEventListener("submit",async e=>{
   try{await withTimeout(sendEmailVerification(cred.user));}catch(ve){}
   btn.textContent="SAVING PROFILE...";
   form.reset();btn.disabled=false;btn.textContent="SUBMITTED ✓";await signOut(auth);currentUser=null;selectedAstro=null;hide("astro-register-form");hide("register-flow");hide("astro-flow");window.scrollTo({top:0,behavior:"smooth"});openModal('<h2>Registration Complete ✓</h2><p class="success"><b>Your astrologer application has been submitted successfully.</b></p><p><b>Your Astrologer ID: '+escapeHtml(profileResponse.publicId||'')+'</b></p><p>Keep this ID safe for future Astrologer ID login.</p><p>Your verification email has been sent.</p><p><b>நிர்வாகி ஒப்புதலுக்காக காத்திருக்கிறது.</b></p><button class="btn gray" id="astroRegistrationClose">Close</button>');$("astroRegistrationClose").onclick=closeModal;
- }catch(err){let text=err?.message||String(err);if(err?.code==="auth/invalid-email")text="Please enter a correct email ID.";else if(err?.code==="auth/invalid-credential"||err?.code==="auth/wrong-password")text="This email already exists, but the password does not match. Enter the password originally used for this email to recover the pending registration.";else if(err?.code==="auth/email-already-in-use")text="This email already exists. Enter its original password to recover the pending registration.";else if(err?.code==="auth/operation-not-allowed")text="Email/Password registration is disabled in Firebase Authentication.";else if(err?.code==="auth/network-request-failed")text="Firebase network connection failed. Check your internet connection.";else if(err?.code==="permission-denied")text="Firestore permission denied. Check Firestore Rules.";message("astroRegMsg",'<span class="error"><b>Registration failed:</b> '+escapeHtml(text)+'</span>');btn.disabled=false;btn.textContent="பதிவைச் சமர்ப்பிக்கவும்";}
+ }catch(err){
+  // If this attempt created a brand-new Auth user but profile/ID creation failed
+  // (for example because the mobile belongs to another account), remove only
+  // that brand-new orphan Auth record so the same email can be retried cleanly.
+  try{if(createdNewAstroAuthUser && !profileResponse?.ok && auth?.currentUser?.uid===cred?.user?.uid){await deleteUser(auth.currentUser);currentUser=null;}}catch(cleanupErr){console.warn("Astrologer Auth cleanup failed",cleanupErr);}
+  let text=err?.message||String(err);if(err?.code==="auth/invalid-email")text="Please enter a correct email ID.";else if(err?.code==="auth/email-already-in-use")text="This email is already registered. Please use Login instead.";else if(err?.code==="auth/operation-not-allowed")text="Email/Password registration is disabled in Firebase Authentication.";else if(err?.code==="auth/network-request-failed")text="Firebase network connection failed. Check your internet connection.";else if(err?.code==="permission-denied")text="Firestore permission denied. Check Firestore Rules.";message("astroRegMsg",'<span class="error"><b>Registration failed:</b> '+escapeHtml(text)+'</span>');btn.disabled=false;btn.textContent="பதிவைச் சமர்ப்பிக்கவும்";}
 });
 // ---------- Dashboard / admin / session ----------
 const SESSION_IDLE_MS = 30 * 60 * 1000;

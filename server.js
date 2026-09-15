@@ -360,10 +360,9 @@ app.post("/register-customer-profile", async (req, res) => {
     if (!phoneNorm) return res.status(400).json({ error: "Enter a valid mobile number." });
     const ref = db.collection("smv_users").doc(user.uid);
     const existing = await ref.get();
-    if (existing.exists && existing.data()?.role && String(existing.data()?.role || "").toLowerCase() !== "customer") {
-      return res.status(409).json({ error: "This email already belongs to a different account role. Please use the correct login/registration type." });
-    }
-    if (existing.exists && String(existing.data()?.role || "").toLowerCase() === "customer" && existing.data()?.publicId) {
+    const existingRole = existing.exists ? String(existing.data()?.role || "").toLowerCase() : "";
+    if (existing.exists && existingRole && existingRole !== "customer") return res.status(409).json({ error: "This Firebase account already belongs to a different SMV ASTRO role. Please use the correct account." });
+    if (existing.exists && existingRole === "customer" && existing.data()?.publicId) {
       return res.json({ ok: true, alreadyRegistered: true, publicId: existing.data().publicId });
     }
     const preflight = await findExistingPhoneOwners(phoneNorm, user.uid);
@@ -404,8 +403,9 @@ app.post("/register-astrologer-profile", async (req, res) => {
     if(!phoneNorm) return res.status(400).json({error:"Enter a valid mobile number."});
     const userRef=db.collection("smv_users").doc(user.uid), astroRef=db.collection("smv_astrologers").doc(user.uid), payoutRef=db.collection("smv_payouts").doc(user.uid);
     const existing=await userRef.get();
-    if(existing.exists && existing.data()?.role && String(existing.data()?.role||"").toLowerCase()!=="astrologer") return res.status(409).json({error:"This email already belongs to a different account role. Please use the correct login/registration type."});
-    if(existing.exists && String(existing.data()?.role||"").toLowerCase()==="astrologer" && existing.data()?.publicId) return res.json({ok:true,alreadyRegistered:true,publicId:existing.data().publicId});
+    const existingRole=existing.exists?String(existing.data()?.role||"").toLowerCase():"";
+    if(existing.exists && existingRole && existingRole!=="astrologer") return res.status(409).json({error:"This Firebase account already belongs to a different SMV ASTRO role. Please use the correct account."});
+    if(existing.exists && existingRole==="astrologer" && existing.data()?.publicId) return res.json({ok:true,alreadyRegistered:true,publicId:existing.data().publicId});
     const preflight = await findExistingPhoneOwners(phoneNorm, user.uid);
     if (preflight.taken) return phoneAlreadyRegisteredResponse(res, b.language === "ta" ? "ta" : "en");
     const dateKey=indiaDateKey(), publicId=await nextPublicId("AT",dateKey);
