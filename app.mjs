@@ -1,3 +1,4 @@
+// SMV V10.6 FAST LIVE DASHBOARDS — targeted dashboard refresh only
 
 import { renderAdminWorkflows } from "./admin-workflows.mjs?v=20260911c";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -603,7 +604,7 @@ async function isCurrentAdmin(){
   const profile=await getUserProfile(currentUser.uid);
   return String(profile.role||'').toLowerCase()==='admin';
 }
-let smvAdminWatch=null,smvAdminWatchUid=null,smvBoardRequest=null;
+let smvAdminWatch=null,smvAdminWatchUid=null,smvBoardRequest=null,smvAdminLiveTimer=null;
 async function smvRefreshWorkflowCards(){
  const uid=currentUser?.uid;if(!uid)return;
  if(smvBoardRequest)return smvBoardRequest;
@@ -618,15 +619,27 @@ async function smvRefreshWorkflowCards(){
 }
 function smvWatchAdminQuestions(){
  const uid=currentUser?.uid;if(!uid||smvAdminWatchUid===uid)return;
- smvAdminWatch?.();smvAdminWatchUid=uid;let first=true;
- smvAdminWatch=onSnapshot(collection(db,'smv_questions'),()=>{
-  if(first){first=false;return;}
-  if(currentUser?.uid!==uid||$('admin')?.classList.contains('hidden'))return;
-  const button=$('smvRefreshAdmin');if(button)button.textContent='புதிய தகவல் உள்ளது — புதுப்பி';
-  if(!document.querySelector('#admin [data-smv-dirty],#admin input:focus,#admin textarea:focus'))smvRefreshWorkflowCards().catch(e=>console.warn('Admin live refresh unavailable:',e));
- },e=>console.warn('Admin live updates unavailable:',e));
+ try{smvAdminWatch?.();}catch(_e){} smvAdminWatchUid=uid; let first=true;
+ const unsubs=[];
+ const queue=()=>{
+   if(first){first=false;return;}
+   if(currentUser?.uid!==uid||$('admin')?.classList.contains('hidden'))return;
+   if(smvAdminLiveTimer)clearTimeout(smvAdminLiveTimer);
+   smvAdminLiveTimer=setTimeout(()=>{
+     smvAdminLiveTimer=null;
+     if(currentUser?.uid!==uid||$('admin')?.classList.contains('hidden'))return;
+     if(document.querySelector('#admin [data-smv-dirty],#admin input:focus,#admin textarea:focus')){queue();return;}
+     // Keep the current Admin UI visible and hydrate fresh data in the background.
+     loadAdminPanel().catch(e=>console.warn('Admin live refresh unavailable:',e));
+   },350);
+ };
+ const watch=(ref)=>unsubs.push(onSnapshot(ref,queue,e=>console.warn('Admin live updates unavailable:',e)));
+ watch(collection(db,'smv_questions'));
+ watch(collection(db,'smv_astrologers'));
+ watch(collection(db,'smv_withdrawals'));
+ smvAdminWatch=()=>{unsubs.forEach(u=>{try{u();}catch(_e){}});};
 }
-window.addEventListener('smv:logged-out',()=>{smvAdminWatch?.();smvAdminWatch=null;smvAdminWatchUid=null;});
+window.addEventListener('smv:logged-out',()=>{try{smvAdminWatch?.();}catch(_e){}smvAdminWatch=null;smvAdminWatchUid=null;if(smvAdminLiveTimer)clearTimeout(smvAdminLiveTimer);smvAdminLiveTimer=null;});
 window.__smvRefreshAdmin=()=>loadAdminPanel();
 async function openAdminEntry(){
   if(!currentUser){pendingAfterLogin="admin";openAuth("login");return;}
@@ -1741,26 +1754,42 @@ async function showDashboardPaymentSuccess(){
   $("dashboardPaymentSuccessClose")?.addEventListener("click",()=>{card.remove();try{sessionStorage.removeItem("smv_last_payment_success");}catch(_e){}});
 }
 
-let smvQuestionWatch=null,smvWatchUid=null;
+let smvQuestionWatch=null,smvNotificationWatch=null,smvWatchUid=null,smvWatchRole=null,smvLiveRefreshTimer=null;
 let smvDashboardDirty=false;
-function smvWatchQuestions(role){
- const uid=currentUser?.uid;if(!uid||smvWatchUid===uid)return;
- smvQuestionWatch?.();smvWatchUid=uid;let first=true;
- smvQuestionWatch=onSnapshot(query(collection(db,'smv_questions'),where(role==='astrologer'?'astrologerId':'customerId','==',uid)),()=>{
-   if(first){first=false;return;}
-   dashboardReadyAt=0;
-   smvDashboardDirty=true;
-   if(currentUser?.uid!==uid)return;
-   const button=document.getElementById('smvRefreshDashboard');
-   if(smvInternalView==='dashboard' && !document.querySelector('#dashboard [data-smv-dirty],#dashboard input:focus,#dashboard textarea:focus')){
-     setTimeout(()=>{
-       if(currentUser?.uid===uid && smvInternalView==='dashboard'){
-         loadDashboard(role,true).then(()=>{smvDashboardDirty=false;}).catch(err=>console.warn('Live dashboard refresh skipped:',err));
-       }
-     },120);
+function smvStopDashboardWatches(){
+ try{smvQuestionWatch?.();}catch(_e){} try{smvNotificationWatch?.();}catch(_e){}
+ smvQuestionWatch=null; smvNotificationWatch=null; smvWatchUid=null; smvWatchRole=null;
+ if(smvLiveRefreshTimer){clearTimeout(smvLiveRefreshTimer);smvLiveRefreshTimer=null;}
+}
+function smvQueueLiveDashboardRefresh(role,uid,delay=220){
+ dashboardReadyAt=0; smvDashboardDirty=true;
+ if(currentUser?.uid!==uid)return;
+ if(smvLiveRefreshTimer)clearTimeout(smvLiveRefreshTimer);
+ smvLiveRefreshTimer=setTimeout(()=>{
+   smvLiveRefreshTimer=null;
+   if(currentUser?.uid!==uid || smvInternalView!=='dashboard')return;
+   if(document.querySelector('#dashboard [data-smv-dirty],#dashboard input:focus,#dashboard textarea:focus')){
+     smvQueueLiveDashboardRefresh(role,uid,500); return;
    }
-   if(button)button.textContent="\u0baa\u0bc1\u0ba4\u0bbf\u0baf \u0ba4\u0b95\u0bb5\u0bb2\u0bcd \u0b89\u0bb3\u0bcd\u0bb3\u0ba4\u0bc1 \u2014 \u0baa\u0bc1\u0ba4\u0bc1\u0baa\u0bcd\u0baa\u0bbf";
- },e=>console.warn('Live dashboard updates unavailable:',e));
+   // Background refresh: keep the already-rendered dashboard visible while fresh
+   // data is fetched. loadDashboard(force=true) replaces it only when ready.
+   loadDashboard(role,true).then(()=>{smvDashboardDirty=false;}).catch(err=>console.warn('Live dashboard refresh skipped:',err));
+ },delay);
+}
+function smvWatchQuestions(role){
+ const uid=currentUser?.uid; role=String(role||'customer').toLowerCase();
+ if(!uid)return;
+ if(smvWatchUid===uid && smvWatchRole===role && (smvQuestionWatch||smvNotificationWatch))return;
+ smvStopDashboardWatches(); smvWatchUid=uid; smvWatchRole=role;
+ let qFirst=true,nFirst=true;
+ // Customer watches only owned questions. Astrologers also need Open Questions,
+ // therefore watch the question collection; Firestore rules still control access.
+ const qRef=role==='astrologer' ? collection(db,'smv_questions') : query(collection(db,'smv_questions'),where('customerId','==',uid));
+ smvQuestionWatch=onSnapshot(qRef,()=>{if(qFirst){qFirst=false;return;}smvQueueLiveDashboardRefresh(role,uid,180);},e=>console.warn('Live question updates unavailable:',e));
+ // Notifications are written after some question/payment updates. Watching them
+ // separately prevents the dashboard from refreshing too early and missing the
+ // newly-created notification until a browser reload.
+ smvNotificationWatch=onSnapshot(query(collection(db,'smv_notifications'),where('userId','==',uid)),()=>{if(nFirst){nFirst=false;return;}smvQueueLiveDashboardRefresh(role,uid,260);},e=>console.warn('Live notification updates unavailable:',e));
 }
 window.__smvRefreshDashboard=()=>{
  if(!currentUser)throw new Error('Please login again.');
@@ -1768,7 +1797,7 @@ window.__smvRefreshDashboard=()=>{
  hidePrimarySections('dashboard');show('dashboard');show('dashboardContent');
  return loadDashboard(dashboardReadyRole||null,true);
 };
-window.addEventListener('smv:logged-out',()=>{smvQuestionWatch?.();smvQuestionWatch=null;smvWatchUid=null;dashboardReadyAt=0;});
+window.addEventListener('smv:logged-out',()=>{smvStopDashboardWatches();dashboardReadyAt=0;});
 async function loadDashboard(expectedRole=null,force=false){
  const box=$('dashboardContent');
  if(!currentUser){ if(box) box.innerHTML='<div class="card">Please login to continue.</div>'; return; }
